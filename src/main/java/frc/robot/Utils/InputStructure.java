@@ -6,17 +6,23 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Utils.ControllerUtils.CompBoardOne.CompBoardOne;
+import frc.robot.Utils.ControllerUtils.CompBoardTwo.CompBoardTwo;
+import frc.robot.Utils.ControllerUtils.PrototypingBoard.PrototypingBoard;
 import frc.robot.subsystems.*;
+import frc.robot.systems.*;
 import swervelib.SwerveInputStream;
+import yams.mechanisms.positional.Arm;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
@@ -29,7 +35,7 @@ import java.util.function.Supplier;
  * Each binding method contains its own speed constants to allow for easy customization
  * when creating driver-specific control schemes.
  * <p>
- * Available control schemes:
+ * Available control schemes: TODO update these to be relavent to 2181
  * - Single operator with Xbox controller
  * - Dual operator with two Xbox controllers
  * - Single operator with Logitech Extreme 3D Pro joystick
@@ -48,47 +54,66 @@ public class InputStructure {
     // Control input devices
     private final CommandXboxController driverXbox;
     private final CommandXboxController operatorXbox;
-    private final CommandJoystick driverRightStick;  // Flight Stick
-    private final CommandJoystick driverLeftStick; // Flight Stick again
+
+    private final CompBoardTwo compBoardTwo;
+    private final CompBoardOne compBoardOne;
+
+    private final PrototypingBoard prototypingBoard;
+
     // Robot subsystems
+    private final Blinkin LEDS;
+    private final Climber climber;
+    private final CoralFunnel coralFunnel;
+    private final CoralPlacer coraPlacer;
+    private final Elevator elevator;
     private final SwerveSubsystem swerve;
-    // private final Elevator elevator;
-    // private final Arm arm;
-    // private final IntakeShooter intakeShooter;
-    // private final ControlStructure structure;
-    // private final PoseSelector poseSelector;
+    private final Vision vision;
+    private final ScoringSystem scoringSystem;
+    private final TargetingSystem targetingSystem;
+
 
     private StringPublisher inputOverride;
 
     /**
      * Constructs a new RobotControlBindings instance.
-     *
-     * @param swerve        Swerve drivetrain subsystem
-     * @param elevator      Elevator subsystem
-     * @param arm           Arm subsystem
-     * @param intakeShooter Intake/shooter subsystem
-     * @param structure     Control structure for auto commands
-     * @param poseSelector  Pose selection system
+     * 
+     * @param LEDS              LED subsystem
+     * @param climber           Climber subsystem
+     * @param coralFunnel       CoralFunnel subsystem
+     * @param coraPlacer        CoraPlacer subsystem
+     * @param elevator          Elevator subsystem
+     * @param swerve            Swerve drivetrain subsystem
+     * @param vision            Vision subsystem
+     * @param scoringSystem     Scoring System
+     * @param targetingSystem   Targeting System
+     * 
      */
     public InputStructure(
-            SwerveSubsystem swerve
-            // Elevator elevator,
-            // Arm arm,
-            // IntakeShooter intakeShooter,
-            // ControlStructure structure,
-            // PoseSelector poseSelector
-            ) {
+            Blinkin LEDS,
+            Climber climber,
+            CoralFunnel coralFunnel,
+            CoralPlacer coraPlacer,
+            Elevator elevator,
+            SwerveSubsystem swerve,
+            Vision vision,
+            ScoringSystem scoringSystem,
+            TargetingSystem targetingSystem) {
 
         this.driverXbox = new CommandXboxController(0);
         this.operatorXbox = new CommandXboxController(1);
-        this.driverRightStick = new CommandJoystick(0);
-        this.driverLeftStick = new CommandJoystick(1);
+        this.compBoardTwo = CompBoardTwo.getInstance();
+        this.compBoardOne = CompBoardOne.getInstance();
+        this.prototypingBoard = PrototypingBoard.getInstance();
+
+        this.LEDS = LEDS;
+        this.climber = climber;
+        this.coralFunnel = coralFunnel;
+        this.coraPlacer = coraPlacer;
+        this.elevator = elevator;
         this.swerve = swerve;
-        // this.elevator = elevator;
-        // this.arm = arm;
-        // this.intakeShooter = intakeShooter;
-        // this.structure = structure;
-        // this.poseSelector = poseSelector;
+        this.vision = vision;
+        this.scoringSystem = scoringSystem;
+        this.targetingSystem = targetingSystem;
     }
 
     /**
@@ -106,20 +131,125 @@ public class InputStructure {
                 .publish();
 
         // Initialize all standard binding configurations
+        
+        driverXboxandDualControlBoards();
+        prototypingBoardBindings();
+
         singleXboxBindings();
         dualXboxBindings();
-        singleStickBindings();
-        dualStickBindings();
-        singleStickXboxBindings();
-        dualStickXboxBindings();
         testBindings();
-
-        // Add custom driver bindings here
-        // Example: xAndYBindings();
 
         // Log initialization
         System.out.println("Robot control bindings initialized successfully");
     }
+
+
+    /**
+     * Helper method to configure typical operator Prototyping Board controls.
+     * Extracted for reuse across multiple binding configurations.
+     *
+     * @param isMode The mode trigger to gate these bindings
+     */
+    private void prototypingBoardBindings() {
+        Trigger isMode = BindingType.PROTOTYPINGBOARD.isMode;
+
+        new ControlStream(isMode)
+        .withNoCommand(prototypingBoard.prototypingBoardButtonA())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonB())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonC())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonD())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonL1())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonR1())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonL2())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonR2())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonSelect())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonStart())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonL3())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonR3())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonUp())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonDown())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonRight())
+        .withNoCommand(prototypingBoard.prototypingBoardButtonLeft())
+        .withNoCommand(prototypingBoard.prototypingBoardJoystickAsButtonPosX())
+        .withNoCommand(prototypingBoard.prototypingBoardJoystickAsButtonNegX())
+        .withNoCommand(prototypingBoard.prototypingBoardJoystickAsButtonPosY())
+        .withNoCommand(prototypingBoard.prototypingBoardJoystickAsButtonNegY());
+    }
+
+
+    /**
+     * Helper method to configure typical operator Elevator Board controls.
+     * Extracted for reuse across multiple binding configurations.
+     *
+     * @param isMode The mode trigger to gate these bindings
+     */
+    private ControlStream CompBoardOne(Trigger isMode) {
+        return new ControlStream(isMode)
+        .withNoCommand(compBoardOne.CompBoardOneButtonA())
+        .withNoCommand(compBoardOne.CompBoardOneButtonB())
+        .withNoCommand(compBoardOne.CompBoardOneButtonC())
+        .withNoCommand(compBoardOne.CompBoardOneButtonD())
+        .withNoCommand(compBoardOne.CompBoardOneButtonL1())
+        .withNoCommand(compBoardOne.CompBoardOneButtonR1())
+        .withNoCommand(compBoardOne.CompBoardOneButtonL2())
+        .withNoCommand(compBoardOne.CompBoardOneButtonR2())
+        .withNoCommand(compBoardOne.CompBoardOneButtonSelect())
+        .withNoCommand(compBoardOne.CompBoardOneButtonStart())
+        .withNoCommand(compBoardOne.CompBoardOneButtonL3())
+        .withNoCommand(compBoardOne.CompBoardOneButtonR3())
+        .withNoCommand(compBoardOne.CompBoardOneButtonUp())
+        .withNoCommand(compBoardOne.CompBoardOneButtonDown())
+        .withNoCommand(compBoardOne.CompBoardOneButtonRight())
+        .withNoCommand(compBoardOne.CompBoardOneButtonLeft())
+        .withNoCommand(compBoardOne.CompBoardOneJoystickAsButtonPosX())
+        .withNoCommand(compBoardOne.CompBoardOneJoystickAsButtonNegX())
+        .withNoCommand(compBoardOne.CompBoardOneJoystickAsButtonPosY())
+        .withNoCommand(compBoardOne.CompBoardOneJoystickAsButtonNegY());
+    }
+
+
+    /**
+     * Helper method to configure typical operator Positioning Board controls.
+     * Extracted for reuse across multiple binding configurations.
+     *
+     * @param isMode The mode trigger to gate these bindings
+     */
+    private ControlStream CompBoardTwo(Trigger isMode) {
+        return new ControlStream(isMode)
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonA())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonB())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonC())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonD())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonL1())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonR1())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonL2())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonR2())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonSelect())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonStart())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonL3())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonR3())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonUp())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonDown())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonRight())
+        .withNoCommand(compBoardTwo.CompBoardTwoButtonLeft())
+        .withNoCommand(compBoardTwo.CompBoardTwoJoystickAsButtonPosX())
+        .withNoCommand(compBoardTwo.CompBoardTwoJoystickAsButtonNegX())
+        .withNoCommand(compBoardTwo.CompBoardTwoJoystickAsButtonPosY())
+        .withNoCommand(compBoardTwo.CompBoardTwoJoystickAsButtonNegY());
+    }
+
+
+    private void driverXboxandDualControlBoards() {
+        Trigger isMode = BindingType.DRIVERXBOXANDDUALCONTROLBOARDS.isMode;
+
+        typicalDriverXboxControls(isMode);
+
+        CompBoardTwo(isMode);
+
+        CompBoardOne(isMode);
+
+    }
+
 
     /**
      * Single Xbox controller bindings for solo operation.
@@ -155,18 +285,18 @@ public class InputStructure {
                 () -> -1 * driverXbox.getRightX(),
                 isMode)
                 /* Reef Pose Selection */
-                // .withReefSelection(driverXbox.povUp(), PoseSelector.ReefSide.NORTH)
-                // .withReefSelection(driverXbox.povUpRight(), PoseSelector.ReefSide.NORTHEAST)
-                // .withReefSelection(driverXbox.povDownRight(), PoseSelector.ReefSide.SOUTHEAST)
-                // .withReefSelection(driverXbox.povDown(), PoseSelector.ReefSide.SOUTH)
-                // .withReefSelection(driverXbox.povLeft(), PoseSelector.ReefSide.SOUTHWEST)
-                // .withReefSelection(driverXbox.povUpLeft(), PoseSelector.ReefSide.NORTHWEST)
+                .withReefSelection(driverXbox.povUp(), PoseSelector.ReefSide.NORTH)
+                .withReefSelection(driverXbox.povUpRight(), PoseSelector.ReefSide.NORTHEAST)
+                .withReefSelection(driverXbox.povDownRight(), PoseSelector.ReefSide.SOUTHEAST)
+                .withReefSelection(driverXbox.povDown(), PoseSelector.ReefSide.SOUTH)
+                .withReefSelection(driverXbox.povLeft(), PoseSelector.ReefSide.SOUTHWEST)
+                .withReefSelection(driverXbox.povUpLeft(), PoseSelector.ReefSide.NORTHWEST)
                 /* Left and Right Pose Selection */
-                ///.withLRSelection(driverXbox.povRight(), true)
-                //.withLRSelection(driverXbox.povLeft(), false)
+                .withLRSelection(driverXbox.povRight(), true)
+                .withLRSelection(driverXbox.povLeft(), false)
                 /* Slot Pose Cycling */
-                //.withPoseCycling(driverXbox.rightBumper(), true)
-                //.withPoseCycling(driverXbox.leftBumper(), true)
+                .withPoseCycling(driverXbox.rightBumper(), true)
+                .withPoseCycling(driverXbox.leftBumper(), true)
                 /* Drive Speed Changing */
                 .withSlowTranslation(driverXbox.leftTrigger())
                 .withBoostTranslation(driverXbox.rightTrigger())
@@ -174,11 +304,10 @@ public class InputStructure {
                 .withHeadingOffset(driverXbox.back())
                 .withToggleCentricity(driverXbox.start())
                 /* Auto Collect and Score Commands */
-                //.withAutoCollect(driverXbox.a())
-                // .withAutoScore(driverXbox.b(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L2)
-                // .withAutoScore(driverXbox.x(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L3)
-                // .withAutoScore(driverXbox.y(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L4)
-                ;
+                .withAutoCollect(driverXbox.a())
+                .withAutoScore(driverXbox.b(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L2)
+                .withAutoScore(driverXbox.x(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L3)
+                .withAutoScore(driverXbox.y(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L4);
     }
 
     /**
@@ -218,65 +347,6 @@ public class InputStructure {
         typicalOperatorXboxControls(isMode);
     }
 
-    /**
-     * Single Flight Stick, SINGLE PERSON.
-     */
-    private void singleStickBindings() {
-        // Mode trigger - only active when this binding mode is selected
-        Trigger isMode = BindingType.SINGLE_STICK.isMode;
-
-        // Configure dual stick controls using helper method
-        typicalDualStickControls(isMode);
-    }
-
-    /**
-     * Two Flight Sticks, One Person.
-     */
-    private void dualStickBindings() {
-        // Mode trigger - only active when this binding mode is selected
-        Trigger isMode = BindingType.DUAL_STICK.isMode;
-
-        // Configure dual stick controls using helper method
-        typicalDualStickControls(isMode);
-    }
-
-    /**
-     * Single Logitech Extreme 3D Pro with Xbox operator configuration.
-     * Hybrid control scheme combining joystick precision with Xbox ergonomics.
-     * <p>
-     * Driver Stick:
-     * - X/Y Axes: Translation
-     * - Twist: Rotation
-     * - Throttle: Speed scaling
-     * <p>
-     * Operator Xbox:
-     * - Same as dual Xbox operator controls
-     */
-    private void singleStickXboxBindings() {
-        // Mode trigger - only active when this binding mode is selected
-        Trigger isMode = BindingType.SINGLE_STICK_XBOX.isMode;
-
-        // Configure dual stick controls using helper method
-        typicalSingleStickControls(isMode);
-    }
-
-    /**
-     * Dual Logitech Extreme 3D Pro with Xbox operator configuration.
-     * Maximum control flexibility with three input devices.
-     * <p>
-     * This configuration provides the most comprehensive control scheme,
-     * combining dual stick precision for driving with Xbox controller
-     * convenience for mechanism operation.
-     */
-    private void dualStickXboxBindings() {
-        // Mode trigger - only active when this binding mode is selected
-        Trigger isMode = BindingType.DUAL_STICK_XBOX.isMode;
-        // Configure dual stick controls using helper method
-        typicalDualStickControls(isMode);
-
-        // Configure operator Xbox controls using helper method
-        typicalOperatorXboxControls(isMode);
-    }
 
     /**
      * Test mode bindings for debugging and system identification.
@@ -293,10 +363,10 @@ public class InputStructure {
                 () -> -1 * driverXbox.getRightX(),
                 isMode)
 
-                //.withElevatorManual(() -> -1.0 * driverXbox.getLeftY())
-                //.withArmManual(() -> -1.0 * driverXbox.getRightY())
-                //.withIntakeShooter(driverXbox.leftBumper(), true)
-                //.withIntakeShooter(driverXbox.rightBumper(), false)
+                .withElevatorManual(() -> -1.0 * driverXbox.getLeftY())
+                .withArmManual(() -> -1.0 * driverXbox.getRightY())
+                .withIntakeShooter(driverXbox.leftBumper(), true)
+                .withIntakeShooter(driverXbox.rightBumper(), false)
                 .withChangeInput(BindingType.SINGLE_XBOX, driverXbox.back());
     }
 
@@ -326,11 +396,10 @@ public class InputStructure {
                 .withHeadingOffset(driverXbox.back())
                 .withToggleCentricity(driverXbox.start())
                 /* Auto Collect and Score Commands */
-                //.withAutoCollect(driverXbox.a())
-                // .withAutoScore(driverXbox.b(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L2)
-                // .withAutoScore(driverXbox.x(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L3)
-                // .withAutoScore(driverXbox.y(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L4)
-                ;
+                .withAutoCollect(driverXbox.a())
+                .withAutoScore(driverXbox.b(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L2)
+                .withAutoScore(driverXbox.x(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L3)
+                .withAutoScore(driverXbox.y(), driverXbox.rightTrigger(), ControlStructure.ScoreLevels.SCORE_L4);
     }
 
     /**
@@ -342,62 +411,30 @@ public class InputStructure {
     private ControlStream typicalOperatorXboxControls(Trigger isMode) {
         return new ControlStream(isMode)
                 /* Reef Pose Selection */
-                // .withReefSelection(operatorXbox.povUp(), PoseSelector.ReefSide.NORTH)
-                // .withReefSelection(operatorXbox.povUpRight(), PoseSelector.ReefSide.NORTHEAST)
-                // .withReefSelection(operatorXbox.povDownRight(), PoseSelector.ReefSide.SOUTHEAST)
-                // .withReefSelection(operatorXbox.povDown(), PoseSelector.ReefSide.SOUTH)
-                // .withReefSelection(operatorXbox.povLeft(), PoseSelector.ReefSide.SOUTHWEST)
-                // .withReefSelection(operatorXbox.povUpLeft(), PoseSelector.ReefSide.NORTHWEST)
+                .withReefSelection(operatorXbox.povUp(), PoseSelector.ReefSide.NORTH)
+                .withReefSelection(operatorXbox.povUpRight(), PoseSelector.ReefSide.NORTHEAST)
+                .withReefSelection(operatorXbox.povDownRight(), PoseSelector.ReefSide.SOUTHEAST)
+                .withReefSelection(operatorXbox.povDown(), PoseSelector.ReefSide.SOUTH)
+                .withReefSelection(operatorXbox.povLeft(), PoseSelector.ReefSide.SOUTHWEST)
+                .withReefSelection(operatorXbox.povUpLeft(), PoseSelector.ReefSide.NORTHWEST)
                 /* Left and Right Pose Selection */
-                //.withLRSelection(operatorXbox.povRight(), true)
-                //.withLRSelection(operatorXbox.povLeft(), false)
+                .withLRSelection(operatorXbox.povRight(), true)
+                .withLRSelection(operatorXbox.povLeft(), false)
                 /* Slot Pose Cycling */
-                //.withPoseCycling(operatorXbox.rightBumper(), true)
-                //.withPoseCycling(operatorXbox.leftBumper(), true)
+                .withPoseCycling(operatorXbox.rightBumper(), true)
+                .withPoseCycling(operatorXbox.leftBumper(), true)
                 /* Manual Mech Control */
-                //.withElevatorManual(() -> -1 * operatorXbox.getLeftY())
-                //.withArmManual(() -> -1 * operatorXbox.getRightX())
-                //.withIntakeShooter(operatorXbox.leftTrigger(), true)
-                //.withIntakeShooter(operatorXbox.rightTrigger(), false)
+                .withElevatorManual(() -> -1 * operatorXbox.getLeftY())
+                .withArmManual(() -> -1 * operatorXbox.getRightX())
+                .withIntakeShooter(operatorXbox.leftTrigger(), true)
+                .withIntakeShooter(operatorXbox.rightTrigger(), false)
                 /* Manual Collect and Score Commands */
-                //.withCollect(operatorXbox.a())
-                // .withManualScore(operatorXbox.b(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L2)
-                // .withManualScore(operatorXbox.x(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L3)
-                // .withManualScore(operatorXbox.y(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L4)
-                ;
+                .withCollect(operatorXbox.a())
+                .withManualScore(operatorXbox.b(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L2)
+                .withManualScore(operatorXbox.x(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L3)
+                .withManualScore(operatorXbox.y(), operatorXbox.leftBumper(), ControlStructure.ScoreLevels.SCORE_L4);
     }
 
-    /**
-     * Helper method to configure typical driver single stick controls.
-     * Extracted for reuse across multiple binding configurations.
-     *
-     * @param isMode The mode trigger to gate these bindings
-     */
-    private ControlStream typicalSingleStickControls(Trigger isMode) {
-        return new ControlStream(
-                () -> -1 * driverRightStick.getY(),
-                () -> -1 * driverRightStick.getX(),
-                () -> -1 * driverRightStick.getTwist(),
-                isMode);
-
-        // Single stick bindings <!>
-    }
-
-    /**
-     * Helper method to configure typical driver dual stick controls.
-     * Extracted for reuse across multiple binding configurations.
-     *
-     * @param isMode The mode trigger to gate these bindings
-     */
-    private ControlStream typicalDualStickControls(Trigger isMode) {
-        return new ControlStream(
-                () -> -1 * driverRightStick.getY(),
-                () -> -1 * driverRightStick.getX(),
-                () -> -1 * driverLeftStick.getTwist(),
-                isMode);
-
-        // Dual stick bindings <!>
-    }
 
     /**
      * Gets the currently selected binding type.
@@ -428,29 +465,21 @@ public class InputStructure {
          */
         DUAL_XBOX("Dual Xbox"),
         /*
-        All controls on a single joystick.
-         */
-        SINGLE_STICK("Single Stick"),
-        /*
-        All controls on two joysticks one driver.
-         */
-        DUAL_STICK("Dual Stick"),
-        /*
-        Classic driver and operator with the driver using a single joystick.
-         */
-        SINGLE_STICK_XBOX("Single Stick and Xbox"),
-        /*
-        Classic driver and operator with the driver using dual joysticks.
-         */
-        DUAL_STICK_XBOX("Dual Stick and Xbox"),
-        /*
         Control mode used for testing controls subject to constant change
          */
         TESTING("Testing"),
-
-        /**  Define Student BindingTypes here  */
-
-        NEWSTUDENTBINDINGTYPE("New Student Binding Type");
+        /*
+        Define Student BindingTypes here
+        */
+        NEWSTUDENTBINDINGTYPE("New Student Binding Type"),
+        /*
+        Define Student BindingTypes here
+        */
+        DRIVERXBOXANDDUALCONTROLBOARDS("Driver Xbox w/ 2 Control Boards"),
+        /*
+        Define Student BindingTypes here
+        */
+        PROTOTYPINGBOARD("Prototyping Board");
 
         // BindType Name
         public final String name;
@@ -516,7 +545,7 @@ public class InputStructure {
                             x, y)
                     .cubeTranslationControllerAxis(true)
                     .withControllerRotationAxis(rotation)
-                    .deadband(OperatorConstants.DEADBAND)
+                    .deadband(Constants.OperatorConstants.DEADBAND)
                     .scaleTranslation(NORMAL_TRANSLATION.get())
                     .scaleRotation(NORMAL_ROTATION.get())
                     .robotRelative(true)
@@ -524,8 +553,8 @@ public class InputStructure {
                     .translationHeadingOffset(Rotation2d.k180deg));
             updateDriveCommand();
             /* Subsystem control constants */
-            //this.ELEVATOR_SPEED = Optional.of(ElevatorConstants.kElevatorSpeed);
-            //this.ARM_SPEED = Optional.of(Arm.ControlConstants.kArmSpeed);
+            this.ELEVATOR_SPEED = Optional.of(Elevator.ControlConstants.kElevatorSpeed);
+            this.ARM_SPEED = Optional.of(Arm.ControlConstants.kArmSpeed);
 
             // Set default drive command when enabled
             if (driveCommand.isPresent()) {
@@ -550,8 +579,8 @@ public class InputStructure {
             this.BOOST_ROTATION = Optional.of(0.75);
             /* Drive Controls not defined, I'll still define default drive variables for adding input streams after init. */
             /* Subsystem control constants */
-            //this.ELEVATOR_SPEED = Optional.of(Elevator.ControlConstants.kElevatorSpeed);
-            //this.ARM_SPEED = Optional.of(Arm.ControlConstants.kArmSpeed);
+            this.ELEVATOR_SPEED = Optional.of(Elevator.ControlConstants.kElevatorSpeed);
+            this.ARM_SPEED = Optional.of(Arm.ControlConstants.kArmSpeed);
         }
 
         ControlStream withChangeInput(BindingType bindingType, Trigger changeInput) {
@@ -562,9 +591,20 @@ public class InputStructure {
             } else {
                 DriverStation.reportWarning("isMode not found, Change Input failed.", true);
             }
-
             return this;
         }
+
+        /*
+        Generic Addon for Sending no command
+        */
+        ControlStream withNoCommand(Trigger inputWithNoCommand) {
+            if (isMode.isPresent()) {
+                isMode.get().and(inputWithNoCommand).whileTrue(Commands.none());
+            } else {
+                DriverStation.reportWarning("isMode not found, this input null command failed.", true);
+            }
+            return this;
+        }        
 
         /*  Operator Type Controls  */
 
@@ -642,325 +682,325 @@ public class InputStructure {
             return this;
         }
 
-        // /**
-        //  * Command to automatically drive to the selected coral station pose and intake until a game piece is sensed.
-        //  *
-        //  * @param shouldAutoCollect button mapping {@link Trigger} to use.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withAutoCollect(Trigger shouldAutoCollect) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(shouldAutoCollect).whileTrue(structure.autoCollect(driverXbox.rightTrigger()));
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Auto Collect failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Command to automatically drive to the selected coral station pose and intake until a game piece is sensed.
+         *
+         * @param shouldAutoCollect button mapping {@link Trigger} to use.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withAutoCollect(Trigger shouldAutoCollect) {
+            if (isMode.isPresent()) {
+                isMode.get().and(shouldAutoCollect).whileTrue(structure.autoCollect(driverXbox.rightTrigger()));
+            } else {
+                DriverStation.reportWarning("isMode not found, Auto Collect failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Command to automatically drive to the selected reef pose and shoot until the sensor is inactive.
-        //  *
-        //  * @param shouldAutoScore  button mapping {@link Trigger} to use.
-        //  * @param shouldBoostSpeed button mapping {@link Trigger} to use for boosting auto drive speed.
-        //  * @param scoreLevel       where to score the coral.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withAutoScore(Trigger shouldAutoScore, Trigger shouldBoostSpeed, ControlStructure.ScoreLevels scoreLevel) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(shouldAutoScore).whileTrue(structure.autoScore(scoreLevel, shouldBoostSpeed));
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Auto Score failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Command to automatically drive to the selected reef pose and shoot until the sensor is inactive.
+         *
+         * @param shouldAutoScore  button mapping {@link Trigger} to use.
+         * @param shouldBoostSpeed button mapping {@link Trigger} to use for boosting auto drive speed.
+         * @param scoreLevel       where to score the coral.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withAutoScore(Trigger shouldAutoScore, Trigger shouldBoostSpeed, ControlStructure.ScoreLevels scoreLevel) {
+            if (isMode.isPresent()) {
+                isMode.get().and(shouldAutoScore).whileTrue(structure.autoScore(scoreLevel, shouldBoostSpeed));
+            } else {
+                DriverStation.reportWarning("isMode not found, Auto Score failed.", true);
+            }
+            return this;
+        }
 
-        // /*  Operator Type Controls  */
+        /*  Operator Type Controls  */
 
-        // /**
-        //  * Updates reef selection with specified reef side.
-        //  *
-        //  * @param shouldPoseSelection button mapping {@link Trigger} to use.
-        //  * @param reefSide            {@link frc.robot.utils.robot.PoseSelector.ReefSide} to select.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withReefSelection(Trigger shouldPoseSelection, PoseSelector.ReefSide reefSide) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectReefSide(reefSide)));
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Reef Selection failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Updates reef selection with specified reef side.
+         *
+         * @param shouldPoseSelection button mapping {@link Trigger} to use.
+         * @param reefSide            {@link frc.robot.utils.robot.PoseSelector.ReefSide} to select.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withReefSelection(Trigger shouldPoseSelection, PoseSelector.ReefSide reefSide) {
+            if (isMode.isPresent()) {
+                isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectReefSide(reefSide)));
+            } else {
+                DriverStation.reportWarning("isMode not found, Reef Selection failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Cycles the station slot and cage pose selections.
-        //  *
-        //  * @param shouldPoseCycling button mapping {@link Trigger} to use.
-        //  * @param isUp              whether to cycle up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withPoseCycling(Trigger shouldPoseCycling, boolean isUp) {
-        //     if (isMode.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldPoseCycling).onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
-        //         } else {
-        //             isMode.get().and(shouldPoseCycling).onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Pose Cycling failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Cycles the station slot and cage pose selections.
+         *
+         * @param shouldPoseCycling button mapping {@link Trigger} to use.
+         * @param isUp              whether to cycle up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withPoseCycling(Trigger shouldPoseCycling, boolean isUp) {
+            if (isMode.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldPoseCycling).onTrue(Commands.runOnce(poseSelector::cycleStationSlotUp));
+                } else {
+                    isMode.get().and(shouldPoseCycling).onTrue(Commands.runOnce(poseSelector::cycleStationSlotDown));
+                }
+            } else {
+                DriverStation.reportWarning("isMode not found, Pose Cycling failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Updates pose selection with specified side.
-        //  *
-        //  * @param shouldPoseSelection button mapping {@link Trigger} to use.
-        //  * @param isRight             whether to select right or left pose.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withLRSelection(Trigger shouldPoseSelection, boolean isRight) {
-        //     if (isMode.isPresent()) {
-        //         if (isRight) {
-        //             isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectLR(true)));
-        //         } else {
-        //             isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectLR(false)));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, LR Selection failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Updates pose selection with specified side.
+         *
+         * @param shouldPoseSelection button mapping {@link Trigger} to use.
+         * @param isRight             whether to select right or left pose.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withLRSelection(Trigger shouldPoseSelection, boolean isRight) {
+            if (isMode.isPresent()) {
+                if (isRight) {
+                    isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectLR(true)));
+                } else {
+                    isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(() -> poseSelector.selectLR(false)));
+                }
+            } else {
+                DriverStation.reportWarning("isMode not found, LR Selection failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Cycles pose selection with toward side.
-        //  *
-        //  * @param shouldPoseSelection button mapping {@link Trigger} to use.
-        //  * @param isRight             whether to cycle right or left.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withLRCycle(Trigger shouldPoseSelection, boolean isRight) {
-        //     if (isMode.isPresent()) {
-        //         if (isRight) {
-        //             isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(poseSelector::cycleReefPoseRight));
-        //         } else {
-        //             isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(poseSelector::cycleReefPoseLeft));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, LR Selection failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Cycles pose selection with toward side.
+         *
+         * @param shouldPoseSelection button mapping {@link Trigger} to use.
+         * @param isRight             whether to cycle right or left.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withLRCycle(Trigger shouldPoseSelection, boolean isRight) {
+            if (isMode.isPresent()) {
+                if (isRight) {
+                    isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(poseSelector::cycleReefPoseRight));
+                } else {
+                    isMode.get().and(shouldPoseSelection).onTrue(Commands.runOnce(poseSelector::cycleReefPoseLeft));
+                }
+            } else {
+                DriverStation.reportWarning("isMode not found, LR Selection failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the elevator manually.
-        //  * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
-        //  *
-        //  * @param shouldElevatorManual button mapping {@link Trigger} to use.
-        //  * @param isUp                 whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp) {
-        //     if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(ELEVATOR_SPEED.get()));
-        //         } else {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(-ELEVATOR_SPEED.get()));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the elevator manually.
+         * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
+         *
+         * @param shouldElevatorManual button mapping {@link Trigger} to use.
+         * @param isUp                 whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp) {
+            if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(ELEVATOR_SPEED.get()));
+                } else {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(-ELEVATOR_SPEED.get()));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the elevator manually.
-        //  * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
-        //  *
-        //  * @param shouldElevatorManual button mapping {@link Trigger} to use.
-        //  * @param isUp                 whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp, double speed) {
-        //     if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(speed));
-        //         } else {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(-speed));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the elevator manually.
+         * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
+         *
+         * @param shouldElevatorManual button mapping {@link Trigger} to use.
+         * @param isUp                 whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp, double speed) {
+            if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(speed));
+                } else {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(-speed));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the elevator manually.
-        //  * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
-        //  *
-        //  * @param shouldElevatorManual button mapping {@link Trigger} to use.
-        //  * @param isUp                 whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp, Supplier<Double> speed) {
-        //     if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(speed));
-        //         } else {
-        //             isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(() -> -speed.get()));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the elevator manually.
+         * Set speed with setElevatorSpeed(double) or use a withElevatorManual method with defined speed.
+         *
+         * @param shouldElevatorManual button mapping {@link Trigger} to use.
+         * @param isUp                 whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withElevatorManual(Trigger shouldElevatorManual, boolean isUp, Supplier<Double> speed) {
+            if (isMode.isPresent() && ELEVATOR_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(speed));
+                } else {
+                    isMode.get().and(shouldElevatorManual).whileTrue(elevator.elevCmd(() -> -speed.get()));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the elevator manually with an axis. Uses deadband constant as trigger.
-        //  *
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withElevatorManual(Supplier<Double> speed) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(() -> Math.abs(speed.get()) > Constants.OperatorConstants.DEADBAND)
-        //                 .whileTrue(elevator.elevCmd(speed));
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the elevator manually with an axis. Uses deadband constant as trigger.
+         *
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withElevatorManual(Supplier<Double> speed) {
+            if (isMode.isPresent()) {
+                isMode.get().and(() -> Math.abs(speed.get()) > Constants.OperatorConstants.DEADBAND)
+                        .whileTrue(elevator.elevCmd(speed));
+            } else {
+                DriverStation.reportWarning("Something not found, Elevator Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the arm manually.
-        //  * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
-        //  *
-        //  * @param shouldArmManual button mapping {@link Trigger} to use.
-        //  * @param isUp            whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withArmManual(Trigger shouldArmManual, boolean isUp) {
-        //     if (isMode.isPresent() && ARM_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(ARM_SPEED.get()));
-        //         } else {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(-ARM_SPEED.get()));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the arm manually.
+         * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
+         *
+         * @param shouldArmManual button mapping {@link Trigger} to use.
+         * @param isUp            whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withArmManual(Trigger shouldArmManual, boolean isUp) {
+            if (isMode.isPresent() && ARM_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(ARM_SPEED.get()));
+                } else {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(-ARM_SPEED.get()));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the arm manually.
-        //  * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
-        //  *
-        //  * @param shouldArmManual button mapping {@link Trigger} to use.
-        //  * @param isUp            whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withArmManual(Trigger shouldArmManual, boolean isUp, double speed) {
-        //     if (isMode.isPresent() && ARM_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(speed));
-        //         } else {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(-speed));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the arm manually.
+         * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
+         *
+         * @param shouldArmManual button mapping {@link Trigger} to use.
+         * @param isUp            whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withArmManual(Trigger shouldArmManual, boolean isUp, double speed) {
+            if (isMode.isPresent() && ARM_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(speed));
+                } else {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(-speed));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the arm manually.
-        //  * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
-        //  *
-        //  * @param shouldArmManual button mapping {@link Trigger} to use.
-        //  * @param isUp            whether drive elevator up or down.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withArmManual(Trigger shouldArmManual, boolean isUp, Supplier<Double> speed) {
-        //     if (isMode.isPresent() && ARM_SPEED.isPresent()) {
-        //         if (isUp) {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(speed));
-        //         } else {
-        //             isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(() -> -speed.get()));
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the arm manually.
+         * Set speed with setArmSpeed(double) or use a withArmManual method with defined speed.
+         *
+         * @param shouldArmManual button mapping {@link Trigger} to use.
+         * @param isUp            whether drive elevator up or down.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withArmManual(Trigger shouldArmManual, boolean isUp, Supplier<Double> speed) {
+            if (isMode.isPresent() && ARM_SPEED.isPresent()) {
+                if (isUp) {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(speed));
+                } else {
+                    isMode.get().and(shouldArmManual).whileTrue(arm.armCmd(() -> -speed.get()));
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Controls the arm manually with an axis. Uses deadband constant as trigger.
-        //  *
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withArmManual(Supplier<Double> speed) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(() -> Math.abs(speed.get()) > Constants.OperatorConstants.DEADBAND)
-        //                 .whileTrue(arm.armCmd(speed));
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Controls the arm manually with an axis. Uses deadband constant as trigger.
+         *
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withArmManual(Supplier<Double> speed) {
+            if (isMode.isPresent()) {
+                isMode.get().and(() -> Math.abs(speed.get()) > Constants.OperatorConstants.DEADBAND)
+                        .whileTrue(arm.armCmd(speed));
+            } else {
+                DriverStation.reportWarning("Something not found, Arm Manual failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Runs the intake/shooter motor at predetermined uneditable speeds.
-        //  *
-        //  * @param shouldIntakeShooter button mapping {@link Trigger} to use.
-        //  * @param isIntake            whether to intake or shoot
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withIntakeShooter(Trigger shouldIntakeShooter, boolean isIntake) {
-        //     if (isMode.isPresent()) {
-        //         if (isIntake) {
-        //             isMode.get().and(shouldIntakeShooter).whileTrue(intakeShooter.intake());
-        //         } else {
-        //             isMode.get().and(shouldIntakeShooter).whileTrue(intakeShooter.shoot());
-        //         }
-        //     } else {
-        //         DriverStation.reportWarning("Something not found, Intake Shooter failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Runs the intake/shooter motor at predetermined uneditable speeds.
+         *
+         * @param shouldIntakeShooter button mapping {@link Trigger} to use.
+         * @param isIntake            whether to intake or shoot
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withIntakeShooter(Trigger shouldIntakeShooter, boolean isIntake) {
+            if (isMode.isPresent()) {
+                if (isIntake) {
+                    isMode.get().and(shouldIntakeShooter).whileTrue(intakeShooter.intake());
+                } else {
+                    isMode.get().and(shouldIntakeShooter).whileTrue(intakeShooter.shoot());
+                }
+            } else {
+                DriverStation.reportWarning("Something not found, Intake Shooter failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Command to move structure to coral station pose and intake until a game piece is sensed.
-        //  *
-        //  * @param shouldCollect button mapping {@link Trigger} to use.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withCollect(Trigger shouldCollect) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(shouldCollect).whileTrue(structure.collect());
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Collect failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Command to move structure to coral station pose and intake until a game piece is sensed.
+         *
+         * @param shouldCollect button mapping {@link Trigger} to use.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withCollect(Trigger shouldCollect) {
+            if (isMode.isPresent()) {
+                isMode.get().and(shouldCollect).whileTrue(structure.collect());
+            } else {
+                DriverStation.reportWarning("isMode not found, Collect failed.", true);
+            }
+            return this;
+        }
 
-        // /**
-        //  * Command that when enabled moves structures to selected reef pose then waits for the isReady trigger to then shoot
-        //  * the until the sensor is inactive.
-        //  * Does not drive.
-        //  *
-        //  * @param shouldAutoScore button mapping {@link Trigger} to use.
-        //  * @param isReady         when to start scoring.
-        //  * @param scoreLevel      where to score the coral.
-        //  * @return {@link InputStructure} for chaining.
-        //  */
-        // ControlStream withManualScore(Trigger shouldAutoScore, Trigger isReady, ControlStructure.ScoreLevels scoreLevel) {
-        //     if (isMode.isPresent()) {
-        //         isMode.get().and(shouldAutoScore).whileTrue(structure.manualScore(scoreLevel, isReady));
-        //     } else {
-        //         DriverStation.reportWarning("isMode not found, Auto Score failed.", true);
-        //     }
-        //     return this;
-        // }
+        /**
+         * Command that when enabled moves structures to selected reef pose then waits for the isReady trigger to then shoot
+         * the until the sensor is inactive.
+         * Does not drive.
+         *
+         * @param shouldAutoScore button mapping {@link Trigger} to use.
+         * @param isReady         when to start scoring.
+         * @param scoreLevel      where to score the coral.
+         * @return {@link InputStructure} for chaining.
+         */
+        ControlStream withManualScore(Trigger shouldAutoScore, Trigger isReady, ControlStructure.ScoreLevels scoreLevel) {
+            if (isMode.isPresent()) {
+                isMode.get().and(shouldAutoScore).whileTrue(structure.manualScore(scoreLevel, isReady));
+            } else {
+                DriverStation.reportWarning("isMode not found, Auto Score failed.", true);
+            }
+            return this;
+        }
 
         /* Control Constant Setting Methods */
 
