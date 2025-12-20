@@ -28,7 +28,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,23 +38,14 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 
 import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.QuestNavConstants;
-import frc.robot.Constants.Setpoints;
-import frc.robot.Constants.Setpoints.AutoScoring;
-import frc.robot.Constants.Setpoints.AutoScoring.HumanPlayer.Left;
-import frc.robot.Utils.field.AllianceFlipUtil;
-import frc.robot.Utils.field.FieldConstants.CoralStation;
-import frc.robot.Utils.field.FieldConstants.Processor;
-import frc.robot.subsystems.PhotonVision.Cameras;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
-import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -79,12 +69,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final boolean     visionDriveTest = false;
 
-  /**
-   * PhotonVision class to keep an accurate odometry.
-   */
-  private       PhotonVision      photonVision;
-
-    private final QuestNav questNav = new QuestNav();
+  private final QuestNav questNav = new QuestNav();
 
   private final StructPublisher<Pose2d> questPublisher = NetworkTableInstance.getDefault()
       .getTable("Drive")
@@ -130,10 +115,11 @@ public class SwerveSubsystem extends SubsystemBase
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
     if (visionDriveTest)
     {
-      setupPhotonVision();
+
       // Stop the odometry thread if we are using vision that way we can synchronize updates better.
       swerveDrive.stopOdometryThread();
     }
+
     setupPathPlanner();
   }
 
@@ -152,73 +138,19 @@ public class SwerveSubsystem extends SubsystemBase
                                              Rotation2d.fromDegrees(0)));
   }
 
-  /**
-   * Setup the photon vision class.
-   */
-  public void setupPhotonVision()
-  {
-    photonVision = new PhotonVision(swerveDrive::getPose, swerveDrive.field);
-  }
-
-  /* ------------State Machine Logic for Vision System----------------  */
-  /* -----------Inspiration for code from FRC 999's code -------------- */
-
-  private enum VisionState {
-      INITAL_BOOT,
-      QUEST_SEEDED_SOLO_QUEST,
-      QUEST_SEEDED_RUNNING_ALONGSIDE_PHOTON,
-      QUEST_LOST_RUNNING_PHOTON,
-      MANUAL_SWITCH_TO_PHOTON,
-      VISION_LOST_RUNNING_ONLY_ODOMETRY
-  }
-
-private VisionState state = VisionState.INITAL_BOOT;
-private int forceTransitionFromInitalize = 50*10; //Cycles to wait in boot phase if quest is not responding
-
-
-
   @Override
   public void periodic()
   {
     m_field2d.setRobotPose(this.getPose());
-    // When vision is enabled we must manually update odometry in SwerveDrive
+
+    SmartDashboard.putBoolean("Is Quest Connected", questNav.getConnected());
+    SmartDashboard.putBoolean("Is Tracking", questNav.getTrackingStatus());
+    SmartDashboard.putNumber("Quest X Value", questNav.getRobotPose().getX());
+    SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());
     if (visionDriveTest)
-    { 
-      //photonVision.changeLeftCamPipeline(0);
-      //photonVision.changeRightCamPipeline(0);
-
-
-    switch (state) {
-      case INITAL_BOOT -> {
-        // If Quest is On
-        if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){
-          
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          questNav.resetRobotPose(getPose());
-
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST; 
-      
-        } else { // No Quest detected at INITIALIZE
-          if(forceTransitionFromInitalize-- < 0){ // Do not give up looking for Quest for some iterations in case it's late to start
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-          
-          }
-        }
-      }
-
-      case QUEST_SEEDED_SOLO_QUEST -> { // Quest was present before
-        if (questNav.getConnected() && questNav.getTrackingStatus()){ // Quest is still working
-          
-          swerveDrive.updateOdometry();
-          
+      { 
+        // QuestNav
+        if (questNav.getConnected() && questNav.getTrackingStatus()) {
           var timestamp = questNav.getTimestamp();
           var robotPose = questNav.getRobotPose();
           questPublisher.accept(robotPose);
@@ -228,137 +160,13 @@ private int forceTransitionFromInitalize = 50*10; //Cycles to wait in boot phase
               && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
             // Add the measurement
             swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+            }
           }
-
-            return; // No need to do anything else this cycle
-
-        } else { // Quest is not working anymore, so transition to no-quest state while still seeking the tags
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        }
-
-      }
-      case QUEST_SEEDED_RUNNING_ALONGSIDE_PHOTON -> {
-
-        if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){ // Quest came up!!! note that this will result in extra 20ms cycle since Quest Pose is not set yet
-          
-          swerveDrive.updateOdometry();
-
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-          
-          return; 
-        } else { if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          swerveDrive.updateOdometry();
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
-
-          swerveDrive.updateOdometry();
-
-          return;
-        }
-      }
-    }
-  }
-
-      case VISION_LOST_RUNNING_ONLY_ODOMETRY -> {
-
-        if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          swerveDrive.updateOdometry();
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          swerveDrive.updateOdometry();
-
-          return;
-        }
-      }
-    
-      }
-      case QUEST_LOST_RUNNING_PHOTON -> {
-        if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
-          swerveDrive.updateOdometry();
-          return;
-        }
-      }
-      }
-      case MANUAL_SWITCH_TO_PHOTON -> {
+        questNav.processHeartbeat();
+        questNav.cleanupResponses();
         swerveDrive.updateOdometry();
-        photonVision.updatePoseEstimation(swerveDrive);
       }
-  }
 
-  questNav.processHeartbeat();
-  questNav.cleanupResponses();
-    }
   }
 
   @Override
@@ -435,83 +243,6 @@ private int forceTransitionFromInitalize = 50*10; //Cycles to wait in boot phase
     //Preload PathPlanner Path finding
     // IF USING CUSTOM PATHFINDER ADD BEFORE THIS LINE
     PathfindingCommand.warmupCommand().schedule();
-  }
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------
-//--------------------------------------Put Season Specific Stuff Here------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------------------------------------------
-
- public Command driveToLeftHP()
-  {
-    return defer(() -> {
-      Pose2d startingPose = CoralStation.leftCenterFace;
-      SmartDashboard.putString("Station Targetted Pose without Offset (Meters)", startingPose.toString());
-      Pose2d scorePose = startingPose.plus(Left.offset);
-      SmartDashboard.putString("Station Targetted Pose with Offset (Meters)", scorePose.toString());
-      return Commands.either(driveToPose(AllianceFlipUtil.flip(scorePose)),
-                             driveToPose(scorePose),
-                             () -> DriverStation.getAlliance().isPresent() &&
-                                   DriverStation.getAlliance().get() == Alliance.Red);
-
-    });
-  }
-
-  public Command driveToRightHP()
-  {
-    return defer(() -> {
-      Pose2d startingPose = CoralStation.rightCenterFace;
-      SmartDashboard.putString("Station Targetted Pose without Offset (Meters)", startingPose.toString());
-      Pose2d scorePose = startingPose.plus(Setpoints.AutoScoring.HumanPlayer.Right.offset);
-      SmartDashboard.putString("Station Targetted Pose with Offset (Meters)", scorePose.toString());
-      return Commands.either(driveToPose(AllianceFlipUtil.flip(scorePose)),
-                             driveToPose(scorePose),
-                             () -> DriverStation.getAlliance().isPresent() &&
-                                   DriverStation.getAlliance().get() == Alliance.Red);
-
-    });
-  }
-
-  public Command driveToProcessor()
-  {
-    return defer(() -> {
-      Pose2d startingPose = Processor.centerFace;
-      SmartDashboard.putString("Processor Targetted Pose without Offset (Meters)", startingPose.toString());
-      Pose2d scorePose = startingPose.plus(AutoScoring.Processor.offset);
-      SmartDashboard.putString("Processor Targetted Pose with Offset (Meters)", scorePose.toString());
-      return Commands.either(driveToPose(AllianceFlipUtil.flip(scorePose)),
-                             driveToPose(scorePose),
-                             () -> DriverStation.getAlliance().isPresent() &&
-                                   DriverStation.getAlliance().get() == Alliance.Red);
-
-    });
-  }
-
-//--------------------------------------------------------------------------------------------------------------------------------------------------------
-//--------------------------------------End of Season Specific Stuff--------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * Aim the robot at the target returned by PhotonVision.
-   *
-   * @return A {@link Command} which will run the alignment.
-   */
-  public Command aimAtTarget(Cameras camera)
-  {
-
-    return run(() -> {
-      Optional<PhotonPipelineResult> resultO = camera.getBestResult();
-      if (resultO.isPresent())
-      {
-        var result = resultO.get();
-        if (result.hasTargets())
-        {
-          drive(getTargetSpeeds(0,
-                                0,
-                                Rotation2d.fromDegrees(result.getBestTarget()
-                                                             .getYaw()))); // Not sure if this will work, more math may be required.
-        }
-      }
-    });
   }
 
   /**
