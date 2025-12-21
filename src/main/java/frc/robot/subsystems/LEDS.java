@@ -52,11 +52,29 @@ public class LEDS extends SubsystemBase {
         }
     }
 
-  @Override
-  public void periodic()
-  {
-    checkAllianceColor();
-  }
+    public void setGrowingBreath(String zoneID) {
+        if (isAllianceBlue == true) {
+            cXAnimate.leds.SetAnimationSequence(zoneID, "Blue-Growing-Breath");
+        } else {
+            cXAnimate.leds.SetAnimationSequence(zoneID, "Red-Growing-Breath");
+        }
+    }
+
+    public void setGrowingBreath(String zoneID, Color color) {
+        if (color == Color.kBlue) {
+            cXAnimate.leds.SetAnimationSequence(zoneID, "Blue-Growing-Breath");
+        } else if (color == Color.kRed) {
+            cXAnimate.leds.SetAnimationSequence(zoneID, "Red-Growing-Breath");
+        }
+    }
+
+    
+
+    @Override
+    public void periodic() {
+        checkAllianceColor();
+    }
+
 
 }
 

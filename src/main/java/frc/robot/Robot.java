@@ -55,7 +55,7 @@ public class Robot extends TimedRobot
       DriverStation.silenceJoystickConnectionWarning(true);
     }
 
-    m_robotContainer.m_leds.setAllianceColor("Under Glow");
+    m_robotContainer.m_leds.setAllianceColor("Strip 1");
   }
 
   /**
@@ -138,6 +138,8 @@ public class Robot extends TimedRobot
     {
       CommandScheduler.getInstance().cancelAll();
     }
+
+    m_robotContainer.m_leds.setGrowingBreath("Strip 1");
   }
 
   /**
