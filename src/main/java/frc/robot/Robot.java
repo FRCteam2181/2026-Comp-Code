@@ -54,6 +54,8 @@ public class Robot extends TimedRobot
     {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+
+    m_robotContainer.m_leds.setAllianceColor("Under Glow");
   }
 
   /**

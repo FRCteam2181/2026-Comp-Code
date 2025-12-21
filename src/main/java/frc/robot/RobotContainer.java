@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // Subsystem Imports 
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.LEDS;
 
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -38,12 +39,14 @@ import swervelib.SwerveInputStream;
 public class RobotContainer
 {
 
+
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/maxSwerve"));
+  public final LEDS m_leds = new LEDS();
 
   // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
@@ -203,3 +206,4 @@ public class RobotContainer
     drivebase.setMotorBrake(brake);
   }
 }
+
