@@ -27,6 +27,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.climberSubsystem;
+
 import static edu.wpi.first.units.Units.RPM;
 import java.io.File;
 
@@ -39,6 +41,8 @@ import java.io.File;
 public class RobotContainer
 {
   private final ShooterSubsystem m_shooterSubsystem =new ShooterSubsystem();
+
+  private final climberSubsystem m_ClimberSubsystem = new climberSubsystem();
 
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
@@ -103,6 +107,9 @@ public class RobotContainer
     // cancelling on release.
     operatorController.x().whileTrue(m_shooterSubsystem.set(0.3));
     operatorController.y().whileTrue(m_shooterSubsystem.set(-0.3));}
+
+    driverXbox.y().whileTrue(m_ClimberSubsystem.c_climbReverse());
+    driverXbox.x().whileTrue(m_ClimberSubsystem.c_climb());
 
 
   }
