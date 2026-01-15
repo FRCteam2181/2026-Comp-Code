@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 {
     "enableCppIntellisense": false,
     "currentLanguage": "java",
     "projectYear": "2025",
     "teamNumber": 2184
+=======
+{
+    "enableCppIntellisense": false,
+    "currentLanguage": "java",
+    "projectYear": "2025",
+    "teamNumber": 2181
+>>>>>>> f67052aa64b885fd06b8ab490d03430607e45883
 }
