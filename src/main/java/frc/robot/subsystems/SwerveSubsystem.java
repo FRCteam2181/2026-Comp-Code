@@ -309,7 +309,6 @@ public class SwerveSubsystem extends SubsystemBase
                    Rotation2d.fromDegrees(angle)));
   }
 
-
   /**
    * Drive with {@link SwerveSetpointGenerator} from 254, implemented by PathPlanner.
    *
