@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.climberConfigs;
 
-public class climberSubsystem extends SubsystemBase{
+public class ClimberSubsystem extends SubsystemBase{
     SparkMax m_climberL;
     SparkMax m_climberR;
     
-    public climberSubsystem(){
+    public ClimberSubsystem(){
         m_climberL = new SparkMax(15, MotorType.kBrushless);
        // m_climberR = new SparkMax(33, MotorType.kBrushless);
 

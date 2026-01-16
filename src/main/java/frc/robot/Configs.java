@@ -1,0 +1,19 @@
+package frc.robot;
+
+import com.revrobotics.spark.config.SparkBaseConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+public class Configs {
+    public static final class climberConfigs{
+
+        public static final SparkBaseConfig climberLConfig = new SparkMaxConfig().idleMode(IdleMode.kBrake)    .smartCurrentLimit(40)
+        .inverted(false);
+        public static final SparkBaseConfig climberRConfig = new SparkMaxConfig().idleMode(IdleMode.kBrake)    .smartCurrentLimit(40)
+        .inverted(false);
+
+    }
+    
+}
