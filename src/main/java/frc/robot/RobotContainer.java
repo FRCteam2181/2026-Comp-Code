@@ -25,6 +25,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 // Subsystem Imports 
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.Constants.OperatorConstants;
 
 import java.io.File;
@@ -40,6 +42,7 @@ public class RobotContainer
 
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
+  final CommandXboxController operatorControler = new CommandXboxController(1);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -48,6 +51,7 @@ public class RobotContainer
   // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
+  private final ClimberSubsystem climber = new ClimberSubsystem();
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
@@ -184,6 +188,8 @@ public class RobotContainer
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
+    operatorControler.x().whileTrue(climber.c_climb());
+    operatorControler.y().whileTrue(climber.c_climbReverse());
 
   }
 

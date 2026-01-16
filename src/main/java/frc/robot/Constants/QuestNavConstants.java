@@ -18,9 +18,9 @@ import static edu.wpi.first.units.Units.Meters;
     public final class QuestNavConstants {
         public static Transform3d ROBOT_TO_QUEST = new Transform3d(
             new Translation3d(
-                Inches.of((29.0 / 2) - 16.725), 
-                Inches.of((29.0 / 2.0) - 5.762), 
-                Inches.of((29.0 / 2.0) - 5.762)), new Rotation3d());
+                Inches.of(-10), 
+                Inches.of(0), 
+                Inches.of(11)), new Rotation3d(0,0,180));
     
         public static Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
             0.02, // Trust down to 2cm in X direction
