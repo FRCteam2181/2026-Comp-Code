@@ -4,7 +4,17 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+import org.json.simple.parser.ParseException;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -17,9 +27,12 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -35,17 +48,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-
 import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.QuestNavConstants;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -55,6 +59,8 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+
+import gg.questnav.questnav.*;
 
 
 public class SwerveSubsystem extends SubsystemBase
@@ -67,9 +73,11 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean     visionDriveTest = false;
+  private final boolean     visionDriveTest = true;
 
-  private final QuestNav questNav = new QuestNav();
+  QuestNav questNav = new QuestNav();
+
+  //private final QuestNav questNav = new QuestNav();
 
   private final StructPublisher<Pose2d> questPublisher = NetworkTableInstance.getDefault()
       .getTable("Drive")
@@ -86,6 +94,8 @@ public class SwerveSubsystem extends SubsystemBase
    public SwerveSubsystem(File directory)
   { 
     SmartDashboard.putData("RealField", m_field2d);
+    Pose3d initialPose = new Pose3d();
+    questNav.setPose(initialPose);
     
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
@@ -142,18 +152,24 @@ public class SwerveSubsystem extends SubsystemBase
   public void periodic()
   {
     m_field2d.setRobotPose(this.getPose());
+    
 
-    SmartDashboard.putBoolean("Is Quest Connected", questNav.getConnected());
-    SmartDashboard.putBoolean("Is Tracking", questNav.getTrackingStatus());
-    SmartDashboard.putNumber("Quest X Value", questNav.getRobotPose().getX());
-    SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());
+
+    // First, Declare our geometrical transform from the robot center to the Quest
+    Transform3d ROBOT_TO_QUEST = QuestNavConstants.ROBOT_TO_QUEST;
+
+    // Get the latest pose data frames from the Quest
+    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+   
+
     if (visionDriveTest)
       { 
         // QuestNav
-        if (questNav.getConnected() && questNav.getTrackingStatus()) {
-          var timestamp = questNav.getTimestamp();
+        // if (questNav.getConnected() && questNav.getTrackingStatus()) {
+         /*var timestamp = questNav.getTimestamp();
           var robotPose = questNav.getRobotPose();
           questPublisher.accept(robotPose);
+
     
           // Make sure we are inside the field
           if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
@@ -161,11 +177,37 @@ public class SwerveSubsystem extends SubsystemBase
             // Add the measurement
             swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
             }
-          }
+          // }
+        //questNav.commandPeriodic();
         questNav.processHeartbeat();
         questNav.cleanupResponses();
-        swerveDrive.updateOdometry();
+        swerveDrive.updateOdometry();*/
+
+        // Loop over the pose data frames and send them to the pose estimator
+        for (PoseFrame questFrame : questFrames) {
+            // Make sure the Quest was tracking the pose for this frame
+            if (questFrame.isTracking()) {
+                // Get the pose of the Quest
+                Pose3d questPose = questFrame.questPose3d();
+                // Get timestamp for when the data was sent
+                double timestamp = questFrame.dataTimestamp();
+
+                // Transform by the mount pose to get your robot pose
+                Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST);
+
+                // You can put some sort of filtering here if you would like!
+
+                // Add the measurement to our estimator
+                swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+            }
+        }
+            SmartDashboard.putBoolean("Is Quest Connected", questNav.isConnected());
+            SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
+            /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
+            SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
       }
+
+    // System.out.print(questNav.getConnected());
 
   }
 
