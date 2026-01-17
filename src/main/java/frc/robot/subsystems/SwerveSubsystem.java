@@ -32,6 +32,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -95,7 +96,7 @@ public class SwerveSubsystem extends SubsystemBase
    public SwerveSubsystem(File directory)
   { 
     SmartDashboard.putData("RealField", m_field2d);
-    Pose3d initialPose = new Pose3d();
+    Pose3d initialPose = new Pose3d(-50,-50,0,new Rotation3d(0,0,-180));
     questNav.setPose(initialPose);
     
     boolean blueAlliance = false;
@@ -162,13 +163,10 @@ public class SwerveSubsystem extends SubsystemBase
 
     if (visionDriveTest)
       { 
-        // QuestNav
-        // if (questNav.getConnected() && questNav.getTrackingStatus()) {
-         /*var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
+
 
     
+<<<<<<< HEAD
           // Make sure we are inside the field
           if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
               && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
@@ -180,11 +178,20 @@ public class SwerveSubsystem extends SubsystemBase
 
         // Get the latest pose data frames from the Quest
         PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+=======
+          
+
+        
+>>>>>>> 4351e38 (added rotation3d import into swervesub and fixed robot_to_quest)
 
         // Loop over the pose data frames and send them to the pose estimator
         for (PoseFrame questFrame : questFrames) {
             // Make sure the Quest was tracking the pose for this frame
             if (questFrame.isTracking()) {
+
+              // Make sure we are inside the field
+              if (questFrame.questPose3d().getX() >= 0.0 && questFrame.questPose3d().getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && questFrame.questPose3d().getY() >= 0.0
+                  && questFrame.questPose3d().getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
                 // Get the pose of the Quest
                 Pose3d questPose = questFrame.questPose3d();
                 // Get timestamp for when the data was sent
@@ -197,12 +204,18 @@ public class SwerveSubsystem extends SubsystemBase
 
                 // Add the measurement to our estimator
                 swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+                }
+                
             }
         }
             SmartDashboard.putBoolean("Is Quest Connected", questNav.isConnected());
             SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
             /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
             SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4351e38 (added rotation3d import into swervesub and fixed robot_to_quest)
             swerveDrive.updateOdometry();
       }
 
