@@ -44,14 +44,17 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
-public class ShooterSubsystem extends SubsystemBase {
+
+
+public class TopIntakeSubsystem extends SubsystemBase {
+
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
   .withControlMode(ControlMode.CLOSED_LOOP)
   // Feedback Constants (PID Constants)
-  .withClosedLoopController(.015, 0, .175)
-  .withSimClosedLoopController(.01, 0, 0)
+  .withClosedLoopController(1, 0, 0)
+  .withSimClosedLoopController(1, 0, 0)
   // Feedforward Constants
-  .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+  .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
   .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
   // Telemetry name and verbosity level
   .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
@@ -65,49 +68,42 @@ public class ShooterSubsystem extends SubsystemBase {
   .withStatorCurrentLimit(Amps.of(40));
 
   // Vendor motor controller object
-  private SparkFlex spark = new SparkFlex(9, MotorType.kBrushless);
-
+  private SparkFlex topintake = new SparkFlex(11, MotorType.kBrushless);
   // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController motor = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+  private SmartMotorController topintakemotor = new SparkWrapper(topintake, DCMotor.getNEO(1), smcConfig);
 
-  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motor)
+  private final FlyWheelConfig topintakeConfig = new FlyWheelConfig(topintakemotor)
   // Diameter of the flywheel.
   .withDiameter(Inches.of(4))
   // Mass of the flywheel.
-  .withMass(Pounds.of(3.5))
+  .withMass(Pounds.of(1))
   // Maximum speed of the shooter.
-  .withUpperSoftLimit(RPM.of(6784*4))
+  .withUpperSoftLimit(RPM.of(1000))
   // Telemetry name and verbosity for the arm.
   .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
-
-  // Shooter Mechanism
-  private FlyWheel shooter = new FlyWheel(shooterConfig);
-
+  private FlyWheel topintakewheel = new FlyWheel(topintakeConfig);
     /**
    * Gets the current velocity of the shooter.
    *
    * @return Shooter velocity.
    */
-  public AngularVelocity getVelocity() {return shooter.getSpeed();}
-
+  public AngularVelocity gettopVelocity() {return topintakewheel.getSpeed();}
  /**
    * Set the shooter velocity.
    *
    * @param speed Speed to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command setVelocity(AngularVelocity speed) {return shooter.setSpeed(speed);}
-
-  /**
-   * Set the dutycycle of the shooter.
+  public Command settopVelocity(AngularVelocity speed) {return topintakewheel.setSpeed(speed);}
+   /* Set the dutycycle of the shooter.
    *
    * @param dutyCycle DutyCycle to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
-  
+  public Command set(double dutyCycle) {return topintakewheel.set(dutyCycle);}
+
   /** Creates a new ExampleSubsystem. */
-  public ShooterSubsystem() {}
+  public TopIntakeSubsystem() {}
 
   /**
    * Example command factory method.
@@ -136,12 +132,12 @@ public class ShooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    shooter.updateTelemetry();
+    topintakewheel.updateTelemetry();
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
-    shooter.simIterate();
+    topintakewheel.simIterate();
   }
 }
