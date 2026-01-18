@@ -17,9 +17,12 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -39,6 +42,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 
 import frc.robot.Constants.DrivebaseConstants;
 import frc.robot.Constants.QuestNavConstants;
+
 import frc.robot.Constants.Setpoints;
 import frc.robot.Constants.Setpoints.AutoScoring;
 import frc.robot.Constants.Setpoints.AutoScoring.HumanPlayer.Left;
@@ -66,6 +70,8 @@ import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
+import gg.questnav.questnav.*;
+
 
 public class SwerveSubsystem extends SubsystemBase
 {
@@ -77,14 +83,18 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean     visionDriveTest = false;
+  private final boolean     visionDriveTest = true;
 
   /**
-   * PhotonVision class to keep an accurate odometry.
+   * PhotonVision class to keep an accurate odometry and/or perform object detection.
    */
   private       PhotonVision      photonVision;
 
-    private final QuestNav questNav = new QuestNav();
+  /**
+   * QuestNav class to keep an accurate odometry.
+   */
+
+  QuestNav questNav = new QuestNav();
 
   private final StructPublisher<Pose2d> questPublisher = NetworkTableInstance.getDefault()
       .getTable("Drive")
@@ -101,6 +111,8 @@ public class SwerveSubsystem extends SubsystemBase
    public SwerveSubsystem(File directory)
   { 
     SmartDashboard.putData("RealField", m_field2d);
+    Pose3d initialPose = new Pose3d();
+    questNav.setPose(initialPose);
     
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
@@ -180,6 +192,9 @@ private int forceTransitionFromInitalize = 50*10; //Cycles to wait in boot phase
   @Override
   public void periodic()
   {
+
+
+
     m_field2d.setRobotPose(this.getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest)
@@ -187,178 +202,206 @@ private int forceTransitionFromInitalize = 50*10; //Cycles to wait in boot phase
       //photonVision.changeLeftCamPipeline(0);
       //photonVision.changeRightCamPipeline(0);
 
-
-    switch (state) {
-      case INITAL_BOOT -> {
-        // If Quest is On
-        if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){
-          
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          questNav.resetRobotPose(getPose());
-
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST; 
-      
-        } else { // No Quest detected at INITIALIZE
-          if(forceTransitionFromInitalize-- < 0){ // Do not give up looking for Quest for some iterations in case it's late to start
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-          
-          }
-        }
-      }
-
-      case QUEST_SEEDED_SOLO_QUEST -> { // Quest was present before
-        if (questNav.getConnected() && questNav.getTrackingStatus()){ // Quest is still working
-          
-          swerveDrive.updateOdometry();
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
+    // Get the latest pose data frames from the Quest
+    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
     
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
+              // Loop over the pose data frames and send them to the pose estimator
+        for (PoseFrame questFrame : questFrames) {
+            // Make sure the Quest was tracking the pose for this frame
+            if (questFrame.isTracking()) {
+                // Get the pose of the Quest
+                Pose3d questPose = questFrame.questPose3d();
+                // Get timestamp for when the data was sent
+                double timestamp = questFrame.dataTimestamp();
 
-            return; // No need to do anything else this cycle
+                // Transform by the mount pose to get your robot pose
+                Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
 
-        } else { // Quest is not working anymore, so transition to no-quest state while still seeking the tags
+                // You can put some sort of filtering here if you would like!
 
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
+                // Add the measurement to our estimator
+                swerveDrive.addVisionMeasurement(robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+            }
         }
-
-      }
-      case QUEST_SEEDED_RUNNING_ALONGSIDE_PHOTON -> {
-
-        if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){ // Quest came up!!! note that this will result in extra 20ms cycle since Quest Pose is not set yet
-          
-          swerveDrive.updateOdometry();
-
-          photonVision.updatePoseEstimation(swerveDrive);
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-          
-          return; 
-        } else { if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          swerveDrive.updateOdometry();
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
-
-          swerveDrive.updateOdometry();
-
-          return;
-        }
-      }
-    }
-  }
-
-      case VISION_LOST_RUNNING_ONLY_ODOMETRY -> {
-
-        if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          swerveDrive.updateOdometry();
-          
-          var timestamp = questNav.getTimestamp();
-          var robotPose = questNav.getRobotPose();
-          questPublisher.accept(robotPose);
-    
-          // Make sure we are inside the field
-          if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-              && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-            // Add the measurement
-            swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-          }
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          swerveDrive.updateOdometry();
-          photonVision.updatePoseEstimation(swerveDrive);
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          swerveDrive.updateOdometry();
-
-          return;
-        }
-      }
-    
-      }
-      case QUEST_LOST_RUNNING_PHOTON -> {
-        if (questNav.getConnected() && questNav.getTrackingStatus()){
-
-          state = VisionState.QUEST_SEEDED_SOLO_QUEST;
-          return;
-        } else { if (photonVision.hasTargets()){
-
-          state = VisionState.QUEST_LOST_RUNNING_PHOTON;
-          return;
-        } else {
-
-          state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
-          swerveDrive.updateOdometry();
-          return;
-        }
-      }
-      }
-      case MANUAL_SWITCH_TO_PHOTON -> {
+            SmartDashboard.putBoolean("Is Quest Connected", questNav.isConnected());
+            SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
+            /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
+            SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
         swerveDrive.updateOdometry();
-        photonVision.updatePoseEstimation(swerveDrive);
       }
-  }
+  //   switch (state) {
+  //     case INITAL_BOOT -> {
+  //       // If Quest is On
+  //       if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){
+          
+  //         swerveDrive.updateOdometry();
+  //         photonVision.updatePoseEstimation(swerveDrive);
+          
+  //         questNav.resetRobotPose(getPose());
 
-  questNav.processHeartbeat();
-  questNav.cleanupResponses();
-    }
+
+  //         state = VisionState.QUEST_SEEDED_SOLO_QUEST; 
+      
+  //       } else { // No Quest detected at INITIALIZE
+  //         if(forceTransitionFromInitalize-- < 0){ // Do not give up looking for Quest for some iterations in case it's late to start
+
+  //         swerveDrive.updateOdometry();
+  //         photonVision.updatePoseEstimation(swerveDrive);
+          
+  //         state = VisionState.QUEST_LOST_RUNNING_PHOTON;
+  //         return;
+          
+  //         }
+  //       }
+  //     }
+
+  //     case QUEST_SEEDED_SOLO_QUEST -> { // Quest was present before
+  //       if (questNav.getConnected() && questNav.getTrackingStatus()){ // Quest is still working
+          
+  //         swerveDrive.updateOdometry();
+          
+  //         var timestamp = questNav.getTimestamp();
+  //         var robotPose = questNav.getRobotPose();
+  //         questPublisher.accept(robotPose);
+    
+  //         // Make sure we are inside the field
+  //         if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
+  //             && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
+  //           // Add the measurement
+  //           swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+  //         }
+
+  //           return; // No need to do anything else this cycle
+
+  //       } else { // Quest is not working anymore, so transition to no-quest state while still seeking the tags
+
+  //         swerveDrive.updateOdometry();
+  //         photonVision.updatePoseEstimation(swerveDrive);
+
+  //         state = VisionState.QUEST_LOST_RUNNING_PHOTON;
+  //         return;
+  //       }
+
+  //     }
+  //     case QUEST_SEEDED_RUNNING_ALONGSIDE_PHOTON -> {
+
+  //       if (questNav.getConnected() && questNav.getTrackingStatus() && photonVision.hasTargets()){ // Quest came up!!! note that this will result in extra 20ms cycle since Quest Pose is not set yet
+          
+  //         swerveDrive.updateOdometry();
+
+  //         photonVision.updatePoseEstimation(swerveDrive);
+          
+  //         var timestamp = questNav.getTimestamp();
+  //         var robotPose = questNav.getRobotPose();
+  //         questPublisher.accept(robotPose);
+    
+  //         // Make sure we are inside the field
+  //         if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
+  //             && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
+  //           // Add the measurement
+  //           swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+  //         }
+          
+  //         return; 
+  //       } else { if (questNav.getConnected() && questNav.getTrackingStatus()){
+
+  //         swerveDrive.updateOdometry();
+          
+  //         var timestamp = questNav.getTimestamp();
+  //         var robotPose = questNav.getRobotPose();
+  //         questPublisher.accept(robotPose);
+    
+  //         // Make sure we are inside the field
+  //         if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
+  //             && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
+  //           // Add the measurement
+  //           swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+  //         }
+
+  //         state = VisionState.QUEST_SEEDED_SOLO_QUEST;
+  //         return;
+  //       } else { if (photonVision.hasTargets()){
+
+  //         swerveDrive.updateOdometry();
+  //         photonVision.updatePoseEstimation(swerveDrive);
+
+  //         state = VisionState.QUEST_LOST_RUNNING_PHOTON;
+  //         return;
+  //       } else {
+
+  //         state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
+
+  //         swerveDrive.updateOdometry();
+
+  //         return;
+  //       }
+  //     }
+  //   }
+  // }
+
+  //     case VISION_LOST_RUNNING_ONLY_ODOMETRY -> {
+
+  //       if (questNav.getConnected() && questNav.getTrackingStatus()){
+
+  //         swerveDrive.updateOdometry();
+          
+  //         var timestamp = questNav.getTimestamp();
+  //         var robotPose = questNav.getRobotPose();
+  //         questPublisher.accept(robotPose);
+    
+  //         // Make sure we are inside the field
+  //         if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
+  //             && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
+  //           // Add the measurement
+  //           swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+  //         }
+
+  //         state = VisionState.QUEST_SEEDED_SOLO_QUEST;
+  //         return;
+  //       } else { if (photonVision.hasTargets()){
+
+  //         swerveDrive.updateOdometry();
+  //         photonVision.updatePoseEstimation(swerveDrive);
+
+  //         state = VisionState.QUEST_LOST_RUNNING_PHOTON;
+  //         return;
+  //       } else {
+
+  //         swerveDrive.updateOdometry();
+
+  //         return;
+  //       }
+  //     }
+    
+  //     }
+  //     case QUEST_LOST_RUNNING_PHOTON -> {
+  //       if (questNav.getConnected() && questNav.getTrackingStatus()){
+
+  //         state = VisionState.QUEST_SEEDED_SOLO_QUEST;
+  //         return;
+  //       } else { if (photonVision.hasTargets()){
+
+  //         state = VisionState.QUEST_LOST_RUNNING_PHOTON;
+  //         return;
+  //       } else {
+
+  //         state = VisionState.VISION_LOST_RUNNING_ONLY_ODOMETRY;
+  //         swerveDrive.updateOdometry();
+  //         return;
+  //       }
+  //     }
+  //     }
+  //     case MANUAL_SWITCH_TO_PHOTON -> {
+  //       swerveDrive.updateOdometry();
+  //       photonVision.updatePoseEstimation(swerveDrive);
+  //     }
+  // }
+
+  // questNav.processHeartbeat();
+  // questNav.cleanupResponses();
+  //   }
+
+
   }
 
   @Override

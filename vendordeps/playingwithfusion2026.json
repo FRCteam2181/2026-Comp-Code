@@ -1,30 +1,29 @@
 {
-    "fileName": "libgrapplefrc2025.json",
-    "name": "libgrapplefrc",
-    "version": "2025.1.3",
-    "frcYear": "2025",
-    "uuid": "8ef3423d-9532-4665-8339-206dae1d7168",
+    "fileName": "playingwithfusion2026.json",
+    "name": "PlayingWithFusion",
+    "version": "2026.1.16",
+    "uuid": "14b8ad04-24df-11ea-978f-2e728ce88125",
+    "frcYear": "2026",
+    "jsonUrl": "https://www.playingwithfusion.com/frc/playingwithfusion2026.json",
     "mavenUrls": [
-        "https://storage.googleapis.com/grapple-frc-maven"
+        "https://www.playingwithfusion.com/frc/maven/"
     ],
-    "jsonUrl": "https://storage.googleapis.com/grapple-frc-maven/libgrapplefrc2025.json",
     "javaDependencies": [
         {
-            "groupId": "au.grapplerobotics",
-            "artifactId": "libgrapplefrcjava",
-            "version": "2025.1.3"
+            "groupId": "com.playingwithfusion.frc",
+            "artifactId": "PlayingWithFusion-java",
+            "version": "2026.1.16"
         }
     ],
     "jniDependencies": [
         {
-            "groupId": "au.grapplerobotics",
-            "artifactId": "libgrapplefrcdriver",
-            "version": "2025.1.3",
+            "groupId": "com.playingwithfusion.frc",
+            "artifactId": "PlayingWithFusion-driver",
+            "version": "2026.1.16",
             "skipInvalidPlatforms": true,
             "isJar": false,
             "validPlatforms": [
                 "windowsx86-64",
-                "windowsx86",
                 "linuxarm64",
                 "linuxx86-64",
                 "linuxathena",
@@ -35,16 +34,15 @@
     ],
     "cppDependencies": [
         {
-            "groupId": "au.grapplerobotics",
-            "artifactId": "libgrapplefrccpp",
-            "version": "2025.1.3",
-            "libName": "grapplefrc",
+            "groupId": "com.playingwithfusion.frc",
+            "artifactId": "PlayingWithFusion-cpp",
+            "version": "2026.1.16",
+            "libName": "PlayingWithFusion",
             "headerClassifier": "headers",
-            "sharedLibrary": true,
+            "sharedLibrary": false,
             "skipInvalidPlatforms": true,
             "binaryPlatforms": [
                 "windowsx86-64",
-                "windowsx86",
                 "linuxarm64",
                 "linuxx86-64",
                 "linuxathena",
@@ -53,16 +51,15 @@
             ]
         },
         {
-            "groupId": "au.grapplerobotics",
-            "artifactId": "libgrapplefrcdriver",
-            "version": "2025.1.3",
-            "libName": "grapplefrcdriver",
+            "groupId": "com.playingwithfusion.frc",
+            "artifactId": "PlayingWithFusion-driver",
+            "version": "2026.1.16",
+            "libName": "PlayingWithFusionDriver",
             "headerClassifier": "headers",
             "sharedLibrary": true,
             "skipInvalidPlatforms": true,
             "binaryPlatforms": [
                 "windowsx86-64",
-                "windowsx86",
                 "linuxarm64",
                 "linuxx86-64",
                 "linuxathena",
