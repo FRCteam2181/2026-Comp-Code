@@ -10,11 +10,14 @@ import static edu.wpi.first.units.Units.Meters;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.json.simple.parser.ParseException;
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -87,16 +90,23 @@ public class SwerveSubsystem extends SubsystemBase
 
   Field2d m_field2d = new Field2d();
 
+  Vision vision;
+
+  public static PhotonCamera camera = new PhotonCamera("PhotonCamera");
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
    * @param directory Directory of swerve drive config files.
    */
-   public SwerveSubsystem(File directory)
+   public SwerveSubsystem(File directory, PhotonCamera camera)
   { 
     SmartDashboard.putData("RealField", m_field2d);
+
     Pose3d initialPose = new Pose3d(-50,-50,0,new Rotation3d(0,0,-180));
     questNav.setPose(initialPose);
+
+    this.camera = camera;
     
     boolean blueAlliance = false;
     Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
@@ -134,6 +144,14 @@ public class SwerveSubsystem extends SubsystemBase
     setupPathPlanner();
   }
 
+/**
+ * Setup the photon vision class.
+*/
+public void setupPhotonVision()
+{
+  vision = new Vision(swerveDrive::getPose, camera);
+}
+
   /**
    * Construct the swerve drive.
    *
@@ -148,6 +166,42 @@ public class SwerveSubsystem extends SubsystemBase
                                   new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
                                              Rotation2d.fromDegrees(0)));
   }
+
+/**
+ * Aim the robot at the target returned by PhotonVision.
+ *
+ * @return A {@link Command} which will run the alignment.
+*/
+public Command aimAtTarget()
+{
+   return run(() -> {
+    double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    if (camera.getLatestResult().hasTargets())
+    {
+      //var result = resultO.get();
+      drive(getTargetSpeeds(0,
+                            0,
+                            Rotation2d.fromDegrees(yaw))); // Not sure if this will work, more math may be required.
+    }
+  });
+}
+
+/**
+ * Drive the robot toward the target returned by PhotonVision.
+ *
+ * @return A {@link Command} which will run the alignment.
+*/
+public Command driveToTarget()
+{
+   return run(() -> {
+    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    if (camera.getLatestResult().hasTargets())
+    {
+      //var result = resultO.get();
+      driveToPose(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d()); // Not sure if this will work, more math may be required.
+    }
+  });
+}
 
   @Override
   public void periodic()

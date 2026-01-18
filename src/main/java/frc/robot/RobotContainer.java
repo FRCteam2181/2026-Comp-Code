@@ -28,6 +28,9 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.Constants.OperatorConstants;
 
 import java.io.File;
+
+import org.photonvision.PhotonCamera;
+
 import swervelib.SwerveInputStream;
 
 /**
@@ -41,9 +44,12 @@ public class RobotContainer
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
 
+  // Vision Camera
+  PhotonCamera camera = new PhotonCamera("PhotonVision");
+
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                                "swerve/maxSwerve"));
+                                                                                "swerve/maxSwerve"), camera);
 
   // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
@@ -124,6 +130,9 @@ public class RobotContainer
     
     //Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
+
+    //Setup PhotonVision
+    drivebase.setupPhotonVision();
   }
 
   /**
@@ -183,6 +192,9 @@ public class RobotContainer
     {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+
+      driverXbox.x().onTrue(drivebase.aimAtTarget());
+      driverXbox.b().onTrue(drivebase.driveToTarget());
     }
 
   }
