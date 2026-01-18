@@ -75,9 +75,10 @@ public class SwerveSubsystem extends SubsystemBase
    */
   private final boolean     visionDriveTest = true;
 
+  /**
+   * QuestNav class to keep accurate odometry.
+   */
   QuestNav questNav = new QuestNav();
-
-  //private final QuestNav questNav = new QuestNav();
 
   private final StructPublisher<Pose2d> questPublisher = NetworkTableInstance.getDefault()
       .getTable("Drive")
@@ -153,13 +154,10 @@ public class SwerveSubsystem extends SubsystemBase
   {
     m_field2d.setRobotPose(this.getPose());
     
-
-
     // First, Declare our geometrical transform from the robot center to the Quest
-    Transform3d ROBOT_TO_QUEST = QuestNavConstants.ROBOT_TO_QUEST;
+   // Transform3d ROBOT_TO_QUEST = QuestNavConstants.ROBOT_TO_QUEST;
 
-    // Get the latest pose data frames from the Quest
-    PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+
    
 
     if (visionDriveTest)
@@ -178,10 +176,10 @@ public class SwerveSubsystem extends SubsystemBase
             swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
             }
           // }
-        //questNav.commandPeriodic();
-        questNav.processHeartbeat();
-        questNav.cleanupResponses();
-        swerveDrive.updateOdometry();*/
+        */
+
+        // Get the latest pose data frames from the Quest
+        PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
         // Loop over the pose data frames and send them to the pose estimator
         for (PoseFrame questFrame : questFrames) {
@@ -193,7 +191,7 @@ public class SwerveSubsystem extends SubsystemBase
                 double timestamp = questFrame.dataTimestamp();
 
                 // Transform by the mount pose to get your robot pose
-                Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST);
+                Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
 
                 // You can put some sort of filtering here if you would like!
 
@@ -205,6 +203,7 @@ public class SwerveSubsystem extends SubsystemBase
             SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
             /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
             SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
+            swerveDrive.updateOdometry();
       }
 
     // System.out.print(questNav.getConnected());
