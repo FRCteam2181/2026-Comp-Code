@@ -28,7 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.constants.OperatorConstants;
+import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 
@@ -63,6 +64,8 @@ public class RobotContainer
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
+
+  private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -172,6 +175,7 @@ public class RobotContainer
     topintake.setDefaultCommand(topintake.set(0));
     bottomintake.setDefaultCommand(bottomintake.set(0));
     shooter.setDefaultCommand(shooter.set(0));
+    spindexer.setDefaultCommand(spindexer.set(0));
 
     if (Robot.isSimulation())
     {
@@ -210,6 +214,8 @@ public class RobotContainer
     operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+
+    operatorControler.rightTrigger().whileTrue(spindexer.set(-.5));
 
   }
 
