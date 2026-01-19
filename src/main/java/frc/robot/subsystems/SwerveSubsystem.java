@@ -90,7 +90,7 @@ public class SwerveSubsystem extends SubsystemBase
 
   Field2d m_field2d = new Field2d();
 
-  Vision vision;
+  public Vision vision;
 
   public static PhotonCamera camera = new PhotonCamera("PhotonCamera");
 
@@ -175,13 +175,39 @@ public void setupPhotonVision()
 public Command aimAtTarget()
 {
    return run(() -> {
-    double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    
     if (camera.getLatestResult().hasTargets())
     {
+      double yaw = camera.getLatestResult().getBestTarget().getYaw();
       //var result = resultO.get();
-      drive(getTargetSpeeds(0,
+      while(!Rotation2d.fromDegrees(camera.getLatestResult().getBestTarget().getYaw()).equals(Rotation2d.fromDegrees(0))){
+        //yaw = camera.getLatestResult().getBestTarget().getYaw();
+        drive(getTargetSpeeds(0,
                             0,
                             Rotation2d.fromDegrees(yaw))); // Not sure if this will work, more math may be required.
+        System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d()); 
+      }
+      
+    }
+  });
+}
+
+public Command aimAtTargetSim()
+{
+   return run(() -> {
+    
+    if (!vision.visionSim.getVisionTargets().isEmpty())
+    {
+      //double yaw = camera.getLatestResult().getBestTarget().getYaw();
+      //var result = resultO.get();
+      while(vision.GetBestTargetYawSim(new Pose3d(getPose())) != 0){
+        //yaw = camera.getLatestResult().getBestTarget().getYaw();
+        drive(getTargetSpeeds(0,
+                            0,
+                            new Rotation2d(vision.GetBestTargetYawSim(new Pose3d(getPose()))))); // Not sure if this will work, more math may be required.
+        System.out.println(vision.GetBestTargetYawSim(new Pose3d(getPose()))); 
+      }
+      
     }
   });
 }
@@ -199,9 +225,39 @@ public Command driveToTarget()
     {
       //var result = resultO.get();
       driveToPose(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d()); // Not sure if this will work, more math may be required.
+      System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d());
     }
   });
 }
+
+public Command driveToTargetSim()
+{
+   return run(() -> {
+    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    if(!vision.visionSim.getVisionTargets().isEmpty()){
+      driveToPose(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d()); // Not sure if this will work, more math may be required.
+      //System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
+    } else {
+      System.out.print("failed");
+    }
+  });
+}
+
+public Pose2d getTargetPose(){
+  if (camera.getLatestResult().hasTargets()){
+    System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d());
+    return vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d();
+  }else
+    return new Pose2d();
+}
+
+/*public Pose2d getTargetPoseSim(){
+  if (!vision.visionSim.getVisionTargets().isEmpty()){
+    System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
+    return vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d();
+  }else
+    return new Pose2d();
+}*/
 
   @Override
   public void periodic()
@@ -265,6 +321,16 @@ public Command driveToTarget()
   @Override
   public void simulationPeriodic()
   {
+    vision.visionSim.update(swerveDrive.getPose());
+    // Get the built-in Field2d used by this VisionSystemSim
+    vision.visionSim.getDebugField();
+    // Enable the raw and processed streams. These are enabled by default.
+    vision.cameraSim.enableRawStream(true);
+    vision.cameraSim.enableProcessedStream(true);
+
+    // Enable drawing a wireframe visualization of the field to the camera streams.
+    // This is extremely resource-intensive and is disabled by default.
+    vision.cameraSim.enableDrawWireframe(true);
   }
 
   /**

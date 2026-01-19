@@ -38,9 +38,11 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.PhotonUtils;
+import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
+import org.photonvision.simulation.VisionTargetSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 import swervelib.SwerveDrive;
@@ -73,8 +75,10 @@ public class Vision extends SubsystemBase{
     private             Field2d             field2d;
 
     public static PhotonCamera camera;
+    public PhotonCameraSim cameraSim;
 
     List<PhotonTrackedTarget> targets;
+
 
     /**
    * Constructor for the Vision class.
@@ -93,10 +97,39 @@ public class Vision extends SubsystemBase{
       visionSim = new VisionSystemSim("Vision");
       //visionSim.addAprilTags(fieldLayout);
 
-      /*for (Cameras c : Cameras.values())
-      {
-        c.addToVisionSim(visionSim);
-      }*/
+      TargetModel object = new TargetModel(0.5, 0.25);
+
+      // The pose of where the target is on the field.
+      // Its rotation determines where "forward" or the target x-axis points.
+      // Let's say this target is flat against the far wall center, facing the blue driver stations.
+      Pose3d targetPose = new Pose3d(16, 8, 0, new Rotation3d(0, 0, Math.PI));
+      // The given target model at the given pose
+      VisionTargetSim visionTarget = new VisionTargetSim(targetPose, object);
+
+      // Add this vision target to the vision system simulation to make it visible
+      visionSim.addVisionTargets(visionTarget);
+
+      // Add Camera(s)
+      // Properties
+      SimCameraProperties cameraProp = new SimCameraProperties();
+
+      cameraSim = new PhotonCameraSim(camera, cameraProp);
+
+      // Our camera is mounted 0.1 meters forward and 0.5 meters up from the robot pose,
+        // (Robot pose is considered the center of rotation at the floor level, or Z = 0)
+        Translation3d robotToCameraTrl = new Translation3d(0.1, 0, 0.5);
+        // and pitched 15 degrees up.
+        Rotation3d robotToCameraRot = new Rotation3d(0, Math.toRadians(-15), 0);
+        Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
+
+        // Add this camera to the vision system simulation with the given robot-to-camera transform.
+        visionSim.addCamera(cameraSim, robotToCamera);
+
+
+      //for (Cameras c : Cameras.values())
+      //{
+        //cameraSim.addToVisionSim(visionSim);
+      //}
 
       //openSimCameraViews();
     }
@@ -107,15 +140,46 @@ public class Vision extends SubsystemBase{
     // This method will be called once per scheduler run
     if(camera.getLatestResult().hasTargets()){
       SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
+      SmartDashboard.putNumber("PhotonVisionYaw", GetBestTargetYaw());
+      SmartDashboard.putNumber("DetectedObjectRelativeX", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX());
+      SmartDashboard.putNumber("DetectedObjectRelativeY", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY());
+      SmartDashboard.putNumber("DetectedObjectRelativeZ", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getZ());
     }
-    SmartDashboard.putNumber("PhotonVisionYaw", GetBestTargetYaw());
-    SmartDashboard.putNumber("DetectedObjectRelativeX", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX());
-    SmartDashboard.putNumber("DetectedObjectRelativeY", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY());
-    SmartDashboard.putNumber("DetectedObjectRelativeZ", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getZ());
+    
 
     targets = camera.getLatestResult().getTargets();
 
     SmartDashboard.putBoolean("hasTargets", camera.getLatestResult().hasTargets());
+
+  }
+
+
+
+  /**
+   * Calculates a target pose relative to the Robot Pose on the field in simulation.
+   *
+   * @param robotPose   The Robot's Pose on the field.
+   * @return The pose of the best detected object.
+   */
+  public Pose3d getBestObjectPoseSim(Pose3d robotPose)
+  {
+    //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
+    
+    if (!visionSim.getVisionTargets().isEmpty())
+    {
+      ArrayList<VisionTargetSim> visionTargetsArray = new ArrayList<>(visionSim.getVisionTargets());
+
+      var camResult = cameraSim.process(0, robotPose, visionTargetsArray);
+      // publish this info to NT at estimated timestamp of receive
+      //cameraSim.submitProcessedFrame(camResult, timestampNT);
+      // display debug results
+      var trf = camResult.getBestTarget().getBestCameraToTarget();
+      return robotPose.transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(trf);
+    } else
+    {
+      //throw new RuntimeException("Cannot get Best Object");
+      return new Pose3d();
+    }
 
   }
 
@@ -137,6 +201,25 @@ public class Vision extends SubsystemBase{
     }
 
   }
+
+  /**
+   * Calculates the yaw difference between the robot and a detected object in simulation.
+   *
+   * @return The yaw difference between the robot and a detected object.
+   */
+  public double GetBestTargetYawSim(Pose3d robotPose){
+    if(!visionSim.getVisionTargets().isEmpty()){
+      ArrayList<VisionTargetSim> visionTargetsArray = new ArrayList<>(visionSim.getVisionTargets());
+
+      var camResult = cameraSim.process(0, robotPose, visionTargetsArray);
+      camResult.getBestTarget().getYaw();
+      return camResult.getBestTarget().getYaw();
+    }else{
+      return 0;
+    }
+    
+  }
+  
 
 
   /**
