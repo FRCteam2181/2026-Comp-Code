@@ -207,9 +207,9 @@ public class RobotContainer
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
-    operatorControler.a().whileTrue(topintake.set(.5).alongWith(bottomintake.set(-.5)));
+    operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(-5200)));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
 
   }
 
