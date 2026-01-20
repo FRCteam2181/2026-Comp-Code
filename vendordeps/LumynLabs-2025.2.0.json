@@ -1,7 +1,7 @@
 {
-    "fileName": "LumynLabs.json",
+    "fileName": "LumynLabs-2025.2.0.json",
     "name": "LumynLabs",
-    "version": "2026.0.0-beta-1",
+    "version": "2025.2.0",
     "frcYear": "2025",
     "uuid": "eebd34fc-a6d3-48a2-a286-ac1cec59ab89",
     "mavenUrls": [
@@ -12,29 +12,14 @@
         {
             "groupId": "com.lumynlabs.frc",
             "artifactId": "LumynLabs-java",
-            "version": "2026.0.0-beta-1"
+            "version": "2025.2.0"
         }
     ],
     "jniDependencies": [
         {
             "groupId": "com.lumynlabs.frc",
             "artifactId": "LumynLabs-driver",
-            "version": "2026.0.0-beta-1",
-            "skipInvalidPlatforms": true,
-            "isJar": false,
-            "validPlatforms": [
-                "windowsx86-64",
-                "linuxarm64",
-                "linuxx86-64",
-                "linuxathena",
-                "linuxarm32",
-                "osxuniversal"
-            ]
-        },
-        {
-            "groupId": "com.lumynlabs.frc",
-            "artifactId": "LumynLabs-common",
-            "version": "2026.0.0-beta-1",
+            "version": "2025.2.0",
             "skipInvalidPlatforms": true,
             "isJar": false,
             "validPlatforms": [
@@ -51,10 +36,10 @@
         {
             "groupId": "com.lumynlabs.frc",
             "artifactId": "LumynLabs-cpp",
-            "version": "2026.0.0-beta-1",
+            "version": "2025.2.0",
             "libName": "Lumyn",
             "headerClassifier": "headers",
-            "sharedLibrary": true,
+            "sharedLibrary": false,
             "skipInvalidPlatforms": true,
             "binaryPlatforms": [
                 "windowsx86-64",
@@ -68,27 +53,10 @@
         {
             "groupId": "com.lumynlabs.frc",
             "artifactId": "LumynLabs-driver",
-            "version": "2026.0.0-beta-1",
+            "version": "2025.2.0",
             "libName": "LumynDriver",
             "headerClassifier": "headers",
-            "sharedLibrary": true,
-            "skipInvalidPlatforms": true,
-            "binaryPlatforms": [
-                "windowsx86-64",
-                "linuxarm64",
-                "linuxx86-64",
-                "linuxathena",
-                "linuxarm32",
-                "osxuniversal"
-            ]
-        },
-        {
-            "groupId": "com.lumynlabs.frc",
-            "artifactId": "LumynLabs-common",
-            "version": "2026.0.0-beta-1",
-            "libName": "LumynCommon",
-            "headerClassifier": "headers",
-            "sharedLibrary": true,
+            "sharedLibrary": false,
             "skipInvalidPlatforms": true,
             "binaryPlatforms": [
                 "windowsx86-64",

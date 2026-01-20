@@ -6,28 +6,30 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import com.lumynlabs.devices.ConnectorXAnimate;
 
 import java.time.ZoneId;
 
-import com.lumynlabs.connection.usb.USBPort;
+// import com.lumynlabs.connection.usb.USBPort;
 
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDS extends SubsystemBase {
 
-    private ConnectorXAnimate cXAnimate = new ConnectorXAnimate();
-
-    boolean animateConnected = cXAnimate.Connect(USBPort.kUSB1);
+    
+    ConnectorXAnimate cXAnimate;
+    // boolean animateConnected = cXAnimate.Connect(Port);
 
     boolean isAllianceBlue = true;
 
     public LEDS() {
 
         checkAllianceColor();
+        cXAnimate = new ConnectorXAnimate();
         
     }
 
@@ -53,6 +55,7 @@ public class LEDS extends SubsystemBase {
     }
 
     public void setGrowingBreath(String zoneID) {
+       
         if (isAllianceBlue == true) {
             cXAnimate.leds.SetAnimationSequence(zoneID, "Blue-Growing-Breath");
         } else {
@@ -73,6 +76,7 @@ public class LEDS extends SubsystemBase {
     @Override
     public void periodic() {
         checkAllianceColor();
+    
     }
 
 
