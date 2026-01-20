@@ -10,15 +10,18 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.climberConfigs;
 
+import frc.robot.Constants.ClimberConstants;
+
 public class ClimberSubsystem extends SubsystemBase{
-    SparkMax m_climberL;
-    SparkMax m_climberR;
+    
+    SparkMax m_LeftClimber;
+    SparkMax m_RightClimber;
     
     public ClimberSubsystem(){
-        m_climberL = new SparkMax(15, MotorType.kBrushless);
+        m_LeftClimber= new SparkMax(ClimberConstants.kLeftClimber_ID, MotorType.kBrushless);
        // m_climberR = new SparkMax(33, MotorType.kBrushless);
 
-        m_climberL.configure(climberConfigs.climberLConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_LeftClimber.configure(climberConfigs.climberLConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
       //  m_climberR.configure(climberConfigs.climberRConfig.follow(m_climberL, false), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
@@ -26,26 +29,27 @@ public class ClimberSubsystem extends SubsystemBase{
 
     public Command c_climb(){
         return this.startEnd(() -> {
-            m_climberL.set(.7);
 
+            m_LeftClimber.set(ClimberConstants.kClimberSpeed);
 
         }, 
         
         () -> {
-        m_climberL.set(0);
-
+            
+            m_LeftClimber.set(0);
             
         });
     }
     public Command c_climbReverse(){
             return this.startEnd(() -> {
-                m_climberL.set(-.7);
-    
+                
+                m_LeftClimber.set(-ClimberConstants.kClimberSpeed);
     
             }, 
             
             () -> {
-            m_climberL.set(0);
+
+                m_LeftClimber.set(0);
     
                 
             });

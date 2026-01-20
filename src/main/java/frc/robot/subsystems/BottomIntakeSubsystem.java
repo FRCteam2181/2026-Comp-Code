@@ -45,6 +45,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
+import frc.robot.Constants.IntakeConstants;
 
 public class BottomIntakeSubsystem extends SubsystemBase {
 
@@ -68,11 +69,12 @@ public class BottomIntakeSubsystem extends SubsystemBase {
   .withStatorCurrentLimit(Amps.of(40));
 
   // Vendor motor controller object
-private SparkFlex bottomintake = new SparkFlex(10, MotorType.kBrushless);
-  // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController bottomintakemotor = new SparkWrapper(bottomintake, DCMotor.getNEO(1), smcConfig);
+  private SparkFlex bottomIntake = new SparkFlex(IntakeConstants.kBottomIntake_ID, MotorType.kBrushless);
 
-  private final FlyWheelConfig bottomintakeConfig = new FlyWheelConfig(bottomintakemotor)
+  // Create our SmartMotorController from our Spark and config with the NEO.
+  private SmartMotorController bottomIntakeMotor = new SparkWrapper(bottomIntake, DCMotor.getNEO(1), smcConfig);
+
+  private final FlyWheelConfig bottomIntakeConfig = new FlyWheelConfig(bottomIntakeMotor)
   // Diameter of the flywheel.
   .withDiameter(Inches.of(4))
   // Mass of the flywheel.
@@ -80,66 +82,42 @@ private SparkFlex bottomintake = new SparkFlex(10, MotorType.kBrushless);
   // Maximum speed of the shooter.
   .withUpperSoftLimit(RPM.of(1000))
   // Telemetry name and verbosity for the arm.
-  .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
+  .withTelemetry("BottomIntakeWheel", TelemetryVerbosity.HIGH);
   // Shooter Mechanism
-  private FlyWheel bottomintakewheel = new FlyWheel(bottomintakeConfig);
+  private FlyWheel bottomIntakeWheel = new FlyWheel(bottomIntakeConfig);
     /**
    * Gets the current velocity of the shooter.
    *
    * @return Shooter velocity.
    */
-   public AngularVelocity getbottomVelocity() {return bottomintakewheel.getSpeed();}
+   public AngularVelocity getVelocity() {return bottomIntakeWheel.getSpeed();}
  /**
    * Set the shooter velocity.
    *
    * @param speed Speed to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command setbottomVelocity(AngularVelocity speed) {return bottomintakewheel.setSpeed(speed);}
+  public Command setVelocity(AngularVelocity speed) {return bottomIntakeWheel.setSpeed(speed);}
   /**
    * Set the dutycycle of the shooter.
    *
    * @param dutyCycle DutyCycle to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command set(double dutyCycle) {return bottomintakewheel.set(dutyCycle);}
+  public Command set(double dutyCycle) {return bottomIntakeWheel.set(dutyCycle);}
 
   /** Creates a new ExampleSubsystem. */
   public BottomIntakeSubsystem() {}
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command shooterCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean shooterCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    bottomintakewheel.updateTelemetry();
+    bottomIntakeWheel.updateTelemetry();
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
-    bottomintakewheel.simIterate();
+    bottomIntakeWheel.simIterate();
   }
 }

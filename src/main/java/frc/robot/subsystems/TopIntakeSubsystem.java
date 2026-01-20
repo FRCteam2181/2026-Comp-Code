@@ -30,6 +30,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 
 import java.util.function.Supplier;
 
@@ -57,7 +58,7 @@ public class TopIntakeSubsystem extends SubsystemBase {
   .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
   .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
   // Telemetry name and verbosity level
-  .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
+  .withTelemetry("Top Intake Motor", TelemetryVerbosity.HIGH)
   // Gearing from the motor rotor to final shaft.
   // In this example GearBox.fromReductionStages(3,4) is the same as GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your motor.
   // You could also use .withGearing(12) which does the same thing.
@@ -68,11 +69,12 @@ public class TopIntakeSubsystem extends SubsystemBase {
   .withStatorCurrentLimit(Amps.of(40));
 
   // Vendor motor controller object
-  private SparkFlex topintake = new SparkFlex(11, MotorType.kBrushless);
-  // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController topintakemotor = new SparkWrapper(topintake, DCMotor.getNEO(1), smcConfig);
+  private SparkFlex topIntake = new SparkFlex(IntakeConstants.kTopIntake_ID, MotorType.kBrushless);
 
-  private final FlyWheelConfig topintakeConfig = new FlyWheelConfig(topintakemotor)
+  // Create our SmartMotorController from our Spark and config with the NEO.
+  private SmartMotorController topIntakeMotor = new SparkWrapper(topIntake, DCMotor.getNEO(1), smcConfig);
+
+  private final FlyWheelConfig topIntakeConfig = new FlyWheelConfig(topIntakeMotor)
   // Diameter of the flywheel.
   .withDiameter(Inches.of(4))
   // Mass of the flywheel.
@@ -80,64 +82,41 @@ public class TopIntakeSubsystem extends SubsystemBase {
   // Maximum speed of the shooter.
   .withUpperSoftLimit(RPM.of(1000))
   // Telemetry name and verbosity for the arm.
-  .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
-  private FlyWheel topintakewheel = new FlyWheel(topintakeConfig);
+  .withTelemetry("Top Intake Wheel", TelemetryVerbosity.HIGH);
+  
+  private FlyWheel topIntakeWheel = new FlyWheel(topIntakeConfig);
     /**
    * Gets the current velocity of the shooter.
    *
    * @return Shooter velocity.
    */
-  public AngularVelocity gettopVelocity() {return topintakewheel.getSpeed();}
+  public AngularVelocity gettopVelocity() {return topIntakeWheel.getSpeed();}
  /**
    * Set the shooter velocity.
    *
    * @param speed Speed to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command settopVelocity(AngularVelocity speed) {return topintakewheel.setSpeed(speed);}
+  public Command settopVelocity(AngularVelocity speed) {return topIntakeWheel.setSpeed(speed);}
    /* Set the dutycycle of the shooter.
    *
    * @param dutyCycle DutyCycle to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command set(double dutyCycle) {return topintakewheel.set(dutyCycle);}
+  public Command set(double dutyCycle) {return topIntakeWheel.set(dutyCycle);}
 
   /** Creates a new ExampleSubsystem. */
   public TopIntakeSubsystem() {}
 
-  /**
-   * Example command factory method.
-   *
-   * @return a command
-   */
-  public Command shooterCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
-  }
-
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean shooterCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    topintakewheel.updateTelemetry();
+    topIntakeWheel.updateTelemetry();
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
-    topintakewheel.simIterate();
+    topIntakeWheel.simIterate();
   }
 }

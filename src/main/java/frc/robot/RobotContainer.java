@@ -39,6 +39,9 @@ import static edu.wpi.first.units.Units.RPM;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
+import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ShooterConstants;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
@@ -211,9 +214,9 @@ public class RobotContainer
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
-    operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
+    operatorControler.a().whileTrue(topintake.set(IntakeConstants.kBottomIntakeDutyCycle).alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+    operatorControler.y().whileTrue(shooter.setVelocity(ShooterConstants.kShooterVelocity));
 
     operatorControler.rightTrigger().whileTrue(spindexer.set(-.5));
 
