@@ -14,6 +14,7 @@ import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import  edu.wpi.first.math.Pair;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -21,10 +22,14 @@ import static edu.wpi.first.units.Units.VoltsPerRadianPerSecond;
 import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
+import frc.robot.Configs.climberConfigs;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -45,14 +50,17 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 public class ShooterSubsystem extends SubsystemBase {
+  private SparkFlex spark = new SparkFlex(9, MotorType.kBrushless);
+  private SparkFlex spark2 = new SparkFlex(14, MotorType.kBrushless);
+  
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
   .withControlMode(ControlMode.CLOSED_LOOP)
   // Feedback Constants (PID Constants)
-  .withClosedLoopController(.015, 0, .175)
-  .withSimClosedLoopController(.01, 0, 0)
+  .withClosedLoopController(.01, 0, .175)
+  .withSimClosedLoopController(.015, 0, 0.175)
   // Feedforward Constants
   .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
-  .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+  .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
   // Telemetry name and verbosity level
   .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
   // Gearing from the motor rotor to final shaft.
@@ -62,26 +70,31 @@ public class ShooterSubsystem extends SubsystemBase {
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
   .withIdleMode(MotorMode.COAST)
-  .withStatorCurrentLimit(Amps.of(40));
+  .withStatorCurrentLimit(Amps.of(40))
+  .withFollowers(Pair.of(spark2, true));
+
 
   // Vendor motor controller object
-  private SparkFlex spark = new SparkFlex(9, MotorType.kBrushless);
+  
 
   // Create our SmartMotorController from our Spark and config with the NEO.
   private SmartMotorController motor = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+  // private SmartMotorController motor2 = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
 
   private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motor)
   // Diameter of the flywheel.
   .withDiameter(Inches.of(4))
   // Mass of the flywheel.
-  .withMass(Pounds.of(3.5))
+  .withMass(Pounds.of(1))
   // Maximum speed of the shooter.
   .withUpperSoftLimit(RPM.of(6784*4))
   // Telemetry name and verbosity for the arm.
   .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
 
+
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
+
 
     /**
    * Gets the current velocity of the shooter.
@@ -107,7 +120,10 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
   
   /** Creates a new ExampleSubsystem. */
-  public ShooterSubsystem() {}
+  public ShooterSubsystem() {
+    //spark2.configure(climberConfigs.shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+  }
 
   /**
    * Example command factory method.

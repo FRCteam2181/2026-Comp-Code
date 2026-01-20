@@ -212,7 +212,7 @@ public class RobotContainer
 
     operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
-    //operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(-5200)));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
 
     operatorControler.x().whileTrue(turret.set(.3));
 
