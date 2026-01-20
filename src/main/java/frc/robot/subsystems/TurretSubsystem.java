@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 //import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 //import frc.robot.constants.SubsystemConstants;
-import frc.robot.Utils.PhoenixUtil;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -46,6 +46,7 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.CRTAbsoluteEncoder;
 import yams.units.CRTAbsoluteEncoderConfig;
 import com.revrobotics.REVLibError;
+import frc.robot.constants.ShooterConstants;
 
 /**
  * Example of wiring a YAMS CRTAbsoluteEncoder with two CANcoders on a turret.
@@ -171,14 +172,22 @@ public class TurretSubsystem extends SubsystemBase{
 
   @Override
   public void periodic() {
+
+    SmartDashboard.putNumber("Encoder A Raw", EncoderA.get());
+    SmartDashboard.putNumber("Encoder A Adjusted", (EncoderA.get() - ShooterConstants.EncoderAOffset));
+    SmartDashboard.putNumber("Encoder B", EncoderB.getPosition());
+    SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
+    
+    
+
     if (!rotorSeededFromAbs) {
       attemptRotorSeedFromCANCoders();
     }
     turret.updateTelemetry();
-    System.out.println(EncoderB.getPosition());
-    System.out.println(EncoderA.get());
-    System.out.println(rotorSeededFromAbs);
-    System.out.println(motor.getMechanismPosition());
+    // System.out.println(EncoderB.getPosition());
+    // System.out.println(EncoderA.get());
+    // System.out.println(rotorSeededFromAbs);
+    // System.out.println(motor.getMechanismPosition());
     
   }
 
@@ -194,8 +203,8 @@ public class TurretSubsystem extends SubsystemBase{
 
     var solver = new CRTAbsoluteEncoder(crtConfig);
     var solvedAngle = solver.getAngleOptional();
-    System.out.println(solvedAngle);
-
+    //System.out.println(solvedAngle);
+    //SmartDashboard.putNumber("SolvedAngle", solvedAngle.get().in(Rotations));
     // Logger.recordOutput("Turret/CRT/AbsA", lastAbsA);
     // Logger.recordOutput("Turret/CRT/AbsB", lastAbsB);
     // Logger.recordOutput("Turret/CRT/SolverStatus", solver.getLastStatus());
@@ -229,7 +238,7 @@ public class TurretSubsystem extends SubsystemBase{
   }
 
   private AbsSensorRead readAbsSensors() {
-    Double absPositionASignal = EncoderA.get();
+    Double absPositionASignal = (EncoderA.get()- ShooterConstants.EncoderAOffset);
     Double absPositionBSignal = EncoderB.getPosition();    
 
         return new AbsSensorRead(
@@ -254,7 +263,7 @@ public class TurretSubsystem extends SubsystemBase{
   private CRTAbsoluteEncoderConfig buildCrtConfig() {
     // Example gearing: 50T drives encoder pinions 34T and 33T via common drive stage of 9:1
     return new CRTAbsoluteEncoderConfig(
-            () -> Rotations.of(EncoderA.get()),
+            () -> Rotations.of(EncoderA.get() - ShooterConstants.EncoderAOffset),
             () -> Rotations.of(EncoderB.getPosition()))
         .withCommonDriveGear(
           1, 
