@@ -31,6 +31,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -63,6 +64,7 @@ public class RobotContainer
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
+  private final TurretSubsystem turret = new TurretSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -172,6 +174,7 @@ public class RobotContainer
     topintake.setDefaultCommand(topintake.set(0));
     bottomintake.setDefaultCommand(bottomintake.set(0));
     shooter.setDefaultCommand(shooter.set(0));
+    turret.setDefaultCommand(turret.set(0));
 
     if (Robot.isSimulation())
     {
@@ -210,6 +213,11 @@ public class RobotContainer
     operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+
+    operatorControler.x().whileTrue(turret.set(.3));
+
+    operatorControler.b().whileTrue(turret.set(-.3));
+
 
   }
 

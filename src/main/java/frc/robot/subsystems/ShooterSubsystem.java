@@ -52,7 +52,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class ShooterSubsystem extends SubsystemBase {
   private SparkFlex spark = new SparkFlex(9, MotorType.kBrushless);
   private SparkFlex spark2 = new SparkFlex(14, MotorType.kBrushless);
-
+  
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
   .withControlMode(ControlMode.CLOSED_LOOP)
   // Feedback Constants (PID Constants)
@@ -72,10 +72,10 @@ public class ShooterSubsystem extends SubsystemBase {
   .withIdleMode(MotorMode.COAST)
   .withStatorCurrentLimit(Amps.of(40))
   .withFollowers(Pair.of(spark2, true));
-  
+
 
   // Vendor motor controller object
-
+  
 
   // Create our SmartMotorController from our Spark and config with the NEO.
   private SmartMotorController motor = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
@@ -94,7 +94,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
-  
+
 
     /**
    * Gets the current velocity of the shooter.
@@ -122,7 +122,7 @@ public class ShooterSubsystem extends SubsystemBase {
   /** Creates a new ExampleSubsystem. */
   public ShooterSubsystem() {
     //spark2.configure(climberConfigs.shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-   
+
   }
 
   /**
