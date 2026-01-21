@@ -2,9 +2,7 @@
   "robotWidth": 0.762,
   "robotLength": 0.762,
   "holonomicMode": true,
-  "pathFolders": [
-    "Blue Branch Positions"
-  ],
+  "pathFolders": [],
   "autoFolders": [],
   "defaultMaxVel": 5.331370317,
   "defaultMaxAccel": 2.331370317,
@@ -30,7 +28,5 @@
   "brModuleY": -0.273,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": [
-    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":0.381,\"y\":-0.038},\"end\":{\"x\":0.65,\"y\":-0.038},\"strokeWidth\":0.0254}}"
-  ]
+  "robotFeatures": []
 }
