@@ -13,6 +13,7 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -28,11 +29,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.constants.OperatorConstants;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
+import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
 
@@ -210,13 +212,13 @@ public class RobotContainer
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
-    operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
+    // operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+    // operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
 
     operatorControler.x().whileTrue(turret.set(.3));
 
-    operatorControler.b().whileTrue(turret.set(-.3));
+    operatorControler.b().whileTrue(turret.set(-0.3));
 
 
   }

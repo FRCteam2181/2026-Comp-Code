@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Value;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusCode;
@@ -20,6 +21,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
@@ -46,7 +48,7 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.CRTAbsoluteEncoder;
 import yams.units.CRTAbsoluteEncoderConfig;
 import com.revrobotics.REVLibError;
-import frc.robot.constants.ShooterConstants;
+import frc.robot.Constants.ShooterConstants;
 
 /**
  * Example of wiring a YAMS CRTAbsoluteEncoder with two CANcoders on a turret.
@@ -118,10 +120,10 @@ public class TurretSubsystem extends SubsystemBase{
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
             .withStatorCurrentLimit(Amps.of(40))
-            .withMotorInverted(false)
+            .withMotorInverted(true)
             .withControlMode(ControlMode.CLOSED_LOOP);
 
-    motor = new SparkWrapper(turretMotor, DCMotor.getNEO(1), motorConfig);
+    motor = new SparkWrapper(turretMotor, DCMotor.getNeoVortex(1), motorConfig);
 
     MechanismPositionConfig robotToMechanism =
         new MechanismPositionConfig()
@@ -177,6 +179,7 @@ public class TurretSubsystem extends SubsystemBase{
     SmartDashboard.putNumber("Encoder A Adjusted", (EncoderA.get() - ShooterConstants.EncoderAOffset));
     SmartDashboard.putNumber("Encoder B", EncoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
+    SmartDashboard.putNumber("turret position", getAngle().magnitude());
     
     
 
