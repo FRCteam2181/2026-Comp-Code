@@ -15,9 +15,11 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.REVLibError;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -27,7 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.constants.ShooterConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -79,7 +81,7 @@ public class NewTurret extends SubsystemBase{
 
   public NewTurret() {
     
-    absPositionASignal = (cancoderA.get()- ShooterConstants.EncoderAOffset);
+    absPositionASignal = (getAbsoluteEncoderWithOffset());
     absPositionBSignal = cancoderB.getPosition();
 
     motorTelemetryConfig =
@@ -93,18 +95,20 @@ public class NewTurret extends SubsystemBase{
     motorConfig =
         new SmartMotorControllerConfig(this)
             .withClosedLoopController(
-                80, 0, 0, DegreesPerSecond.of(45), DegreesPerSecondPerSecond.of(45))
+                4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(700))
-            .withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
+            .withSoftLimit(Degrees.of(0), Degrees.of(500))
+            //.withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
             .withGearing(
                 new MechanismGearing(
-                    37.5))
+                    GearBox.fromStages(
+                        "4:1",
+                        "10:1")))
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
             .withStatorCurrentLimit(Amps.of(40))
-            .withSupplyCurrentLimit(Amps.of(4))
+            //.withSupplyCurrentLimit(Amps.of(4))
             .withMotorInverted(false)
             .withControlMode(ControlMode.CLOSED_LOOP);
 
@@ -116,14 +120,14 @@ public class NewTurret extends SubsystemBase{
             .withMaxRobotLength(Meters.of(0.75))
             .withRelativePosition(
                 new Translation3d(
-                    Meters.of(-0.1524), // back from robot center
+                    Meters.of(0.0), // back from robot center
                     Meters.of(0.0), // centered left/right
                     Meters.of(0.451739) // up from the floor reference
                     ));
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Degrees.of(0), Degrees.of(700))
+            .withHardLimit(Degrees.of(0), Degrees.of(720))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -217,10 +221,11 @@ public class NewTurret extends SubsystemBase{
       return;
     }
 
-    Angle solvedAngleValue = solvedAngle.get();
-    motor.setEncoderPosition(solvedAngleValue);
+    double turretRotations = solvedAngle.get().in(Rotations);
+   
+    motor.setEncoderPosition(Rotations.of(turretRotations));
     rotorSeededFromAbs = true;
-    lastSeededTurretDeg = solvedAngleValue.in(Degrees);
+    lastSeededTurretDeg = Rotations.of(turretRotations).in(Degrees);
     lastSeedError = solver.getLastErrorRotations();
     SmartDashboard.putBoolean("Turret/CRT/SolutionFound", true);
     SmartDashboard.putNumber("Turret/CRT/SeededTurretDeg", lastSeededTurretDeg);
@@ -235,33 +240,55 @@ public class NewTurret extends SubsystemBase{
    * Reads both absolute encoders and returns their rotations plus a status.
    */
   private AbsSensorRead readAbsSensors() {
+    Double absPositionASignal = (getAbsoluteEncoderWithOffset());
+    Double absPositionBSignal = cancoderB.getPosition(); 
+
     boolean haveDevices = cancoderA != null && cancoderB != null;
+    
     if (haveDevices) {
-              return new AbsSensorRead(
+
+        if (cancoderA.isConnected() && isSparkFlexConnected()) {
+            return new AbsSensorRead(
             true,
-            (cancoderA.get() - ShooterConstants.EncoderAOffset),
-            (cancoderB.getPosition()),
+            absPositionASignal,
+            absPositionBSignal,
             "ok");
     }
 
     return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
+}
+    return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
   }
+
+public boolean isSparkFlexConnected(){
+    String error = turretMotor.getFirmwareString();
+
+    if (error == null) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
   /**
    * Build the CRT config
    */
   private CRTAbsoluteEncoderConfig buildCrtConfig() {
     return new CRTAbsoluteEncoderConfig(
-            () -> Rotations.of(cancoderA.get() - ShooterConstants.EncoderAOffset),
+            () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(
             1, 
             200, 
             19, 
             21)
-        .withMechanismRange(Rotations.of(0.0), Rotations.of(2))
-        .withMatchTolerance(Rotations.of(0.01));
-        //.withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
+        .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
+        .withMatchTolerance(Rotations.of(0.05))
+        .withCrtGearRecommendationConstraints(
+            1.2,
+            15, 
+            60, 
+            40);
   }
 
   /**
@@ -300,6 +327,13 @@ public class NewTurret extends SubsystemBase{
       SmartDashboard.putNumber(
           "Turret/CRT/Config/Reccomender/RecommendedIterations", pair.theoreticalIterations());
     }
+  }
+
+
+  private Double getAbsoluteEncoderWithOffset() {
+
+    return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
+
   }
 
   private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}

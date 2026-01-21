@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 //import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.constants.ShooterConstants;
 //import frc.robot.constants.SubsystemConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import yams.gearing.GearBox;
@@ -46,7 +47,6 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.CRTAbsoluteEncoder;
 import yams.units.CRTAbsoluteEncoderConfig;
 import com.revrobotics.REVLibError;
-import frc.robot.Constants.ShooterConstants;
 
 /**
  * Example of wiring a YAMS CRTAbsoluteEncoder with two CANcoders on a turret.
