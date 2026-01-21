@@ -155,7 +155,7 @@ public class SwerveSubsystem extends SubsystemBase
 */
 public void setupPhotonVision()
 {
-  vision = new Vision(swerveDrive::getPose, camera);
+  vision = new Vision(swerveDrive::getPose, camera, swerveDrive.field);
 }
 
   /**
@@ -192,7 +192,11 @@ public void setupPhotonVision()
     if (visionDriveTest)
       { 
 
-
+        if (visionDriveTest)
+        {
+          swerveDrive.updateOdometry();
+          vision.updatePoseEstimation(swerveDrive);
+        }
     
           
 
@@ -279,11 +283,11 @@ public Command aimAtTarget()
   });
 }
 
-public Command aimAtTargetSim()
+public Command aimAtTargetSim(Pose2d a)
 {
   if(!vision.visionSim.getVisionTargets().isEmpty()){
     //System.out.println(swerveDrive.getPose());
-   return driveToPose(swerveDrive.getPose());
+   return driveToPose(a);
    //new Rotation2d(Units.degreesToRadians(vision.getBestTargetYawSim()))
   } else {
     return new RunCommand(() -> {
