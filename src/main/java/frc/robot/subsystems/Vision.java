@@ -123,7 +123,7 @@ public class Vision extends SubsystemBase{
         Transform3d robotToCamera = new Transform3d(robotToCameraTrl, robotToCameraRot);
 
         // Add this camera to the vision system simulation with the given robot-to-camera transform.
-        visionSim.addCamera(cameraSim, robotToCamera);
+        visionSim.addCamera(cameraSim, VisionConstants.ROBOT_TO_CAMERA);
 
 
       //for (Cameras c : Cameras.values())
@@ -140,7 +140,7 @@ public class Vision extends SubsystemBase{
     // This method will be called once per scheduler run
     if(camera.getLatestResult().hasTargets()){
       SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
-      SmartDashboard.putNumber("PhotonVisionYaw", GetBestTargetYaw());
+      SmartDashboard.putNumber("PhotonVisionYaw", getBestTargetYaw());
       SmartDashboard.putNumber("DetectedObjectRelativeX", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX());
       SmartDashboard.putNumber("DetectedObjectRelativeY", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY());
       SmartDashboard.putNumber("DetectedObjectRelativeZ", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getZ());
@@ -148,6 +148,7 @@ public class Vision extends SubsystemBase{
     
 
     targets = camera.getLatestResult().getTargets();
+    visionSim.update(currentPose.get());
 
     SmartDashboard.putBoolean("hasTargets", camera.getLatestResult().hasTargets());
 
@@ -158,10 +159,9 @@ public class Vision extends SubsystemBase{
   /**
    * Calculates a target pose relative to the Robot Pose on the field in simulation.
    *
-   * @param robotPose   The Robot's Pose on the field.
    * @return The pose of the best detected object.
    */
-  public Pose3d getBestObjectPoseSim(Pose3d robotPose)
+  public Pose3d getBestObjectPoseSim()
   {
     //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
     
@@ -169,12 +169,12 @@ public class Vision extends SubsystemBase{
     {
       ArrayList<VisionTargetSim> visionTargetsArray = new ArrayList<>(visionSim.getVisionTargets());
 
-      var camResult = cameraSim.process(0, robotPose, visionTargetsArray);
+      var camResult = cameraSim.process(0, new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA), visionTargetsArray);
       // publish this info to NT at estimated timestamp of receive
       //cameraSim.submitProcessedFrame(camResult, timestampNT);
       // display debug results
       var trf = camResult.getBestTarget().getBestCameraToTarget();
-      return robotPose.transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(trf);
+      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(trf);
     } else
     {
       //throw new RuntimeException("Cannot get Best Object");
@@ -186,15 +186,15 @@ public class Vision extends SubsystemBase{
   /**
    * Calculates a target pose relative to the Robot Pose on the field.
    *
-   * @param robotPose   The Robot's Pose on the field.
+   * @param currentPose.get()   The Robot's Pose on the field.
    * @return The pose of the best detected object.
    */
-  public static Pose3d getBestObjectPose(Pose3d robotPose)
+  public Pose3d getBestObjectPose()
   {
     //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
     if (camera.getLatestResult().hasTargets())
     {
-      return robotPose.transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(camera.getLatestResult().getBestTarget().getBestCameraToTarget());
+      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(camera.getLatestResult().getBestTarget().getBestCameraToTarget());
     } else
     {
       throw new RuntimeException("Cannot get Best Object");
@@ -207,13 +207,19 @@ public class Vision extends SubsystemBase{
    *
    * @return The yaw difference between the robot and a detected object.
    */
-  public double GetBestTargetYawSim(Pose3d robotPose){
+  public double getBestTargetYawSim(){
     if(!visionSim.getVisionTargets().isEmpty()){
-      ArrayList<VisionTargetSim> visionTargetsArray = new ArrayList<>(visionSim.getVisionTargets());
+      ArrayList<VisionTargetSim> visionTargetsArray = new ArrayList<VisionTargetSim>(visionSim.getVisionTargets());
+      //System.out.println(visionTargetsArray.get(0));
 
-      var camResult = cameraSim.process(0, robotPose, visionTargetsArray);
-      camResult.getBestTarget().getYaw();
-      return camResult.getBestTarget().getYaw();
+      var camResult = cameraSim.process(0, new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA), visionTargetsArray);
+      //System.out.println(camResult.getTargets());
+      //System.out.println(camResult.getBestTarget().getYaw());
+      if(camResult.hasTargets()){
+        return camResult.getBestTarget().getYaw();
+      } else
+        return 0;
+      
     }else{
       return 0;
     }
@@ -227,7 +233,7 @@ public class Vision extends SubsystemBase{
    *
    * @return The yaw difference between the robot and a detected object.
    */
-  public static double GetBestTargetYaw(){
+  public static double getBestTargetYaw(){
     if(camera.getLatestResult().hasTargets()){
       double yaw = camera.getLatestResult().getBestTarget().getYaw();
       return yaw;

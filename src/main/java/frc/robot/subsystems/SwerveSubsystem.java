@@ -36,6 +36,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -50,6 +51,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants.DrivebaseConstants;
@@ -63,6 +65,9 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.AngleUnit.*;
+import java.math.*;
 
 import gg.questnav.questnav.*;
 
@@ -77,7 +82,7 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean     visionDriveTest = true;
+  private final boolean     visionDriveTest = false;
 
   QuestNav questNav = new QuestNav();
 
@@ -142,6 +147,7 @@ public class SwerveSubsystem extends SubsystemBase
     }
 
     setupPathPlanner();
+    setupPhotonVision();
   }
 
 /**
@@ -167,102 +173,12 @@ public void setupPhotonVision()
                                              Rotation2d.fromDegrees(0)));
   }
 
-/**
- * Aim the robot at the target returned by PhotonVision.
- *
- * @return A {@link Command} which will run the alignment.
-*/
-public Command aimAtTarget()
-{
-   return run(() -> {
-    
-    if (camera.getLatestResult().hasTargets())
-    {
-      double yaw = camera.getLatestResult().getBestTarget().getYaw();
-      //var result = resultO.get();
-      while(!Rotation2d.fromDegrees(camera.getLatestResult().getBestTarget().getYaw()).equals(Rotation2d.fromDegrees(0))){
-        //yaw = camera.getLatestResult().getBestTarget().getYaw();
-        drive(getTargetSpeeds(0,
-                            0,
-                            Rotation2d.fromDegrees(yaw))); // Not sure if this will work, more math may be required.
-        System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d()); 
-      }
-      
-    }
-  });
-}
-
-public Command aimAtTargetSim()
-{
-   return run(() -> {
-    
-    if (!vision.visionSim.getVisionTargets().isEmpty())
-    {
-      //double yaw = camera.getLatestResult().getBestTarget().getYaw();
-      //var result = resultO.get();
-      while(vision.GetBestTargetYawSim(new Pose3d(getPose())) != 0){
-        //yaw = camera.getLatestResult().getBestTarget().getYaw();
-        drive(getTargetSpeeds(0,
-                            0,
-                            new Rotation2d(vision.GetBestTargetYawSim(new Pose3d(getPose()))))); // Not sure if this will work, more math may be required.
-        System.out.println(vision.GetBestTargetYawSim(new Pose3d(getPose()))); 
-      }
-      
-    }
-  });
-}
-
-/**
- * Drive the robot toward the target returned by PhotonVision.
- *
- * @return A {@link Command} which will run the alignment.
-*/
-public Command driveToTarget()
-{
-   return run(() -> {
-    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
-    if (camera.getLatestResult().hasTargets())
-    {
-      //var result = resultO.get();
-      driveToPose(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d()); // Not sure if this will work, more math may be required.
-      System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d());
-    }
-  });
-}
-
-public Command driveToTargetSim()
-{
-   return run(() -> {
-    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
-    if(!vision.visionSim.getVisionTargets().isEmpty()){
-      driveToPose(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d()); // Not sure if this will work, more math may be required.
-      //System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
-    } else {
-      System.out.print("failed");
-    }
-  });
-}
-
-public Pose2d getTargetPose(){
-  if (camera.getLatestResult().hasTargets()){
-    System.out.println(vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d());
-    return vision.getBestObjectPose(new Pose3d(this.getPose())).toPose2d();
-  }else
-    return new Pose2d();
-}
-
-/*public Pose2d getTargetPoseSim(){
-  if (!vision.visionSim.getVisionTargets().isEmpty()){
-    System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
-    return vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d();
-  }else
-    return new Pose2d();
-}*/
 
   @Override
   public void periodic()
   {
     m_field2d.setRobotPose(this.getPose());
+    swerveDrive.updateOdometry();
     
 
 
@@ -316,11 +232,15 @@ public Pose2d getTargetPose(){
 
     // System.out.print(questNav.getConnected());
 
+    
+
   }
 
   @Override
   public void simulationPeriodic()
   {
+    m_field2d.setRobotPose(this.getPose());
+    swerveDrive.updateOdometry();
     vision.visionSim.update(swerveDrive.getPose());
     // Get the built-in Field2d used by this VisionSystemSim
     vision.visionSim.getDebugField();
@@ -332,6 +252,92 @@ public Pose2d getTargetPose(){
     // This is extremely resource-intensive and is disabled by default.
     vision.cameraSim.enableDrawWireframe(true);
   }
+
+
+/**
+ * Aim the robot at the target returned by PhotonVision.
+ *
+ * @return A {@link Command} which will run the alignment.
+*/
+public Command aimAtTarget()
+{
+   return run(() -> {
+    
+    if (camera.getLatestResult().hasTargets())
+    {
+      double yaw = camera.getLatestResult().getBestTarget().getYaw();
+      //var result = resultO.get();
+      while(!Rotation2d.fromDegrees(camera.getLatestResult().getBestTarget().getYaw()).equals(Rotation2d.fromDegrees(0))){
+        //yaw = camera.getLatestResult().getBestTarget().getYaw();
+        drive(getTargetSpeeds(0,
+                            0,
+                            Rotation2d.fromDegrees(yaw))); // Not sure if this will work, more math may be required.
+        System.out.println(vision.getBestObjectPose()); 
+      }
+      
+    }
+  });
+}
+
+public Command aimAtTargetSim()
+{
+  if(!vision.visionSim.getVisionTargets().isEmpty()){
+    //System.out.println(swerveDrive.getPose());
+   return driveToPose(swerveDrive.getPose());
+   //new Rotation2d(Units.degreesToRadians(vision.getBestTargetYawSim()))
+  } else {
+    return new RunCommand(() -> {
+      System.out.println("failed");
+    });
+  }
+}
+
+/**
+ * Drive the robot toward the target returned by PhotonVision.
+ *
+ * @return A {@link Command} which will run the alignment.
+*/
+public Command driveToTarget()
+{
+   return run(() -> {
+    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    if (camera.getLatestResult().hasTargets())
+    {
+      //var result = resultO.get();
+      driveToPose(vision.getBestObjectPose().toPose2d()); // Not sure if this will work, more math may be required.
+      System.out.println(vision.getBestObjectPose().toPose2d());
+    }
+  });
+}
+
+public Command driveToTargetSim()
+{
+   return run(() -> {
+    //double yaw = camera.getLatestResult().getBestTarget().getYaw();
+    if(!vision.visionSim.getVisionTargets().isEmpty()){
+      driveToPose(vision.getBestObjectPoseSim().toPose2d()); // Not sure if this will work, more math may be required.
+      //System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
+    } else {
+      System.out.print("failed");
+    }
+  });
+}
+
+public Pose2d getTargetPose(){
+  if (camera.getLatestResult().hasTargets()){
+    System.out.println(vision.getBestObjectPose().toPose2d());
+    return vision.getBestObjectPose().toPose2d();
+  }else
+    return new Pose2d();
+}
+
+/*public Pose2d getTargetPoseSim(){
+  if (!vision.visionSim.getVisionTargets().isEmpty()){
+    System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
+    return vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d();
+  }else
+    return new Pose2d();
+}*/
 
   /**
    * Setup AutoBuilder for PathPlanner.

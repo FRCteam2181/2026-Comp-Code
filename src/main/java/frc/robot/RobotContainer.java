@@ -191,7 +191,8 @@ public class RobotContainer
 
       driverXbox.x().onTrue(drivebase.aimAtTargetSim());
       driverXbox.b().onTrue(drivebase.driveToTargetSim());
-      driverXbox.a().onTrue(new RunCommand(() -> {System.out.print(drivebase.vision.getBestObjectPoseSim(new Pose3d(drivebase.getPose())));}));
+      driverXbox.a().onTrue(new RunCommand(() -> {System.out.println(drivebase.vision.getBestTargetYawSim());}));
+      driverXbox.y().onTrue(new RunCommand(() -> {System.out.println(drivebase.getPose());}));
     }
     if (DriverStation.isTest())
     {
@@ -203,8 +204,8 @@ public class RobotContainer
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
 
-      driverXbox.x().onTrue(drivebase.aimAtTarget());
-      driverXbox.b().onTrue(drivebase.driveToTarget());
+      /*driverXbox.x().onTrue(drivebase.aimAtTarget());
+      driverXbox.b().onTrue(drivebase.driveToTarget());*/
     }
 
   }
