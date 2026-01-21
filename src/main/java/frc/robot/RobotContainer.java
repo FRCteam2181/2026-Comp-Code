@@ -31,7 +31,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.NewTurret;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -64,7 +64,7 @@ public class RobotContainer
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
-  private final TurretSubsystem turret = new TurretSubsystem();
+  private final NewTurret turret = new NewTurret();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
