@@ -46,7 +46,7 @@ import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.CRTAbsoluteEncoder;
 import yams.units.CRTAbsoluteEncoderConfig;
 import com.revrobotics.REVLibError;
-import frc.robot.constants.ShooterConstants;
+import frc.robot.Constants.ShooterConstants;
 
 /**
  * Example of wiring a YAMS CRTAbsoluteEncoder with two CANcoders on a turret.
@@ -173,10 +173,10 @@ public class TurretSubsystem extends SubsystemBase{
   @Override
   public void periodic() {
 
-    SmartDashboard.putNumber("Encoder A Raw", EncoderA.get());
-    SmartDashboard.putNumber("Encoder A Adjusted", (EncoderA.get() - ShooterConstants.EncoderAOffset));
-    SmartDashboard.putNumber("Encoder B", EncoderB.getPosition());
-    SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
+    // SmartDashboard.putNumber("Encoder A Raw", EncoderA.get());
+    // SmartDashboard.putNumber("Encoder A Adjusted", (EncoderA.get() - ShooterConstants.EncoderAOffset));
+    // SmartDashboard.putNumber("Encoder B", EncoderB.getPosition());
+    // SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
     
     
 
