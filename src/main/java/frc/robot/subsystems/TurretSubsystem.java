@@ -111,7 +111,7 @@ public class TurretSubsystem extends SubsystemBase{
                 4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(500))
+            .withSoftLimit(Degrees.of(0), Degrees.of(180))
             .withGearing(
                 new MechanismGearing(
                     GearBox.fromStages(
