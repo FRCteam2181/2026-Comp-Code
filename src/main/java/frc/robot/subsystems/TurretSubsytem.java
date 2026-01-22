@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.constants.ShooterConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -49,7 +49,7 @@ import yams.units.CRTAbsoluteEncoderConfig;
 /**
  * Turret that uses YAMS CRT
  */
-public class NewTurret extends SubsystemBase{
+public class TurretSubsytem extends SubsystemBase{
   /** Manually rerun CRT seeding. */
   private static final String RERUN_SEED = "Turret/CRT/RerunSeed";
 
@@ -79,7 +79,7 @@ public class NewTurret extends SubsystemBase{
   private double lastAbsB = Double.NaN;
   private String lastSeedStatus = "NOT_ATTEMPTED";
 
-  public NewTurret() {
+  public TurretSubsytem() {
     
     absPositionASignal = (getAbsoluteEncoderWithOffset());
     absPositionBSignal = cancoderB.getPosition();

@@ -36,7 +36,7 @@ import frc.robot.constants.OperatorConstants;
 import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.NewTurret;
+import frc.robot.subsystems.TurretSubsytem;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -69,7 +69,7 @@ public class RobotContainer
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
-  private final NewTurret turret = new NewTurret();
+  private final TurretSubsytem turret = new TurretSubsytem();
 
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
@@ -229,11 +229,11 @@ public class RobotContainer
     
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6350)));
 
-    operatorControler.rightTrigger().whileTrue(spindexer.set(-.5).alongWith(feeder.set(-0.25).alongWith(input.set(.25))));
+    operatorControler.b().whileTrue(spindexer.set(-.75).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
     
-    operatorControler.x().whileTrue(turret.set(.3));
+    operatorControler.rightTrigger().whileTrue(turret.set(.3));
 
-    operatorControler.b().whileTrue(turret.set(-.3));
+    operatorControler.leftTrigger().whileTrue(turret.set(-.3));
 
 
   }
