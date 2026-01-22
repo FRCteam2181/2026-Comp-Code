@@ -26,12 +26,12 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 // Subsystem Imports 
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.BottomIntakeSubsystem;
-import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.Constants.OperatorConstants;
+// import frc.robot.subsystems.BottomIntakeSubsystem;
+// import frc.robot.subsystems.TopIntakeSubsystem;
+// import frc.robot.subsystems.TurretSubsystem;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RPM;
@@ -58,13 +58,13 @@ public class RobotContainer
   // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
-  private final ClimberSubsystem climber = new ClimberSubsystem();
+  // private final ClimberSubsystem climber = new ClimberSubsystem();
 
-  private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
-  private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
+  // private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
+  // private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
-  private final ShooterSubsystem shooter = new ShooterSubsystem();
-  private final TurretSubsystem turret = new TurretSubsystem();
+  // private final ShooterSubsystem shooter = new ShooterSubsystem();
+  // private final TurretSubsystem turret = new TurretSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -171,10 +171,10 @@ public class RobotContainer
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-    topintake.setDefaultCommand(topintake.set(0));
-    bottomintake.setDefaultCommand(bottomintake.set(0));
-    shooter.setDefaultCommand(shooter.set(0));
-    turret.setDefaultCommand(turret.set(0));
+    // topintake.setDefaultCommand(topintake.set(0));
+    // bottomintake.setDefaultCommand(bottomintake.set(0));
+    // shooter.setDefaultCommand(shooter.set(0));
+    // turret.setDefaultCommand(turret.set(0));
 
     if (Robot.isSimulation())
     {
@@ -207,16 +207,16 @@ public class RobotContainer
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
-    driverXbox.rightBumper().whileTrue(climber.c_climb());
-    driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
+    // driverXbox.rightBumper().whileTrue(climber.c_climb());
+    // driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
-    operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
+    // operatorControler.a().whileTrue(topintake.set(.75).alongWith(bottomintake.set(-1)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+    // operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
 
-    operatorControler.x().whileTrue(turret.set(.3));
+    // operatorControler.x().whileTrue(turret.set(.3));
 
-    operatorControler.b().whileTrue(turret.set(-.3));
+    // operatorControler.b().whileTrue(turret.set(-.3));
 
 
   }
