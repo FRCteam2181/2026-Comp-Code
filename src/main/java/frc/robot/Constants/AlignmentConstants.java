@@ -1,11 +1,9 @@
-package frc.robot.Constants;
+package frc.robot.constants;
 
 import com.pathplanner.lib.config.PIDConstants;
 
-public class AlignmentConstants
-{
-  public static class DriveToPose
-  {
+public class AlignmentConstants {
+  public static class DriveToPose {
 
     public static final boolean enableDriveFeedFords = true;
 

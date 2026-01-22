@@ -9,8 +9,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.climberConfigs;
-
-import frc.robot.Constants.ClimberConstants;
+import frc.robot.constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase{
     

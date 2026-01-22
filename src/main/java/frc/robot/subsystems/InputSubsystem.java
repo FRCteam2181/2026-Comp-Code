@@ -23,8 +23,6 @@ import static yams.mechanisms.SmartMechanism.gearbox;
 import static yams.mechanisms.SmartMechanism.gearing;
 
 import frc.robot.Configs.climberConfigs;
-import frc.robot.constants.ShooterConstants;
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -52,39 +50,38 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
-public class ShooterSubsystem extends SubsystemBase {
 
-  private SparkFlex shooterLeader = new SparkFlex(ShooterConstants.kShooterLeader_ID, MotorType.kBrushless);
-  private SparkFlex shooterFollower = new SparkFlex(ShooterConstants.kShooterFollower_ID, MotorType.kBrushless);
+public class InputSubsystem extends SubsystemBase {
+  private SparkFlex spark = new SparkFlex(18, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
   .withControlMode(ControlMode.CLOSED_LOOP)
   // Feedback Constants (PID Constants)
-  .withClosedLoopController(.01, 0, .175)
-  .withSimClosedLoopController(.015, 0, 0.175)
+  .withClosedLoopController(0, 0, 0)
+  .withSimClosedLoopController(0, 0, 0)
   // Feedforward Constants
-  .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
-  .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+  .withFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
+  .withSimFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
   // Telemetry name and verbosity level
-  .withTelemetry("Shooter Leader Motor", TelemetryVerbosity.HIGH)
+  .withTelemetry("FeederMotor", TelemetryVerbosity.HIGH)
   // Gearing from the motor rotor to final shaft.
   // In this example GearBox.fromReductionStages(3,4) is the same as GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your motor.
   // You could also use .withGearing(12) which does the same thing.
   .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
-  .withIdleMode(MotorMode.COAST)
-  .withStatorCurrentLimit(Amps.of(40))
-  .withFollowers(Pair.of(shooterFollower, true));
+  .withIdleMode(MotorMode.BRAKE)
+  .withStatorCurrentLimit(Amps.of(40));
   
 
   // Vendor motor controller object
 
 
   // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController shooterLeaderMotor = new SparkWrapper(shooterLeader, DCMotor.getNEO(1), smcConfig);
+  private SmartMotorController motor = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+  // private SmartMotorController motor2 = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
 
-  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(shooterLeaderMotor)
+  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motor)
   // Diameter of the flywheel.
   .withDiameter(Inches.of(4))
   // Mass of the flywheel.
@@ -92,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase {
   // Maximum speed of the shooter.
   .withUpperSoftLimit(RPM.of(6784*4))
   // Telemetry name and verbosity for the arm.
-  .withTelemetry("Shooter Mech", TelemetryVerbosity.HIGH);
+  .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
 
 
   // Shooter Mechanism
@@ -123,9 +120,33 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
   
   /** Creates a new ExampleSubsystem. */
-  public ShooterSubsystem() {
+  public InputSubsystem() {
     //spark2.configure(climberConfigs.shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
    
+  }
+
+  /**
+   * Example command factory method.
+   *
+   * @return a command
+   */
+  public Command shooterCommand() {
+    // Inline construction of command goes here.
+    // Subsystem::RunOnce implicitly requires `this` subsystem.
+    return runOnce(
+        () -> {
+          /* one-time action goes here */
+        });
+  }
+
+  /**
+   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   *
+   * @return value of some boolean subsystem state, such as a digital sensor.
+   */
+  public boolean shooterCondition() {
+    // Query some boolean state, such as a digital sensor.
+    return false;
   }
 
   @Override

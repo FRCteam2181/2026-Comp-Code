@@ -27,9 +27,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 // Subsystem Imports 
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.constants.IntakeConstants;
+import frc.robot.constants.OperatorConstants;
+import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 
@@ -38,9 +42,6 @@ import static edu.wpi.first.units.Units.RPM;
 
 import java.io.File;
 import swervelib.SwerveInputStream;
-
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.ShooterConstants;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -69,7 +70,8 @@ public class RobotContainer
   private final ShooterSubsystem shooter = new ShooterSubsystem();
 
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
-
+  private final FeederSubsystem feeder = new FeederSubsystem();
+  private final InputSubsystem input = new InputSubsystem();
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
@@ -179,6 +181,8 @@ public class RobotContainer
     bottomintake.setDefaultCommand(bottomintake.set(0));
     shooter.setDefaultCommand(shooter.set(0));
     spindexer.setDefaultCommand(spindexer.set(0));
+    feeder.setDefaultCommand(feeder.set(0));
+    input.setDefaultCommand(input.set(0));
 
     if (Robot.isSimulation())
     {
@@ -216,9 +220,10 @@ public class RobotContainer
 
     operatorControler.a().whileTrue(topintake.set(IntakeConstants.kBottomIntakeDutyCycle).alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(ShooterConstants.kShooterVelocity));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
 
-    operatorControler.rightTrigger().whileTrue(spindexer.set(-.5));
+    operatorControler.rightTrigger().whileTrue(spindexer.set(-.5).alongWith(feeder.set(-0.25).alongWith(input.set(.25))));
+
 
   }
 

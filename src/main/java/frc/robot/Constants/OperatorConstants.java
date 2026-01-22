@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Constants;
+package frc.robot.constants;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -13,12 +13,10 @@ package frc.robot.Constants;
  * constants are needed, to reduce verbosity.
  */
 
-  public final class OperatorConstants
-  {
-
-    // Joystick Deadband
-    public static final double DEADBAND        = 0.1;
-    public static final double LEFT_Y_DEADBAND = 0.1;
-    public static final double RIGHT_X_DEADBAND = 0.1;
-    public static final double TURN_CONSTANT    = 6;
-  }
+public class OperatorConstants {
+  // Joystick Deadband
+  public static final double DEADBAND        = 0.1;
+  public static final double LEFT_Y_DEADBAND = 0.1;
+  public static final double RIGHT_X_DEADBAND = 0.1;
+  public static final double TURN_CONSTANT    = 6;
+}
