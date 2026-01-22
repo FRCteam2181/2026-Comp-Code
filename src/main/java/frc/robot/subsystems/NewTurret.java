@@ -253,7 +253,7 @@ public class NewTurret extends SubsystemBase{
     
     if (haveDevices) {
 
-        if (cancoderA.isConnected() && isSparkFlexConnected()) {
+        if (cancoderA.isConnected() && cancoderB.getPosition() > 0) {
             return new AbsSensorRead(
             true,
             absPositionASignal,
