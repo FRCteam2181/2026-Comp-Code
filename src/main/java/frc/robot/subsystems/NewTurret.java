@@ -29,7 +29,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.ShooterConstants;
+import frc.robot.Constants.ShooterConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -98,7 +98,7 @@ public class NewTurret extends SubsystemBase{
                 4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(500))
+            .withSoftLimit(Degrees.of(0), Degrees.of(180))
             //.withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
             .withGearing(
                 new MechanismGearing(
@@ -109,7 +109,7 @@ public class NewTurret extends SubsystemBase{
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
             .withStatorCurrentLimit(Amps.of(40))
             //.withSupplyCurrentLimit(Amps.of(4))
-            .withMotorInverted(false)
+            .withMotorInverted(true)
             .withControlMode(ControlMode.CLOSED_LOOP);
 
     motor = new SparkWrapper(turretMotor, DCMotor.getNeoVortex(1), motorConfig);
@@ -179,6 +179,12 @@ public class NewTurret extends SubsystemBase{
       attemptRotorSeedFromCANCoders();
     }
     turret.updateTelemetry();
+
+    SmartDashboard.putNumber("Encoder A Raw", cancoderA.get());
+    SmartDashboard.putNumber("Encoder A Adjusted", (cancoderA.get() - ShooterConstants.EncoderAOffset));
+    SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
+    SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
+    SmartDashboard.putNumber("Position", getAngle().magnitude());
     
   }
 
