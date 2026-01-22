@@ -9,23 +9,25 @@ import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
- * class should not be used for any other purpose. All constants should be declared globally (i.e. public static). Do
+ * The Constants class provides a convenient place for teams to hold robot-wide
+ * numerical or boolean constants. This
+ * class should not be used for any other purpose. All constants should be
+ * declared globally (i.e. public static). Do
  * not put anything functional in this class.
  *
- * <p>It is advised to statically import this class (or one of its inner classes) wherever the
+ * <p>
+ * It is advised to statically import this class (or one of its inner classes)
+ * wherever the
  * constants are needed, to reduce verbosity.
  */
 public class DrivebaseConstants {
-    // Hold time on motor brakes when disabled
-    public static final double WHEEL_LOCK_TIME = 10; // seconds
-  
-    public static final double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
-    public static final Matter CHASSIS    = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
-    public static final double LOOP_TIME  = 0.13; //s, 20ms + 110ms sprk max velocity lag
-    public static final double MAX_SPEED  = 5.331370317;
+  // Hold time on motor brakes when disabled
+  public static double WHEEL_LOCK_TIME = 10; // seconds
+
+  public static double ROBOT_MASS = (148 - 20.3) * 0.453592; // 32lbs * kg per pound
+  public static Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
+  public static double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
+  public static double MAX_SPEED = 5.331370317;
   // Maximum speed of the robot in meters per second, used to limit acceleration.
 
 }
-
- 

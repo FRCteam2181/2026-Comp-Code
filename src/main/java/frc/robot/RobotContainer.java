@@ -220,7 +220,7 @@ public class RobotContainer
 
     operatorControler.a().whileTrue(topintake.set(IntakeConstants.kBottomIntakeDutyCycle).alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
     
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6000)));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6350)));
 
     operatorControler.rightTrigger().whileTrue(spindexer.set(-.5).alongWith(feeder.set(-0.25).alongWith(input.set(.25))));
 

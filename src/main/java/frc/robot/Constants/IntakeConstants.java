@@ -1,11 +1,11 @@
 package frc.robot.constants;
 
 public class IntakeConstants {
-    
-    public static final int kBottomIntake_ID = 10;
-    public static final int kTopIntake_ID = 11;
 
-    public static final double kBottomIntakeDutyCycle = 1.0;
-    public static final double kTopIntakeDutyCycle = 0.75;
+    public static int kBottomIntake_ID = 10;
+    public static int kTopIntake_ID = 11;
+
+    public static double kBottomIntakeDutyCycle = 1.0;
+    public static double kTopIntakeDutyCycle = 0.75;
 
 }
