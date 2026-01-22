@@ -95,9 +95,11 @@ public class ShooterSubsystem extends SubsystemBase {
   .withTelemetry("Shooter Mech", TelemetryVerbosity.HIGH);
 
 
+
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
   
+
 
     /**
    * Gets the current velocity of the shooter.

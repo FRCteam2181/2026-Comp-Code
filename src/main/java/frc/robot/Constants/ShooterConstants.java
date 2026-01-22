@@ -10,4 +10,6 @@ public class ShooterConstants {
     public static int kShooterFollower_ID = 14;
 
     public static AngularVelocity kShooterVelocity = RPM.of(6000);
+
+    public static Double EncoderAOffset = 0.812691;
 }
