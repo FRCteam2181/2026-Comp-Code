@@ -189,7 +189,7 @@ public class RobotContainer
                                                      () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));*/
       driverXbox.start().onTrue(Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
 
-      driverXbox.x().onTrue(drivebase.driveToPose(drivebase.getPose()));
+      driverXbox.x().onTrue(new RunCommand(() -> {System.out.println(drivebase.vision.getBestObjectPoseSim());}));
       driverXbox.b().onTrue(drivebase.driveToTargetSim());
       driverXbox.a().onTrue(new RunCommand(() -> {System.out.println(drivebase.vision.getBestTargetYawSim());}));
       driverXbox.y().onTrue(new RunCommand(() -> {System.out.println(drivebase.getPose());}));

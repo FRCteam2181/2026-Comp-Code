@@ -191,12 +191,6 @@ public void setupPhotonVision()
 
     if (visionDriveTest)
       { 
-
-        if (visionDriveTest)
-        {
-          swerveDrive.updateOdometry();
-          vision.updatePoseEstimation(swerveDrive);
-        }
     
           
 
@@ -276,25 +270,39 @@ public Command aimAtTarget()
         drive(getTargetSpeeds(0,
                             0,
                             Rotation2d.fromDegrees(yaw))); // Not sure if this will work, more math may be required.
-        System.out.println(vision.getBestObjectPose()); 
+        //System.out.println(vision.getBestObjectPose()); 
       }
       
     }
   });
 }
 
-public Command aimAtTargetSim(Pose2d a)
-{
-  if(!vision.visionSim.getVisionTargets().isEmpty()){
-    //System.out.println(swerveDrive.getPose());
-   return driveToPose(a);
-   //new Rotation2d(Units.degreesToRadians(vision.getBestTargetYawSim()))
-  } else {
-    return new RunCommand(() -> {
-      System.out.println("failed");
-    });
-  }
+public Pose2d targetPose(Supplier<Pose2d> a){
+  return a.get();
 }
+
+public Command aimAtTargetSim()
+{
+    if(!vision.visionSim.getVisionTargets().isEmpty()){
+      /*while(!Rotation2d.fromDegrees(vision.getBestTargetYawSim()).equals(Rotation2d.fromDegrees(0)) && !vision.visionSim.getVisionTargets().isEmpty()){
+        //yaw = camera.getLatestResult().getBestTarget().getYaw();
+        if(!vision.visionSim.getVisionTargets().isEmpty()){*/
+          /*drive(getTargetSpeeds(0,
+                              0,
+                              Rotation2d.fromDegrees(vision.getBestTargetYawSim()))); // Not sure if this will work, more math may be required.*/
+          //driveToPose(swerveDrive::getPose);
+          // drive(new Translation2d(0,0), vision.getBestTargetYawSim(), false);
+          return driveToPose(() -> swerveDrive.getPose().transformBy(new Transform2d(0,0,Rotation2d.fromDegrees(45))));
+        /*}
+        //System.out.println(vision.getBestObjectPose()); 
+      }*/
+    } else{
+      return driveToPose(() -> new Pose2d());
+    }
+      
+      
+  }
+
 
 /**
  * Drive the robot toward the target returned by PhotonVision.
@@ -316,15 +324,14 @@ public Command driveToTarget()
 
 public Command driveToTargetSim()
 {
-   return run(() -> {
     //double yaw = camera.getLatestResult().getBestTarget().getYaw();
     if(!vision.visionSim.getVisionTargets().isEmpty()){
-      driveToPose(vision.getBestObjectPoseSim().toPose2d()); // Not sure if this will work, more math may be required.
+      return driveToPose(vision.getBestObjectPoseSim().toPose2d()); // Not sure if this will work, more math may be required.
       //System.out.println(vision.getBestObjectPoseSim(new Pose3d(this.getPose())).toPose2d());
     } else {
       System.out.print("failed");
+      return new RunCommand(() -> {});
     }
-  });
 }
 
 public Pose2d getTargetPose(){
