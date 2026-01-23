@@ -223,6 +223,8 @@ public class RobotContainer {
     operatorControler.rightTrigger().whileTrue(turret.set(.3));
 
     operatorControler.leftTrigger().whileTrue(turret.set(-.3));
+
+    operatorControler.leftBumper().whileTrue(turret.sysId());
   }
 
   /**

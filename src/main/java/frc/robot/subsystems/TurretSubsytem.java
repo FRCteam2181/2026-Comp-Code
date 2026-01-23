@@ -6,6 +6,9 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
@@ -127,6 +130,14 @@ public class TurretSubsytem extends SubsystemBase {
    * @param dutyCycle DutyCycle to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
+  public Command sysId() {
+    return turret.sysId(
+        Volts.of(4.0), // maximumVoltage
+        Volts.per(Second).of(0.5), // step
+        Seconds.of(8.0) // duration
+        );
+  }
+
   public Command set(double dutyCycle) {
     return turret.set(dutyCycle);
   }
