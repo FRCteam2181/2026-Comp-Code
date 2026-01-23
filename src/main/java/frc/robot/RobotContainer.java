@@ -218,7 +218,7 @@ public class RobotContainer {
 
     operatorControler
         .b()
-        .whileTrue(spindexer.set(-.75).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
+        .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
 
     operatorControler.rightTrigger().whileTrue(turret.set(.3));
 
