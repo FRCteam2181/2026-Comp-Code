@@ -46,6 +46,17 @@ public class RobotContainer {
   // selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
+  SwerveInputStream snakeDrive =
+      SwerveInputStream.of(
+              drivebase.getSwerveDrive(),
+              () -> driverXbox.getLeftY() * -1,
+              () -> driverXbox.getLeftX() * -1)
+          .withControllerHeadingAxis(() -> driverXbox.getLeftY(), () -> driverXbox.getLeftX())
+          .deadband(OperatorConstants.DEADBAND)
+          .scaleTranslation(0.8)
+          .allianceRelativeControl(true)
+          .headingWhile(true);
+
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
    * velocity.
