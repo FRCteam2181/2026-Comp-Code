@@ -33,7 +33,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.TurretSubsytem;
+import frc.robot.subsystems.TurretSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -63,7 +63,7 @@ public class RobotContainer {
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
-  private final TurretSubsytem turret = new TurretSubsytem();
+  private final TurretSubsystem turret = new TurretSubsystem();
 
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
