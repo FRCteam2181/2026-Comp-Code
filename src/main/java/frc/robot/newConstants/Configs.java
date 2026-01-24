@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.newConstants;
 
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkBaseConfig;
