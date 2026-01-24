@@ -24,11 +24,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
+import frc.robot.newConstants.OperatorConstants;
+import frc.robot.newConstants.AlignmentConstants.DriveToPose;
 // Subsystem Imports 
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.AlignmentConstants.DriveToPose;
 
 import java.io.File;
 
