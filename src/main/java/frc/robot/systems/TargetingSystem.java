@@ -7,11 +7,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.newConstants.Setpoints.AutoScoring;
-import frc.robot.newUtils.field.AllianceFlipUtil;
-import frc.robot.newUtils.field.FieldConstants.Reef;
-import frc.robot.newUtils.field.FieldConstants.ReefHeight;
+import frc.robot.constants.Setpoints.AutoScoring;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.utils.field.AllianceFlipUtil;
+import frc.robot.utils.field.FieldConstants.Reef;
+import frc.robot.utils.field.FieldConstants.ReefHeight;
 
 import java.util.ArrayList;
 import java.util.HashMap;

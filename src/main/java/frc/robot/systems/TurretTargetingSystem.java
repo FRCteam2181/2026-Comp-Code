@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
-import frc.robot.newConstants.TurretConstants;
+import frc.robot.constants.TurretConstants;
 
 import java.awt.Desktop;
 import java.util.ArrayList;
