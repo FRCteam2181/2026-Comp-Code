@@ -214,7 +214,7 @@ public class RobotContainer {
                 .set(IntakeConstants.kBottomIntakeDutyCycle)
                 .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
 
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6350)));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6250)));
 
     operatorControler
         .b()
@@ -224,7 +224,7 @@ public class RobotContainer {
 
     operatorControler.leftTrigger().whileTrue(turret.set(-.3));
 
-    operatorControler.leftBumper().whileTrue(turret.sysId());
+    // operatorControler.leftBumper().whileTrue(turret.sysId());
   }
 
   /**

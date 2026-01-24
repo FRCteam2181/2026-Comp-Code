@@ -13,7 +13,6 @@ import static edu.wpi.first.units.Units.Volts;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -70,7 +69,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public TurretSubsystem() {
 
-    absPositionASignal = (getAbsoluteEncoderWithOffset());
+    absPositionASignal = (cancoderA.get());
     absPositionBSignal = cancoderB.getPosition();
 
     motorTelemetryConfig =
@@ -175,10 +174,10 @@ public class TurretSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Encoder A Raw", cancoderA.get());
     SmartDashboard.putNumber(
-        "Encoder A Adjusted", (cancoderA.get() - ShooterConstants.EncoderAOffset));
+        "Encoder A Adjusted", (cancoderA.get() + ShooterConstants.EncoderAOffset));
     SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
-    SmartDashboard.putNumber("Position", getAngle().magnitude());
+    SmartDashboard.putNumber("Position", getAngle().in(Rotations));
   }
 
   public void simulationPeriodic() {
@@ -220,10 +219,10 @@ public class TurretSubsystem extends SubsystemBase {
       return;
     }
 
-    double turretRotations = solvedAngle.get().in(Rotations);
-    motor.setEncoderPosition(Rotations.of(turretRotations));
+    Angle turretRotations = solvedAngle.get();
+    motor.setEncoderPosition(turretRotations);
     rotorSeededFromAbs = true;
-    lastSeededTurretDeg = Rotations.of(turretRotations).in(Degrees);
+    lastSeededTurretDeg = turretRotations.in(Degrees);
     lastSeedError = solver.getLastErrorRotations();
     SmartDashboard.putBoolean("Turret/CRT/SolutionFound", true);
     SmartDashboard.putNumber("Turret/CRT/SeededTurretDeg", lastSeededTurretDeg);
@@ -236,7 +235,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   /** Reads both absolute encoders and returns their rotations plus a status. */
   private AbsSensorRead readAbsSensors() {
-    Double absPositionASignal = (getAbsoluteEncoderWithOffset());
+    Double absPositionASignal = (cancoderA.get());
     Double absPositionBSignal = cancoderB.getPosition();
 
     boolean haveDevices = cancoderA != null && cancoderB != null;
@@ -264,13 +263,19 @@ public class TurretSubsystem extends SubsystemBase {
 
   /** Build the CRT config */
   private EasyCRTConfig buildEasyCrtConfig() {
-    return new EasyCRTConfig(
-            () -> Rotations.of(getAbsoluteEncoderWithOffset()),
-            () -> Rotations.of(cancoderB.getPosition()))
-        .withCommonDriveGear(1, 200, 19, 21)
-        .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
-        .withMatchTolerance(Rotations.of(0.05))
-        .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
+    // if (cancoderA.isConnected() && cancoderB.getPosition() > 0) {
+      return new EasyCRTConfig(
+              () -> Rotations.of(cancoderA.get()), () -> Rotations.of(cancoderB.getPosition()))
+          .withCommonDriveGear(1, 200, 19, 21)
+          .withAbsoluteEncoderOffsets(
+              Rotations.of(ShooterConstants.EncoderAOffset), Rotations.of(0))
+          .withAbsoluteEncoderInversions(false, false)
+          .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
+          .withMatchTolerance(Rotations.of(0.05))
+          .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
+    // } else {
+    //   return null;
+    // }
   }
 
   /** Publish CRT config-derived values for debugging coverage/ratios. */
@@ -304,10 +309,10 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
-  private Double getAbsoluteEncoderWithOffset() {
+  // private Double getAbsoluteEncoderWithOffset() {
 
-    return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
-  }
+  //   return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
+  // }
 
   private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}
 }
