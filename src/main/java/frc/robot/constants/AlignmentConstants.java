@@ -1,4 +1,4 @@
-package frc.robot.NewConstants;
+package frc.robot.constants;
 
 import com.pathplanner.lib.config.PIDConstants;
 

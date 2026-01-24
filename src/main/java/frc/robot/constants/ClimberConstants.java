@@ -1,4 +1,4 @@
-package frc.robot.NewConstants;
+package frc.robot.constants;
 
 public class ClimberConstants {
 

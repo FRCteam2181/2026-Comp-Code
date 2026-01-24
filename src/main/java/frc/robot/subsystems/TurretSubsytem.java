@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.NewConstants.ShooterConstants;
+import frc.robot.constants.ShooterConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -35,8 +35,8 @@ import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
-import yams.units.CRTAbsoluteEncoder;
-import yams.units.CRTAbsoluteEncoderConfig;
+import yams.units.EasyCRT;
+import yams.units.EasyCRTConfig;
 
 /** Turret that uses YAMS CRT */
 public class TurretSubsytem extends SubsystemBase {
@@ -59,7 +59,7 @@ public class TurretSubsytem extends SubsystemBase {
   // private final CANcoder cancoderB;
   private final Double absPositionASignal;
   private final Double absPositionBSignal;
-  private final CRTAbsoluteEncoderConfig crtConfig;
+  private final EasyCRTConfig easyCRTConfig;
 
   private boolean rotorSeededFromAbs = false;
   private double lastSeededTurretDeg = Double.NaN;
@@ -119,17 +119,11 @@ public class TurretSubsytem extends SubsystemBase {
             .withMOI(0.2);
 
     turret = new Pivot(pivotConfig);
-    crtConfig = buildCrtConfig();
+    easyCRTConfig = buildEasyCrtConfig();
     logCrtConfigTelemetry();
     SmartDashboard.putBoolean(RERUN_SEED, false);
   }
 
-  /**
-   * Set the dutycycle of the turret.
-   *
-   * @param dutyCycle DutyCycle to set.
-   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
-   */
   public Command sysId() {
     return turret.sysId(
         Volts.of(4.0), // maximumVoltage
@@ -138,6 +132,12 @@ public class TurretSubsytem extends SubsystemBase {
         );
   }
 
+  /**
+   * Set the dutycycle of the turret.
+   *
+   * @param dutyCycle DutyCycle to set.
+   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
+   */
   public Command set(double dutyCycle) {
     return turret.set(dutyCycle);
   }
@@ -205,7 +205,7 @@ public class TurretSubsytem extends SubsystemBase {
     lastAbsA = absA;
     lastAbsB = absB;
 
-    var solver = new CRTAbsoluteEncoder(crtConfig);
+    var solver = new EasyCRT(easyCRTConfig);
     var solvedAngle = solver.getAngleOptional();
 
     SmartDashboard.putNumber("Turret/CRT/AbsA", absA);
@@ -221,7 +221,6 @@ public class TurretSubsytem extends SubsystemBase {
     }
 
     double turretRotations = solvedAngle.get().in(Rotations);
-
     motor.setEncoderPosition(Rotations.of(turretRotations));
     rotorSeededFromAbs = true;
     lastSeededTurretDeg = Rotations.of(turretRotations).in(Degrees);
@@ -264,8 +263,8 @@ public class TurretSubsytem extends SubsystemBase {
   }
 
   /** Build the CRT config */
-  private CRTAbsoluteEncoderConfig buildCrtConfig() {
-    return new CRTAbsoluteEncoderConfig(
+  private EasyCRTConfig buildEasyCrtConfig() {
+    return new EasyCRTConfig(
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
@@ -276,35 +275,30 @@ public class TurretSubsytem extends SubsystemBase {
 
   /** Publish CRT config-derived values for debugging coverage/ratios. */
   private void logCrtConfigTelemetry() {
-    double mechanismRangeRot =
-        crtConfig.getMaxMechanismRotations() - crtConfig.getMinMechanismRotations();
+    double mechanismRangeRot = easyCRTConfig.getMechanismRange().in(Rotations);
+    double uniqueCoverageRot =
+        easyCRTConfig.getUniqueCoverage().map(angle -> angle.in(Rotations)).orElse(Double.NaN);
     SmartDashboard.putNumber(
-        "Turret/CRT/Config/RatioA", crtConfig.getEncoder1RotationsPerMechanismRotation());
+        "Turret/CRT/Config/RatioA", easyCRTConfig.getEncoder1RotationsPerMechanismRotation());
     SmartDashboard.putNumber(
-        "Turret/CRT/Config/RatioB", crtConfig.getEncoder2RotationsPerMechanismRotation());
-    SmartDashboard.putNumber(
-        "Turret/CRT/Config/UniqueCoverageRot",
-        crtConfig.getUniqueCoverageRotations().orElse(Double.NaN));
+        "Turret/CRT/Config/RatioB", easyCRTConfig.getEncoder2RotationsPerMechanismRotation());
+    SmartDashboard.putNumber("Turret/CRT/Config/UniqueCoverageRot", uniqueCoverageRot);
     SmartDashboard.putBoolean(
-        "Turret/CRT/Config/CoverageSatisfiesRange",
-        crtConfig
-            .getUniqueCoverageRotations()
-            .map(coverage -> coverage >= mechanismRangeRot)
-            .orElse(false));
+        "Turret/CRT/Config/CoverageSatisfiesRange", easyCRTConfig.coverageSatisfiesRange());
     SmartDashboard.putNumber("Turret/CRT/Config/RequiredRangeRot", mechanismRangeRot);
 
-    var configPair = crtConfig.getRecommendedCrtGearPair();
+    var configPair = easyCRTConfig.getRecommendedCrtGearPair();
     SmartDashboard.putBoolean("Turret/CRT/Config/RecommendedPairFound", configPair.isPresent());
     if (configPair.isPresent()) {
       var pair = configPair.get();
       SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedGearA", pair.gearA());
       SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedGearB", pair.gearB());
       SmartDashboard.putNumber(
-          "Turret/CRT/Config/Reccomender/RecommendedCoverageRot", pair.coverageRot());
+          "Turret/CRT/Config/Reccomender/RecommendedCoverageRot", pair.coverage().in(Rotations));
       SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedLcm", pair.lcm());
       SmartDashboard.putBoolean(
           "Turret/CRT/Config/Reccomender/RecommendedCoprime",
-          CRTAbsoluteEncoderConfig.isCoprime(pair.gearA(), pair.gearB()));
+          EasyCRTConfig.isCoprime(pair.gearA(), pair.gearB()));
       SmartDashboard.putNumber(
           "Turret/CRT/Config/Reccomender/RecommendedIterations", pair.theoreticalIterations());
     }
