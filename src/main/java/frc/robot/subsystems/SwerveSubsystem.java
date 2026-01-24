@@ -39,16 +39,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
-
-import frc.robot.Constants.DrivebaseConstants;
-import frc.robot.Constants.QuestNavConstants;
-
-import frc.robot.Constants.Setpoints;
-import frc.robot.Constants.Setpoints.AutoScoring;
-import frc.robot.Constants.Setpoints.AutoScoring.HumanPlayer.Left;
-import frc.robot.Utils.field.AllianceFlipUtil;
-import frc.robot.Utils.field.FieldConstants.CoralStation;
-import frc.robot.Utils.field.FieldConstants.Processor;
+import frc.robot.newConstants.DrivebaseConstants;
+import frc.robot.newConstants.QuestNavConstants;
+import frc.robot.newConstants.Setpoints;
+import frc.robot.newConstants.Setpoints.AutoScoring;
+import frc.robot.newConstants.Setpoints.AutoScoring.HumanPlayer.Left;
+import frc.robot.newUtils.field.AllianceFlipUtil;
+import frc.robot.newUtils.field.FieldConstants.CoralStation;
+import frc.robot.newUtils.field.FieldConstants.Processor;
 import frc.robot.subsystems.PhotonVision.Cameras;
 
 import java.io.File;

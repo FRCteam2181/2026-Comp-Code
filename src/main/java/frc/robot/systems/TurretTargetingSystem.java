@@ -23,20 +23,14 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
+import frc.robot.newConstants.TurretConstants;
+
 import java.awt.Desktop;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-
-// import edu.wpi.first.math.util.Units;
-// import edu.wpi.first.wpilibj2.command.*;
-// import edu.wpi.first.wpilibj2.command.Commands;
-// import edu.wpi.first.wpilibj2.command.RunCommand;
-// import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-// import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import frc.robot.Constants.TurretConstants;
 //import frc.robot.subsystems.CoralPlacer;
 //import frc.robot.subsystems.CoralFunnel;
 //import frc.robot.subsystems.ElevatorSubsystem;
@@ -167,7 +161,7 @@ public class TurretTargetingSystem
     Rotation2d    currentTurretDirection = getTurretHeading();
     Translation2d relativeTrl    = aimTarget.get().relativeTo(turretPose).getTranslation();
     Rotation2d    target         = new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(currentTurretDirection);
-    omegaRadiansPerSecond = thetaController.calculate(currentTurretDirection.getRadians(), target.getRadians()) * config.maxAngularVelocity;
+    //omegaRadiansPerSecond = thetaController.calculate(currentTurretDirection.getRadians(), target.getRadians()) * config.maxAngularVelocity;
     
   
     return omegaRadiansPerSecond;
