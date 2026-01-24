@@ -10,6 +10,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
@@ -28,12 +29,14 @@ import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.InputSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.TurretSubsystem.*;
+import frc.robot.subsystems.TurretSubsystem.InputSubsystem;
+import frc.robot.subsystems.TurretSubsystem.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem.TurretSubsystem;
+import frc.robot.utils.FuelSim;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -64,6 +67,8 @@ public class RobotContainer {
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
+  private final TurretVisualizer turretVisualizer =
+      new TurretVisualizer(() -> new Pose3d(drivebase.getPose()), drivebase::getFieldVelocity);
 
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
@@ -194,6 +199,8 @@ public class RobotContainer {
               Commands.runEnd(
                   () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
                   () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+
+      configureFuelSim();
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -225,6 +232,35 @@ public class RobotContainer {
     operatorControler.leftTrigger().whileTrue(turret.set(-.3));
 
     operatorControler.leftBumper().whileTrue(turret.sysId());
+  }
+
+  private void configureFuelSim() {
+    FuelSim instance = FuelSim.getInstance();
+    instance.spawnStartingFuel();
+    instance.registerRobot(
+        Units.inchesToMeters(30), // Dimensions.FULL_WIDTH.in(Meters)
+        Units.inchesToMeters(30), // Dimensions.FULL_LENGTH.in(Meters)
+        Units.inchesToMeters(4), // Dimensions.BUMPER_HEIGHT.in(Meters)
+        drivebase::getPose,
+        drivebase::getFieldVelocity);
+    instance.registerIntake(
+        -Units.inchesToMeters(15), // -Dimensions.FULL_LENGTH.div(2).in(Meters),
+        Units.inchesToMeters(15), // Dimensions.FULL_LENGTH.div(2).in(Meters),
+        -Units.inchesToMeters(
+            15 + 7), // -Dimensions.FULL_WIDTH.div(2).plus(Inches.of(7)).in(Meters),
+        -Units.inchesToMeters(15), // -Dimensions.FULL_WIDTH.div(2).in(Meters),
+        driverXbox.a(),
+        () -> turretVisualizer.intakeFuel());
+
+    instance.start();
+    SmartDashboard.putData(
+        Commands.runOnce(
+                () -> {
+                  FuelSim.getInstance().clearFuel();
+                  FuelSim.getInstance().spawnStartingFuel();
+                })
+            .withName("Reset Fuel")
+            .ignoringDisable(true));
   }
 
   /**
