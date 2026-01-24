@@ -6,29 +6,23 @@ import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
+import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 
-import com.ctre.phoenix6.BaseStatusSignal;
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.Subsystem;
-//import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-//import frc.robot.constants.SubsystemConstants;
+import frc.robot.constants.ShooterConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -40,45 +34,32 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
-import yams.motorcontrollers.remote.TalonFXWrapper;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
-import yams.units.CRTAbsoluteEncoder;
-import yams.units.CRTAbsoluteEncoderConfig;
-import com.revrobotics.REVLibError;
+import yams.units.EasyCRT;
+import yams.units.EasyCRTConfig;
 
-/**
- * Example of wiring a YAMS CRTAbsoluteEncoder with two CANcoders on a turret.
- *
- * <p>How to use:
- *
- * <ul>
- *   <li>Describe the encoder gearing in {@link #buildCrtConfig()} and set mechanism
- *       range/tolerance for your turret.
- *       <ul>
- *         <li>If both encoders share a drive gear, use
- *             {@link CRTAbsoluteEncoderConfig#withCommonDriveGear(double, int, int, int)} as
- *             shown.</li>
- *         <li>If they have separate gear trains, use
- *             {@link CRTAbsoluteEncoderConfig#withAbsoluteEncoder1Gearing(int...)} /
- *             {@link CRTAbsoluteEncoderConfig#withAbsoluteEncoder2Gearing(int...)} for simple
- *             mesh chains, or the {@code ...GearingStages(...)} helpers for explicit driver/driven
- *             pairs.</li>
- *       </ul>
- *   <li>AdvantageKit logs under "Turret/CRT" keys for solver status/error/iterations
- *       and gear recommender info.
- * </ul>
- */
-public class TurretSubsystem extends SubsystemBase{
-  // Hardware/config
-  private SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
-  private AbsoluteEncoder EncoderB = turretMotor.getAbsoluteEncoder(); //20t B SparkFlex
-  private DutyCycleEncoder EncoderA = new DutyCycleEncoder(0); //19 A rio
-  
-  
-  private final SmartMotorController motor;
-  private final Pivot turret;
-  private final CRTAbsoluteEncoderConfig crtConfig;
+/** Turret that uses YAMS CRT */
+public class TurretSubsystem extends SubsystemBase {
+  /** Manually rerun CRT seeding. */
+  private static final String RERUN_SEED = "Turret/CRT/RerunSeed";
+
+  // private final TalonFX turretMotor;
+
+  private final SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
+  private final AbsoluteEncoder cancoderB = turretMotor.getAbsoluteEncoder(); // 20t B SparkFlex
+  private final DutyCycleEncoder cancoderA = new DutyCycleEncoder(0); // 19 A rio
+
   private final SmartMotorControllerTelemetryConfig motorTelemetryConfig;
+  private final SmartMotorControllerConfig motorConfig;
+  private final SmartMotorController motor;
+  private final MechanismPositionConfig robotToMechanism;
+  private final PivotConfig pivotConfig;
+  private final Pivot turret;
+  // private final CANcoder cancoderA;
+  // private final CANcoder cancoderB;
+  private final Double absPositionASignal;
+  private final Double absPositionBSignal;
+  private final EasyCRTConfig easyCRTConfig;
 
   private boolean rotorSeededFromAbs = false;
   private double lastSeededTurretDeg = Double.NaN;
@@ -87,11 +68,10 @@ public class TurretSubsystem extends SubsystemBase{
   private double lastAbsB = Double.NaN;
   private String lastSeedStatus = "NOT_ATTEMPTED";
 
-  public TurretSubsystem() {  
+  public TurretSubsystem() {
 
-
-    //absPositionASignal = EncoderA.getPosition();
-   // absPositionBSignal = EncoderB.get();
+    absPositionASignal = (getAbsoluteEncoderWithOffset());
+    absPositionBSignal = cancoderB.getPosition();
 
     motorTelemetryConfig =
         new SmartMotorControllerTelemetryConfig()
@@ -101,38 +81,36 @@ public class TurretSubsystem extends SubsystemBase{
             .withMechanismLowerLimit()
             .withMechanismUpperLimit();
 
-    SmartMotorControllerConfig motorConfig =
+    motorConfig =
         new SmartMotorControllerConfig(this)
             .withClosedLoopController(
                 4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(500))
-            .withGearing(
-                new MechanismGearing(
-                    GearBox.fromStages(
-                        "4:1",
-                        "10:1")))
+            .withSoftLimit(Degrees.of(0), Degrees.of(180))
+            // .withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
+            .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
             .withStatorCurrentLimit(Amps.of(40))
-            .withMotorInverted(false)
+            // .withSupplyCurrentLimit(Amps.of(4))
+            .withMotorInverted(true)
             .withControlMode(ControlMode.CLOSED_LOOP);
 
-    motor = new SparkWrapper(turretMotor, DCMotor.getNEO(1), motorConfig);
+    motor = new SparkWrapper(turretMotor, DCMotor.getNeoVortex(1), motorConfig);
 
-    MechanismPositionConfig robotToMechanism =
+    robotToMechanism =
         new MechanismPositionConfig()
             .withMaxRobotHeight(Meters.of(1.5))
             .withMaxRobotLength(Meters.of(0.75))
             .withRelativePosition(
                 new Translation3d(
-                    Meters.of(0.0),
-                    Meters.of(0.0),
-                    Meters.of(0.451739)
+                    Meters.of(0.0), // back from robot center
+                    Meters.of(0.0), // centered left/right
+                    Meters.of(0.451739) // up from the floor reference
                     ));
 
-    PivotConfig pivotConfig =
+    pivotConfig =
         new PivotConfig(motor)
             .withHardLimit(Degrees.of(0), Degrees.of(720))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
@@ -141,12 +119,17 @@ public class TurretSubsystem extends SubsystemBase{
             .withMOI(0.2);
 
     turret = new Pivot(pivotConfig);
-    crtConfig = buildCrtConfig();
+    easyCRTConfig = buildEasyCrtConfig();
     logCrtConfigTelemetry();
+    SmartDashboard.putBoolean(RERUN_SEED, false);
   }
 
-  public Command setAngle(Angle angle) {
-    return turret.setAngle(angle);
+  public Command sysId() {
+    return turret.sysId(
+        Volts.of(4.0), // maximumVoltage
+        Volts.per(Second).of(0.5), // step
+        Seconds.of(8.0) // duration
+        );
   }
 
   /**
@@ -155,146 +138,175 @@ public class TurretSubsystem extends SubsystemBase{
    * @param dutyCycle DutyCycle to set.
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
-  public Command set(double dutyCycle) {return turret.set(dutyCycle);}
+  public Command set(double dutyCycle) {
+    return turret.set(dutyCycle);
+  }
 
-  
+  public Command setAngle(Angle angle) {
+    return turret.setAngle(angle);
+  }
+
   public Angle getAngle() {
     return turret.getAngle();
   }
 
+  public double getRobotRelativeYawRadians() {
+    return getAngle().in(edu.wpi.first.units.Units.Radians);
+  }
+
+  /** Forces a CRT reseed attempt */
   public void rerunCrtSeed() {
     rotorSeededFromAbs = false;
-    //Logger.recordOutput("Turret/CRT/ManualRerunTimestampSec", edu.wpi.first.wpilibj.Timer.getFPGATimestamp());
+    SmartDashboard.putNumber("Turret/CRT/ManualRerunTimestampSec", Timer.getFPGATimestamp());
     attemptRotorSeedFromCANCoders();
   }
 
-  @Override
   public void periodic() {
+    if (SmartDashboard.getBoolean(RERUN_SEED, false)) {
+      SmartDashboard.putBoolean(RERUN_SEED, false);
+      rerunCrtSeed();
+    }
+    SmartDashboard.putNumber(
+        "Turret/CRT/CurrentPositionDeg", motor.getMechanismPosition().in(Degrees));
     if (!rotorSeededFromAbs) {
       attemptRotorSeedFromCANCoders();
     }
     turret.updateTelemetry();
-    System.out.println(EncoderB.getPosition());
-    System.out.println(EncoderA.get());
-    System.out.println(rotorSeededFromAbs);
-    System.out.println(motor.getMechanismPosition());
-    
+
+    SmartDashboard.putNumber("Encoder A Raw", cancoderA.get());
+    SmartDashboard.putNumber(
+        "Encoder A Adjusted", (cancoderA.get() - ShooterConstants.EncoderAOffset));
+    SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
+    SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
+    SmartDashboard.putNumber("Position", getAngle().magnitude());
   }
 
+  public void simulationPeriodic() {
+    turret.simIterate();
+  }
+
+  /**
+   * Tries to solve turret position via CRT and seed the relative encoder with the result. Reads
+   * both CANCoder values, runs the solver, updates the SmartMotorController encoder, and publishes
+   * CRT status to the dashboard.
+   */
   private void attemptRotorSeedFromCANCoders() {
     AbsSensorRead absRead = readAbsSensors();
     if (!absRead.ok()) {
+      if (!"NO_DEVICES".equals(absRead.status())) {
+        SmartDashboard.putString("Turret/CRT/SeedStatus", absRead.status());
+      }
       lastSeedStatus = absRead.status();
       return;
     }
 
-    lastAbsA = absRead.absA();
-    lastAbsB = absRead.absB();
+    double absA = absRead.absA();
+    double absB = absRead.absB();
+    lastAbsA = absA;
+    lastAbsB = absB;
 
-    var solver = new CRTAbsoluteEncoder(crtConfig);
+    var solver = new EasyCRT(easyCRTConfig);
     var solvedAngle = solver.getAngleOptional();
-    System.out.println(solvedAngle);
 
-    // Logger.recordOutput("Turret/CRT/AbsA", lastAbsA);
-    // Logger.recordOutput("Turret/CRT/AbsB", lastAbsB);
-    // Logger.recordOutput("Turret/CRT/SolverStatus", solver.getLastStatus());
-    // Logger.recordOutput("Turret/CRT/SolverErrorRot", solver.getLastErrorRotations());
-    // Logger.recordOutput("Turret/CRT/SolverIterations", solver.getLastIterations());
+    SmartDashboard.putNumber("Turret/CRT/AbsA", absA);
+    SmartDashboard.putNumber("Turret/CRT/AbsB", absB);
+    SmartDashboard.putString("Turret/CRT/SolverStatus", solver.getLastStatus());
+    SmartDashboard.putNumber("Turret/CRT/SolverErrorRot", solver.getLastErrorRotations());
+    SmartDashboard.putNumber("Turret/CRT/SolverIterations", solver.getLastIterations());
 
     if (solvedAngle.isEmpty()) {
-      //Logger.recordOutput("Turret/CRT/SolutionFound", false);
+      SmartDashboard.putBoolean("Turret/CRT/SolutionFound", false);
       lastSeedStatus = solver.getLastStatus();
       return;
     }
 
     double turretRotations = solvedAngle.get().in(Rotations);
-        
-      
-    if (!solvedAngle.isEmpty()) {
     motor.setEncoderPosition(Rotations.of(turretRotations));
     rotorSeededFromAbs = true;
-    lastSeededTurretDeg = turretRotations * 360.0;
+    lastSeededTurretDeg = Rotations.of(turretRotations).in(Degrees);
     lastSeedError = solver.getLastErrorRotations();
-    }
-    //   Logger.recordOutput("Turret/CRT/SolutionFound", true);
-    //   Logger.recordOutput("Turret/CRT/SeededTurretDeg", lastSeededTurretDeg);
-    //   Logger.recordOutput("Turret/CRT/SeededRotorRot", rotorRotations);
-    //   Logger.recordOutput("Turret/CRT/MatchErrorRot", lastSeedError);
-    
+    SmartDashboard.putBoolean("Turret/CRT/SolutionFound", true);
+    SmartDashboard.putNumber("Turret/CRT/SeededTurretDeg", lastSeededTurretDeg);
+    SmartDashboard.putNumber("Turret/CRT/MatchErrorRot", lastSeedError);
 
-    // lastSeedStatus = seedStatus.toString();
-    // Logger.recordOutput("Turret/CRT/SeedStatus", seedStatus.toString());
-    // Logger.recordOutput("Turret/CRT/Seeded", rotorSeededFromAbs);
+    lastSeedStatus = "OK";
+    SmartDashboard.putString("Turret/CRT/SeedStatus", lastSeedStatus);
+    SmartDashboard.putBoolean("Turret/CRT/Seeded", rotorSeededFromAbs);
   }
 
+  /** Reads both absolute encoders and returns their rotations plus a status. */
   private AbsSensorRead readAbsSensors() {
-    Double absPositionASignal = EncoderA.get();
-    Double absPositionBSignal = EncoderB.getPosition();    
+    Double absPositionASignal = (getAbsoluteEncoderWithOffset());
+    Double absPositionBSignal = cancoderB.getPosition();
 
-        return new AbsSensorRead(
-            true,
-            absPositionASignal,
-            absPositionBSignal,
-            "ok");
+    boolean haveDevices = cancoderA != null && cancoderB != null;
+
+    if (haveDevices) {
+
+      if (cancoderA.isConnected() && cancoderB.getPosition() > 0) {
+        return new AbsSensorRead(true, absPositionASignal, absPositionBSignal, "ok");
+      }
+
+      return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
+    }
+    return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
   }
 
-  private Angle readAbsoluteEncoder(StatusSignal<Angle> signal) {
-    Angle value = signal != null ? signal.getValue() : null;
-    return value != null ? value : Rotations.of(Double.NaN);
+  public boolean isSparkFlexConnected() {
+    String error = turretMotor.getFirmwareString();
+
+    if (error == null) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
-  /**
-   * Build the CRT configuration: supply absolute encoder readings, gearing definition, offsets,
-   * mechanism travel, and match tolerance. Adjust these to match your turret: if you don't have a
-   * common drive stage, use the gearing helpers instead of {@link #withCommonDriveGear(double, int,
-   * int, int)}.
-   */
-
-  private CRTAbsoluteEncoderConfig buildCrtConfig() {
-    // Example gearing: 50T drives encoder pinions 34T and 33T via common drive stage of 9:1
-    return new CRTAbsoluteEncoderConfig(
-            () -> Rotations.of(EncoderA.get()),
-            () -> Rotations.of(EncoderB.getPosition()))
-        .withCommonDriveGear(
-          1, 
-          200, 
-          19, 
-          21)
+  /** Build the CRT config */
+  private EasyCRTConfig buildEasyCrtConfig() {
+    return new EasyCRTConfig(
+            () -> Rotations.of(getAbsoluteEncoderWithOffset()),
+            () -> Rotations.of(cancoderB.getPosition()))
+        .withCommonDriveGear(1, 200, 19, 21)
         .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
         .withMatchTolerance(Rotations.of(0.05))
-        .withCrtGearRecommendationConstraints(
-          1.2, 
-          15, 
-          60, 
-          40);
+        .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
   }
 
+  /** Publish CRT config-derived values for debugging coverage/ratios. */
   private void logCrtConfigTelemetry() {
-    // Logger.recordOutput(
-    //     "Turret/CRT/Config/RatioA", crtConfig.getEncoder1RotationsPerMechanismRotation());
-    // Logger.recordOutput(
-    //     "Turret/CRT/Config/RatioB", crtConfig.getEncoder2RotationsPerMechanismRotation());
-    // Logger.recordOutput(
-    //     "Turret/CRT/Config/UniqueCoverageRot",
-    //     crtConfig.getUniqueCoverageRotations().orElse(Double.NaN));
-    // Logger.recordOutput(
-    //     "Turret/CRT/Config/CoverageSatisfiesRange",
-    //     crtConfig
-    //         .getUniqueCoverageRotations()
-    //         .map(coverage -> coverage >= 2.0)
-    //         .orElse(false));
+    double mechanismRangeRot = easyCRTConfig.getMechanismRange().in(Rotations);
+    double uniqueCoverageRot =
+        easyCRTConfig.getUniqueCoverage().map(angle -> angle.in(Rotations)).orElse(Double.NaN);
+    SmartDashboard.putNumber(
+        "Turret/CRT/Config/RatioA", easyCRTConfig.getEncoder1RotationsPerMechanismRotation());
+    SmartDashboard.putNumber(
+        "Turret/CRT/Config/RatioB", easyCRTConfig.getEncoder2RotationsPerMechanismRotation());
+    SmartDashboard.putNumber("Turret/CRT/Config/UniqueCoverageRot", uniqueCoverageRot);
+    SmartDashboard.putBoolean(
+        "Turret/CRT/Config/CoverageSatisfiesRange", easyCRTConfig.coverageSatisfiesRange());
+    SmartDashboard.putNumber("Turret/CRT/Config/RequiredRangeRot", mechanismRangeRot);
 
-    var configPair = crtConfig.getRecommendedCrtGearPair();
-    //Logger.recordOutput("Turret/CRT/Config/RecommendedPairFound", configPair.isPresent());
+    var configPair = easyCRTConfig.getRecommendedCrtGearPair();
+    SmartDashboard.putBoolean("Turret/CRT/Config/RecommendedPairFound", configPair.isPresent());
     if (configPair.isPresent()) {
       var pair = configPair.get();
-    //   Logger.recordOutput("Turret/CRT/Config/Recommender/RecommendedGearA", pair.gearA());
-    //   Logger.recordOutput("Turret/CRT/Config/Recommender/RecommendedGearB", pair.gearB());
-    //   Logger.recordOutput(
-    //       "Turret/CRT/Config/Recommender/RecommendedCoverageRot", pair.coverageRot());
-    //   Logger.recordOutput(
-    //       "Turret/CRT/Config/Recommender/RecommendedIterations", pair.theoreticalIterations());
+      SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedGearA", pair.gearA());
+      SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedGearB", pair.gearB());
+      SmartDashboard.putNumber(
+          "Turret/CRT/Config/Reccomender/RecommendedCoverageRot", pair.coverage().in(Rotations));
+      SmartDashboard.putNumber("Turret/CRT/Config/Reccomender/RecommendedLcm", pair.lcm());
+      SmartDashboard.putBoolean(
+          "Turret/CRT/Config/Reccomender/RecommendedCoprime",
+          EasyCRTConfig.isCoprime(pair.gearA(), pair.gearB()));
+      SmartDashboard.putNumber(
+          "Turret/CRT/Config/Reccomender/RecommendedIterations", pair.theoreticalIterations());
     }
+  }
+
+  private Double getAbsoluteEncoderWithOffset() {
+
+    return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
   }
 
   private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}
