@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.newConstants;
 
 public class GenericConstants {
   public static boolean disableHAL = false;
