@@ -43,6 +43,10 @@ public class TurretSubsystem extends SubsystemBase {
   /** Manually rerun CRT seeding. */
   private static final String RERUN_SEED = "Turret/CRT/RerunSeed";
 
+  private static TurretVisualizer turretVisualizer;
+  // private static FuelSim fuelSim;
+  private static ShooterAimer shooterAimer;
+
   // private final TalonFX turretMotor;
 
   private final SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
@@ -69,6 +73,10 @@ public class TurretSubsystem extends SubsystemBase {
   private String lastSeedStatus = "NOT_ATTEMPTED";
 
   public TurretSubsystem() {
+
+    /*turretVisualizer = new TurretVisualizer(poseSupplier, fieldSpeedsSupplier);
+    shooterAimer = new ShooterAimer(new Transform3d());*/
+    // fuelSim = new FuelSim();
 
     absPositionASignal = (getAbsoluteEncoderWithOffset());
     absPositionBSignal = cancoderB.getPosition();

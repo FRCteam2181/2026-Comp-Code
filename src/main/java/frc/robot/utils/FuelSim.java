@@ -15,10 +15,13 @@ import java.util.function.Supplier;
 
 public class FuelSim {
 
+  // private final SwerveSubsystem drivebase =
+  //    new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
+
   // public Array
   private final StructPublisher<Translation3d> fuelSimPublisher =
       NetworkTableInstance.getDefault()
-          .getTable(null)
+          .getTable("fuelSim")
           .getStructTopic("fuelSimPose", Translation3d.struct)
           .publish();
 
@@ -219,7 +222,7 @@ public class FuelSim {
   public void spawnStartingFuel() {
     // Center fuel
     Translation3d center = new Translation3d(FIELD_LENGTH / 2, FIELD_WIDTH / 2, FUEL_RADIUS);
-    for (int i = 0; i < 15; i++) {
+    /*for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 6; j++) {
         fuels.add(
             new Fuel(
@@ -253,7 +256,7 @@ public class FuelSim {
                 new Translation3d(
                     FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 - 0.076 - 0.152 * i, FUEL_RADIUS)));
       }
-    }
+    }*/
   }
 
   /**
@@ -627,5 +630,28 @@ public class FuelSim {
     }
   }
 
+  public static boolean shouldIntake(
+      Fuel fuel, Pose2d robotPose, BooleanSupplier ableToIntake, double bumperHeight) {
+    if (!ableToIntake.getAsBoolean() || fuel.pos.getZ() > bumperHeight) return false;
+
+    Translation2d fuelRelativePos =
+        new Pose2d(fuel.pos.toTranslation2d(), Rotation2d.kZero)
+            .relativeTo(robotPose)
+            .getTranslation();
+
+    boolean result =
+        fuelRelativePos.getX() >= -15
+            && fuelRelativePos.getX() <= 15
+            && fuelRelativePos.getY() >= -15
+            && fuelRelativePos.getY() <= 15;
+    if (result) {
+      System.out.println("intaked");
+    }
+    return result;
+  }
+
   private FuelSim() {}
+
+  private SimIntake simIntake =
+      new SimIntake(FRICTION, FIELD_WIDTH, FIELD_LENGTH, FIELD_COR, () -> true, null);
 }

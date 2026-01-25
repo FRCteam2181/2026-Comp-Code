@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -21,6 +23,8 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -28,6 +32,8 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -38,6 +44,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
+import frc.robot.subsystems.TurretSubsystem.*;
+import frc.robot.utils.*;
 import gg.questnav.questnav.*;
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +67,9 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
   private final SwerveDrive swerveDrive;
+
+  private TurretVisualizer turretVisualizer;
+  private ShooterAimer shooterAimer;
 
   /** Enable vision odometry updates while driving. */
   private final boolean visionDriveTest = true;
@@ -121,6 +132,16 @@ public class SwerveSubsystem extends SubsystemBase {
       swerveDrive.stopOdometryThread();
     }
 
+    turretVisualizer =
+        new TurretVisualizer(
+            () -> new Pose3d(swerveDrive.getPose()), () -> swerveDrive.getFieldVelocity());
+    shooterAimer =
+        new ShooterAimer(
+            new Transform3d(
+                0, // back from robot center
+                0, // centered left/right
+                0.451739, // up from the floor reference
+                new Rotation3d()));
     setupPathPlanner();
   }
 
@@ -197,8 +218,49 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
+  public void launchFuel() {
+    // var vel = shooterAimer.getVelocity();
+
+    shooterAimer.updateSim(getPose(), getFieldVelocity());
+    System.out.println("shooterAimer.getVelocity() = " + shooterAimer.getVelocity());
+    System.out.println(
+        "shooterAimer.getTurretPitchAngle() = "
+            + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
+    System.out.println(
+        "shooterAimer.getTurretAngle() = " + Units.radiansToDegrees(shooterAimer.getTurretAngle()));
+
+    System.out.println(
+        "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
+            + LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond));
+    System.out.println(
+        "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
+            + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
+    System.out.println(
+        "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
+            + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+
+    turretVisualizer.launchFuel(
+        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond),
+        Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
+        Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+
+    turretVisualizer.updateFuel(
+        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond),
+        Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
+        Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+  }
+
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    /*for (Fuel fuel : turretVisualizer.fuels){
+      if (turretVisualizer.canIntake() && FuelSim.shouldIntake(null, swerveDrive.getPose(), () -> true, 3)) {
+        turretVisualizer.intakeFuel();
+        System.out.println(turretVisualizer.fuelStored);
+      }
+    }*/
+    // ts flipping pmo bro wtf
+
+  }
 
   /** Setup AutoBuilder for PathPlanner. */
   public void setupPathPlanner() {

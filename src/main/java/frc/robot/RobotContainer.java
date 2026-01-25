@@ -8,12 +8,9 @@ import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -69,6 +66,7 @@ public class RobotContainer {
   private final TurretSubsystem turret = new TurretSubsystem();
   private final TurretVisualizer turretVisualizer =
       new TurretVisualizer(() -> new Pose3d(drivebase.getPose()), drivebase::getFieldVelocity);
+  private final ShooterAimer shooterAimer = new ShooterAimer(new Transform3d());
 
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
@@ -181,14 +179,15 @@ public class RobotContainer {
     turret.setDefaultCommand(turret.set(0));
 
     if (Robot.isSimulation()) {
-      Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
+      // Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
       // drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
-      driveDirectAngleKeyboard.driveToPose(
-          () -> target,
-          new ProfiledPIDController(5, 0, 0, new Constraints(5, 2)),
-          new ProfiledPIDController(
-              5, 0, 0, new Constraints(Units.degreesToRadians(360), Units.degreesToRadians(180))));
-      driverXbox
+      /*driveDirectAngleKeyboard.driveToPose(
+      () -> target,
+      new ProfiledPIDController(5, 0, 0, new Constraints(5, 2)),
+      new ProfiledPIDController(
+          5, 0, 0, new Constraints(Units.degreesToRadians(360), Units.degreesToRadians(180))));*/
+      /*driverXbox
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
@@ -198,9 +197,16 @@ public class RobotContainer {
           .whileTrue(
               Commands.runEnd(
                   () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));*/
 
       configureFuelSim();
+      /*turretVisualizer.repeatedlyLaunchFuel(
+      () -> LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), MetersPerSecond),
+      () -> Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
+      turret,
+      shooter,
+      shooterAimer);*/
+      driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -249,7 +255,7 @@ public class RobotContainer {
         -Units.inchesToMeters(
             15 + 7), // -Dimensions.FULL_WIDTH.div(2).plus(Inches.of(7)).in(Meters),
         -Units.inchesToMeters(15), // -Dimensions.FULL_WIDTH.div(2).in(Meters),
-        driverXbox.a(),
+        () -> true,
         () -> turretVisualizer.intakeFuel());
 
     instance.start();
