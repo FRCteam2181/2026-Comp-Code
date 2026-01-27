@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -47,15 +48,17 @@ public class TurretSubsystem extends SubsystemBase {
   private final SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
   private final AbsoluteEncoder cancoderB = turretMotor.getAbsoluteEncoder(); // 20t B SparkFlex
   private final DutyCycleEncoder cancoderA = new DutyCycleEncoder(0); // 19 A rio
+  // Create a timer to delay CRT run until encoders are ready
 
+  private Timer startUpTimer = new Timer();
+  private boolean startTimer = false;
+  private boolean delayForCRTDone = false;
   private final SmartMotorControllerTelemetryConfig motorTelemetryConfig;
   private final SmartMotorControllerConfig motorConfig;
   private final SmartMotorController motor;
   private final MechanismPositionConfig robotToMechanism;
   private final PivotConfig pivotConfig;
   private final Pivot turret;
-  // private final CANcoder cancoderA;
-  // private final CANcoder cancoderB;
   private final Double absPositionASignal;
   private final Double absPositionBSignal;
   private final EasyCRTConfig easyCRTConfig;
@@ -69,7 +72,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   public TurretSubsystem() {
 
-    absPositionASignal = (cancoderA.get());
+    absPositionASignal = (getAbsoluteEncoderWithOffset());
     absPositionBSignal = cancoderB.getPosition();
 
     motorTelemetryConfig =
@@ -161,20 +164,30 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void periodic() {
-    if (SmartDashboard.getBoolean(RERUN_SEED, false)) {
+
+    if (!startTimer) {
+      startUpTimer.reset();
+      startUpTimer.start();
+      startTimer = true;
+    }
+
+    if (startUpTimer.hasElapsed(5)) {
+      delayForCRTDone = true;
+    }
+
+    if (SmartDashboard.getBoolean(RERUN_SEED, false) && delayForCRTDone) {
       SmartDashboard.putBoolean(RERUN_SEED, false);
       rerunCrtSeed();
     }
     SmartDashboard.putNumber(
         "Turret/CRT/CurrentPositionDeg", motor.getMechanismPosition().in(Degrees));
-    if (!rotorSeededFromAbs) {
+    if (!rotorSeededFromAbs && delayForCRTDone) {
       attemptRotorSeedFromCANCoders();
     }
     turret.updateTelemetry();
 
     SmartDashboard.putNumber("Encoder A Raw", cancoderA.get());
-    SmartDashboard.putNumber(
-        "Encoder A Adjusted", (cancoderA.get() + ShooterConstants.EncoderAOffset));
+    SmartDashboard.putNumber("Encoder A Adjusted", (getAbsoluteEncoderWithOffset()));
     SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
     SmartDashboard.putNumber("Position", getAngle().in(Rotations));
@@ -235,44 +248,30 @@ public class TurretSubsystem extends SubsystemBase {
 
   /** Reads both absolute encoders and returns their rotations plus a status. */
   private AbsSensorRead readAbsSensors() {
-    Double absPositionASignal = (cancoderA.get());
-    Double absPositionBSignal = cancoderB.getPosition();
+    // Double absPositionASignal = (cancoderA.get());
+    // Double absPositionBSignal = cancoderB.getPosition();
 
     boolean haveDevices = cancoderA != null && cancoderB != null;
 
     if (haveDevices) {
 
-      if (cancoderA.isConnected() && cancoderB.getPosition() > 0) {
-        return new AbsSensorRead(true, absPositionASignal, absPositionBSignal, "ok");
-      }
-
-      return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
+      return new AbsSensorRead(true, absPositionASignal, absPositionBSignal, "ok");
     }
     return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
-  }
-
-  public boolean isSparkFlexConnected() {
-    String error = turretMotor.getFirmwareString();
-
-    if (error == null) {
-      return false;
-    } else {
-      return true;
-    }
   }
 
   /** Build the CRT config */
   private EasyCRTConfig buildEasyCrtConfig() {
     // if (cancoderA.isConnected() && cancoderB.getPosition() > 0) {
-      return new EasyCRTConfig(
-              () -> Rotations.of(cancoderA.get()), () -> Rotations.of(cancoderB.getPosition()))
-          .withCommonDriveGear(1, 200, 19, 21)
-          .withAbsoluteEncoderOffsets(
-              Rotations.of(ShooterConstants.EncoderAOffset), Rotations.of(0))
-          .withAbsoluteEncoderInversions(false, false)
-          .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
-          .withMatchTolerance(Rotations.of(0.05))
-          .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
+    return new EasyCRTConfig(
+            () -> Rotations.of(getAbsoluteEncoderWithOffset()),
+            () -> Rotations.of(cancoderB.getPosition()))
+        .withCommonDriveGear(1, 200, 19, 21)
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
+        .withAbsoluteEncoderInversions(false, false)
+        .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
+        .withMatchTolerance(Rotations.of(0.05))
+        .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {
     //   return null;
     // }
@@ -309,10 +308,10 @@ public class TurretSubsystem extends SubsystemBase {
     }
   }
 
-  // private Double getAbsoluteEncoderWithOffset() {
+  private Double getAbsoluteEncoderWithOffset() {
 
-  //   return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
-  // }
+    return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
+  }
 
   private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}
 }
