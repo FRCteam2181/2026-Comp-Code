@@ -180,7 +180,7 @@ public class RobotContainer {
 
     if (Robot.isSimulation()) {
       // Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
       // drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
       /*driveDirectAngleKeyboard.driveToPose(
       () -> target,
@@ -206,7 +206,9 @@ public class RobotContainer {
       turret,
       shooter,
       shooterAimer);*/
-      driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      // driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));//
+      // button 2 = x
+      driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
