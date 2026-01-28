@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -68,6 +70,8 @@ public class RobotContainer {
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
+
+  private final ArmSubsystem arm = new ArmSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -175,6 +179,8 @@ public class RobotContainer {
 
     turret.setDefaultCommand(turret.set(0));
 
+    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
+
     if (Robot.isSimulation()) {
       Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
       // drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
@@ -223,6 +229,15 @@ public class RobotContainer {
     operatorControler.rightTrigger().whileTrue(turret.set(.3));
 
     operatorControler.leftTrigger().whileTrue(turret.set(-.3));
+
+    // Schedule `setAngle` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
+    driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
+    // Schedule `set` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    // driverXbox.x().whileTrue(arm.set(0.3));
+    // driverXbox.y().whileTrue(arm.set(-0.3));
 
     // operatorControler.leftBumper().whileTrue(turret.sysId());
   }
