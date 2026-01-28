@@ -269,7 +269,7 @@ public class TurretSubsystem extends SubsystemBase {
         .withCommonDriveGear(1, 200, 19, 21)
         .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(0.0), Rotations.of(2.0))
+        .withMechanismRange(Rotations.of(-0.1), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {
