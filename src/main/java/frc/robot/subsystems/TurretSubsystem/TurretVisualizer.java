@@ -55,24 +55,24 @@ public class TurretVisualizer {
     ChassisSpeeds fieldSpeeds = fieldSpeedsSupplier.get();
 
     double horizontalVel = Math.cos(angle.in(Radians)) * vel.in(MetersPerSecond);
-    System.out.println("horizontalVel = " + horizontalVel);
+    // System.out.println("horizontalVel = " + horizontalVel);
     double verticalVel = Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond);
-    System.out.println("verticalVel = " + verticalVel);
+    // System.out.println("verticalVel = " + verticalVel);
     double xVel = horizontalVel * Math.cos(turretAngle.baseUnitMagnitude());
-    System.out.println("turretAngle.baseUnitMagnitude() = " + turretAngle.baseUnitMagnitude());
-    System.out.println("old xVel = " + xVel);
+    // System.out.println("turretAngle.baseUnitMagnitude() = " + turretAngle.baseUnitMagnitude());
+    // System.out.println("old xVel = " + xVel);
     double yVel = horizontalVel * Math.sin(turretAngle.baseUnitMagnitude());
-    System.out.println("old yVel = " + yVel);
+    // System.out.println("old yVel = " + yVel);
 
     xVel += fieldSpeeds.vxMetersPerSecond;
-    System.out.println("new xVel = " + xVel);
+    // System.out.println("new xVel = " + xVel);
     yVel += fieldSpeeds.vyMetersPerSecond;
-    System.out.println("new yVel = " + yVel);
+    // System.out.println("new yVel = " + yVel);
 
-    System.out.println(
-        "verticalVel manual = " + Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond));
-    System.out.println("fieldSpeeds.vyMetersPerSecond = " + fieldSpeeds.vyMetersPerSecond);
-    System.out.println("verticalVel = " + verticalVel);
+    // System.out.println(
+    //    "verticalVel manual = " + Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond));
+    // System.out.println("fieldSpeeds.vyMetersPerSecond = " + fieldSpeeds.vyMetersPerSecond);
+    // System.out.println("verticalVel = " + verticalVel);
 
     return new Translation3d(xVel, yVel, verticalVel);
   }

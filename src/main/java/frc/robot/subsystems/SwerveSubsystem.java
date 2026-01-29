@@ -4,11 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -28,7 +26,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
@@ -36,8 +33,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -50,7 +45,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
 import frc.robot.subsystems.TurretSubsystem.*;
-import frc.robot.subsystems.TurretSubsystem.ShooterAimer.ShotData;
+// import frc.robot.subsystems.TurretSubsystem.ShooterAimer.ShotData;
 import frc.robot.utils.*;
 import gg.questnav.questnav.*;
 import java.io.File;
@@ -228,46 +223,47 @@ public class SwerveSubsystem extends SubsystemBase {
     // var vel = shooterAimer.getVelocity();
 
     shooterAimer.updateSim(getPose(), getFieldVelocity());
-    Distance FIELD_LENGTH = Inches.of(650.12);
-    Distance FIELD_WIDTH = Inches.of(316.64);
-    ShotData calculatedShot =
-        shooterAimer.iterativeMovingShotFromFunnelClearance(
-            swerveDrive.getPose(),
-            swerveDrive.getFieldVelocity(),
-            new Translation3d(
-                Inches.of(650.12).minus(Inches.of(181.56)),
-                Inches.of(316.64).div(2),
-                Inches.of(56.4)),
-            3);
-    Angle azimuthAngle =
-        shooterAimer.calculateAzimuthAngle(swerveDrive.getPose(), calculatedShot.target());
-    AngularVelocity azimuthVelocity =
-        RadiansPerSecond.of(-swerveDrive.getFieldVelocity().omegaRadiansPerSecond);
-    System.out.println(
-        "ShotData = "
-            + calculatedShot
-            + "\n"
-            + "azimuthAngle = "
-            + azimuthAngle
-            + "\n"
-            + "azimuthVelocity = "
-            + azimuthVelocity);
-    System.out.println("shooterAimer.getVelocity() = " + shooterAimer.getVelocity());
-    System.out.println(
-        "shooterAimer.getTurretPitchAngle() = "
-            + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
-    System.out.println(
-        "shooterAimer.getTurretAngle() = " + Units.radiansToDegrees(shooterAimer.getTurretAngle()));
+    // Distance FIELD_LENGTH = Inches.of(650.12);
+    // Distance FIELD_WIDTH = Inches.of(316.64);
+    // ShotData calculatedShot =
+    //     shooterAimer.iterativeMovingShotFromFunnelClearance(
+    //         swerveDrive.getPose(),
+    //         swerveDrive.getFieldVelocity(),
+    //         new Translation3d(
+    //             Inches.of(650.12).minus(Inches.of(181.56)),
+    //             Inches.of(316.64).div(2),
+    //             Inches.of(56.4)),
+    //         3);
+    // Angle azimuthAngle =
+    //     shooterAimer.calculateAzimuthAngle(swerveDrive.getPose(), calculatedShot.target());
+    // AngularVelocity azimuthVelocity =
+    //     RadiansPerSecond.of(-swerveDrive.getFieldVelocity().omegaRadiansPerSecond);
+    // System.out.println(
+    //     "ShotData = "
+    //         + calculatedShot
+    //         + "\n"
+    //         + "azimuthAngle = "
+    //         + azimuthAngle
+    //         + "\n"
+    //         + "azimuthVelocity = "
+    //         + azimuthVelocity);
+    // System.out.println("shooterAimer.getVelocity() = " + shooterAimer.getVelocity());
+    // System.out.println(
+    //     "shooterAimer.getTurretPitchAngle() = "
+    //         + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
+    // System.out.println(
+    //     "shooterAimer.getTurretAngle() = " +
+    // Units.radiansToDegrees(shooterAimer.getTurretAngle()));
 
-    System.out.println(
-        "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
-            + LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond));
-    System.out.println(
-        "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
-            + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
-    System.out.println(
-        "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
-            + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+    // System.out.println(
+    //     "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
+    //         + LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond));
+    // System.out.println(
+    //     "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
+    //         + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
+    // System.out.println(
+    //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
+    //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
     turretVisualizer.launchFuel(
         LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond),
