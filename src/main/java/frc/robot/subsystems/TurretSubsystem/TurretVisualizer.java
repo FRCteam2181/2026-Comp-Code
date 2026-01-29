@@ -90,11 +90,15 @@ public class TurretVisualizer {
     // fuelStored--;
     Pose3d robot = poseSupplier.get();
 
-    Translation3d initialPosition = robot.getTranslation().plus(new Translation3d(
-                                                                      0, // back from robot center
-                                                                      0, // centered left/right
-                                                                      0.451739 // up from the floor reference
-                                                                      ));
+    Translation3d initialPosition =
+        robot
+            .getTranslation()
+            .plus(
+                new Translation3d(
+                    0, // back from robot center
+                    0, // centered left/right
+                    0.451739 // up from the floor reference
+                    ));
     FuelSim.getInstance().spawnFuel(initialPosition, launchVel(vel, angle, turretAngle));
   }
 
