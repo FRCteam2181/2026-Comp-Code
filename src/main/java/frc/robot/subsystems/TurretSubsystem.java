@@ -14,6 +14,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -85,12 +86,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     motorConfig =
         new SmartMotorControllerConfig(this)
-            .withClosedLoopController(
-                4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
+            // .withClosedLoopController(.2, 0, 0)
+            .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
             .withSoftLimit(Degrees.of(0), Degrees.of(180))
-            // .withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
+            .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
@@ -267,9 +268,9 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.3072480))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(-0.1), Rotations.of(0.6))
+        .withMechanismRange(Rotations.of(-0.1), Rotations.of(1.1))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {

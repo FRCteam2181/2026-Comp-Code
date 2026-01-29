@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -24,17 +24,16 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.BottomIntakeSubsystem;
+// import frc.robot.subsystems.ArmSubsystem;
+// import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.TopIntakeSubsystem;
+// import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -61,8 +60,8 @@ public class RobotContainer {
 
   private final ClimberSubsystem climber = new ClimberSubsystem();
 
-  private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
-  private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
+  // private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
+  // private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
@@ -71,7 +70,7 @@ public class RobotContainer {
   private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
 
-  private final ArmSubsystem arm = new ArmSubsystem();
+  // private final ArmSubsystem arm = new ArmSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -167,8 +166,8 @@ public class RobotContainer {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
 
-    topintake.setDefaultCommand(topintake.set(0));
-    bottomintake.setDefaultCommand(bottomintake.set(0));
+    // topintake.setDefaultCommand(topintake.set(0));
+    // bottomintake.setDefaultCommand(bottomintake.set(0));
 
     shooter.setDefaultCommand(shooter.set(0));
 
@@ -179,7 +178,7 @@ public class RobotContainer {
 
     turret.setDefaultCommand(turret.set(0));
 
-    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
+    // arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
 
     if (Robot.isSimulation()) {
       Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
@@ -213,12 +212,12 @@ public class RobotContainer {
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
-    operatorControler
-        .a()
-        .whileTrue(
-            topintake
-                .set(IntakeConstants.kBottomIntakeDutyCycle)
-                .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
+    // operatorControler
+    //     .a()
+    //     .whileTrue(
+    //         topintake
+    //             .set(IntakeConstants.kBottomIntakeDutyCycle)
+    //             .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
 
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6250)));
 
@@ -226,20 +225,20 @@ public class RobotContainer {
         .b()
         .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
 
-    operatorControler.rightTrigger().whileTrue(turret.set(.3));
+    operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
-    operatorControler.leftTrigger().whileTrue(turret.set(-.3));
+    operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
 
     // Schedule `setAngle` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
-    driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
+    // driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
+    // driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // driverXbox.x().whileTrue(arm.set(0.3));
     // driverXbox.y().whileTrue(arm.set(-0.3));
 
-    // operatorControler.leftBumper().whileTrue(turret.sysId());
+    operatorControler.leftBumper().whileTrue(turret.sysId());
   }
 
   /**
