@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
+import frc.robot.utils.field.FieldConstants;
 import gg.questnav.questnav.*;
 import java.io.File;
 import java.io.IOException;
@@ -87,7 +88,8 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean blueAlliance = false;
     Pose2d startingPose =
         blueAlliance
-            ? new Pose2d(new Translation2d(Meter.of(1), Meter.of(4)), Rotation2d.fromDegrees(0))
+            ? new Pose2d((FieldConstants.Tower.leftUpright), Rotation2d.fromDegrees(0))
+                .plus(DrivebaseConstants.robotOffset)
             : new Pose2d(new Translation2d(Meter.of(16), Meter.of(4)), Rotation2d.fromDegrees(180));
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being
     // created.
@@ -198,7 +200,16 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    /*for (Fuel fuel : turretVisualizer.fuels){
+      if (turretVisualizer.canIntake() && FuelSim.shouldIntake(null, swerveDrive.getPose(), () -> true, 3)) {
+        turretVisualizer.intakeFuel();
+        System.out.println(turretVisualizer.fuelStored);
+      }
+    }*/
+    // ts flipping pmo bro wtf
+
+  }
 
   /** Setup AutoBuilder for PathPlanner. */
   public void setupPathPlanner() {
