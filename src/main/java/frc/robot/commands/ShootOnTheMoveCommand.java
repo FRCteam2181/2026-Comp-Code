@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,6 +10,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.constants.TurretConstants;
+import frc.robot.subsystems.TurretSubsystem.TurretSubsystem;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -21,6 +24,7 @@ public class ShootOnTheMoveCommand extends Command {
   private final Supplier<Pose2d> robotPose;
   private final Supplier<ChassisSpeeds> fieldOrientedChassisSpeeds;
   private final Pose2d goalPose;
+  private final TurretSubsystem turretSubsystem;
 
   // Tuned Constants
   /**
@@ -34,10 +38,12 @@ public class ShootOnTheMoveCommand extends Command {
   public ShootOnTheMoveCommand(
       Supplier<Pose2d> currentPose,
       Supplier<ChassisSpeeds> fieldOrientedChassisSpeeds,
-      Pose2d goal) {
+      Pose2d goal,
+      TurretSubsystem turretSubsystem) {
     robotPose = currentPose;
     this.fieldOrientedChassisSpeeds = fieldOrientedChassisSpeeds;
     this.goalPose = goal;
+    this.turretSubsystem = turretSubsystem;
 
     // Test Results
     for (var entry :
@@ -64,13 +70,15 @@ public class ShootOnTheMoveCommand extends Command {
 
     var robotSpeed = fieldOrientedChassisSpeeds.get();
     // 1. LATENCY COMP
+
     Translation2d futurePos =
         robotPose
             .get()
             .getTranslation()
             .plus(
                 new Translation2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond)
-                    .times(latency));
+                    .times(latency))
+            .plus(TurretConstants.ROBOT_TO_TURRET);
 
     // 2. GET TARGET VECTOR
     Translation2d goalLocation = goalPose.getTranslation();
@@ -98,7 +106,8 @@ public class ShootOnTheMoveCommand extends Command {
     double newPitch = Math.acos(ratio);
 
     // 7. SET OUTPUTS
-    // turret.setAngle(turretAngle); // Could also just set the swerveDrive to point towards this
+    turretSubsystem.setAngle(
+        Rotations.of(turretAngle)); // Could also just set the swerveDrive to point towards this
     // angle like AlignToGoal
     // hood.setAngle(Math.toDegrees(newPitch));
     // shooter.setRPM(MetersPerSecond.of(totalExitVelocity));

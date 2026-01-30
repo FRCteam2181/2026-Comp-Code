@@ -47,6 +47,7 @@ import frc.robot.constants.QuestNavConstants;
 import frc.robot.subsystems.TurretSubsystem.*;
 // import frc.robot.subsystems.TurretSubsystem.ShooterAimer.ShotData;
 import frc.robot.utils.*;
+import frc.robot.utils.field.FieldConstants;
 import gg.questnav.questnav.*;
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +100,8 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean blueAlliance = false;
     Pose2d startingPose =
         blueAlliance
-            ? new Pose2d(new Translation2d(Meter.of(1), Meter.of(4)), Rotation2d.fromDegrees(0))
+            ? new Pose2d((FieldConstants.Tower.leftUpright), Rotation2d.fromDegrees(0))
+                .plus(DrivebaseConstants.robotOffset)
             : new Pose2d(new Translation2d(Meter.of(16), Meter.of(4)), Rotation2d.fromDegrees(180));
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being
     // created.
