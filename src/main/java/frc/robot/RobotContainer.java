@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.OperatorConstants;
 // import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.BottomIntakeSubsystem;
@@ -31,10 +32,11 @@ import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.SpindexerSubsystem;
+// import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 // import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.utils.field.FieldConstants;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -66,9 +68,13 @@ public class RobotContainer {
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
 
-  private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
+  // private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
+
+  private final ShootOnTheMoveCommand shootOnFly =
+      new ShootOnTheMoveCommand(
+          drivebase::getPose, drivebase::getFieldVelocity, FieldConstants.Hub.nearFace, turret);
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -137,6 +143,7 @@ public class RobotContainer {
 
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putNumber("ShootSpeed", 100);
   }
 
   /**
@@ -171,7 +178,7 @@ public class RobotContainer {
 
     shooter.setDefaultCommand(shooter.set(0));
 
-    spindexer.setDefaultCommand(spindexer.set(0));
+    // spindexer.setDefaultCommand(spindexer.set(0));
 
     feeder.setDefaultCommand(feeder.set(0));
     input.setDefaultCommand(input.set(0));
@@ -219,15 +226,22 @@ public class RobotContainer {
     //             .set(IntakeConstants.kBottomIntakeDutyCycle)
     //             .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
 
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6250)));
-
     operatorControler
-        .b()
-        .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
+        .y()
+        .whileTrue(shooter.setVelocity(() -> RPM.of(SmartDashboard.getNumber("ShootSpeed", 100))));
 
+    // operatorControler
+    //     .b()
+    //     .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
+    operatorControler.b().whileTrue(feeder.set(-.25).alongWith(input.set(.35)));
     operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
     operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+
+    operatorControler.leftBumper().whileTrue(turret.set(.2));
+    operatorControler.rightBumper().whileTrue(turret.set(-.2));
+
+    operatorControler.x().whileTrue(shootOnFly);
 
     // Schedule `setAngle` when the Xbox controller's B button is pressed,
     // cancelling on release.
@@ -238,7 +252,7 @@ public class RobotContainer {
     // driverXbox.x().whileTrue(arm.set(0.3));
     // driverXbox.y().whileTrue(arm.set(-0.3));
 
-    operatorControler.leftBumper().whileTrue(turret.sysId());
+    // operatorControler.leftBumper().whileTrue(turret.sysId());
   }
 
   /**

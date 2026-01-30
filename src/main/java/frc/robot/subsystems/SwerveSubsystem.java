@@ -88,9 +88,8 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean blueAlliance = false;
     Pose2d startingPose =
         blueAlliance
-            ? new Pose2d((FieldConstants.Tower.leftUpright), Rotation2d.fromDegrees(0))
-                .plus(DrivebaseConstants.robotOffset)
-            : new Pose2d(new Translation2d(Meter.of(16), Meter.of(4)), Rotation2d.fromDegrees(180));
+            ? FieldConstants.Hub.nearFace.plus(DrivebaseConstants.robotOffset)
+            : FieldConstants.Hub.nearFace.plus(DrivebaseConstants.robotOffset);
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being
     // created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;

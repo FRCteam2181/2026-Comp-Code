@@ -90,7 +90,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(
                 130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(180))
+            .withSoftLimit(Degrees.of(0), Degrees.of(360))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
@@ -268,7 +268,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.3072480))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.916048))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.1), Rotations.of(1.1))
         .withMatchTolerance(Rotations.of(0.05))
