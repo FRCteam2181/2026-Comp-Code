@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -26,7 +27,7 @@ public class ShooterAimer extends SubsystemBase {
   double velocity;
   double initialVelocity;
   double turretPitchAngle;
-  double turretAngle;
+  public double turretAngle;
   double turretAngleRelative;
   double hubRadius;
   double hubHeight;
@@ -34,11 +35,17 @@ public class ShooterAimer extends SubsystemBase {
   Transform3d ROBOT_TO_TURRET;
   Transform2d ROBOT_TO_TURRET_2D;
   Pose2d goalLocation;
+  Translation2d shotVec;
 
   private final StructPublisher<Pose2d> shotVecPublisher =
       NetworkTableInstance.getDefault()
           .getTable("Drive")
           .getStructTopic("shotVecPublisher", Pose2d.struct)
+          .publish();
+  private final StructPublisher<Pose2d> newRobotPosePublisher =
+      NetworkTableInstance.getDefault()
+          .getTable("Drive")
+          .getStructTopic("newRobotPosePublisher", Pose2d.struct)
           .publish();
 
   public ShooterAimer(Transform3d ROBOT_TO_TURRET) {
@@ -143,7 +150,7 @@ public class ShooterAimer extends SubsystemBase {
     // 3. CALCULATE IDEAL SHOT (Stationary)
     // Note: This returns HORIZONTAL velocity component
     // double idealHorizontalSpeed = ShooterTable.getSpeed(dist);
-    findIdealVelocityAndAngle(robotPose, robotSpeed);
+    findIdealVelocityAndAngle(futurePos, robotSpeed);
 
     // 4. VECTOR SUBTRACTION
     Translation2d robotVelVec =
@@ -217,41 +224,64 @@ public class ShooterAimer extends SubsystemBase {
     // 3. CALCULATE IDEAL SHOT (Stationary)
     // Note: This returns HORIZONTAL velocity component
     // double idealHorizontalSpeed = ShooterTable.getSpeed(dist);
-    findIdealVelocityAndAngle(robotPose, robotSpeed);
+    findIdealVelocityAndAngle(futurePos, robotSpeed);
 
     // 4. VECTOR SUBTRACTION
     Translation2d robotVelVec =
         new Translation2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond);
     // Translation2d shotVec =
     // targetVec.div(dist).times(velocity*Math.cos(turretPitchAngle)).minus(robotVelVec);
-    Translation2d shotVec =
-        targetVec.minus(
-            robotVelVec.times(
-                calculateTimeOfFlight(
-                        LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
-                        Angle.ofBaseUnits(turretPitchAngle, Radians),
-                        Distance.ofBaseUnits(targetVec.getNorm(), Meters))
-                    .baseUnitMagnitude()));
+    // Translation2d shotVec =
+    //     targetVec.minus(
+    //         robotVelVec.times(
+    //             calculateTimeOfFlight(
+    //                     LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
+    //                     Angle.ofBaseUnits(turretPitchAngle, Radians),
+    //                     Distance.ofBaseUnits(targetVec.getNorm(), Meters))
+    //                 .baseUnitMagnitude()));
+    // System.out.println("maybe shotVec = " + shotVec);
 
     Pose2d newRobotPose =
         futurePos.transformBy(
             new Transform2d(
                 robotVelVec.times(
-                    calculateTimeOfFlight(
-                            LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
-                            Angle.ofBaseUnits(turretPitchAngle, Radians),
-                            Distance.ofBaseUnits(targetVec.getNorm(), Meters))
-                        .baseUnitMagnitude()),
+                    -1
+                        * calculateTimeOfFlight(
+                                LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
+                                Angle.ofBaseUnits(turretPitchAngle, Radians),
+                                Distance.ofBaseUnits(targetVec.getNorm(), Meters))
+                            .baseUnitMagnitude()),
                 new Rotation2d()));
-    shotVec = goalLocation.getTranslation().minus(newRobotPose.getTranslation());
+    Pose2d newGoalLocation =
+        goalLocation.transformBy(
+            new Transform2d(
+                robotVelVec.times(
+                    -1
+                        * calculateTimeOfFlight(
+                                LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
+                                Angle.ofBaseUnits(turretPitchAngle, Radians),
+                                Distance.ofBaseUnits(targetVec.getNorm(), Meters))
+                            .baseUnitMagnitude()),
+                new Rotation2d()));
+    // shotVec = goalLocation.getTranslation().minus(newRobotPose.getTranslation());
+    shotVec = newGoalLocation.getTranslation().minus(futurePos.getTranslation());
     // shotVec = newRobotPose.getTranslation().minus(goalLocation.getTranslation());
+    // shotVec = targetVec.minus(robotVelVec);
+
+    // findIdealVelocityAndAngle(newRobotPose, robotSpeed);
 
     System.out.println(
-        "timeOfFlight"
+        "timeOfFlight = "
             + calculateTimeOfFlight(
                 LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
                 Angle.ofBaseUnits(turretPitchAngle, Radians),
                 Distance.ofBaseUnits(targetVec.getNorm(), Meters)));
+    double timeOfFlight =
+        calculateTimeOfFlight(
+                LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
+                Angle.ofBaseUnits(turretPitchAngle, Radians),
+                Distance.ofBaseUnits(targetVec.getNorm(), Meters))
+            .baseUnitMagnitude();
 
     System.out.println("original shotVec = " + targetVec.minus(robotVelVec));
     System.out.println("new shotVec = " + shotVec);
@@ -261,18 +291,69 @@ public class ShooterAimer extends SubsystemBase {
     System.out.println("new angle = " + shotVec.getAngle().getRadians());
 
     // once shotVec working, uncomment this (new velocity calculation)
-    // findIdealVelocityAndAngle(newRobotPose, robotSpeed);
-    
+    findIdealVelocityAndAngle(newRobotPose, robotSpeed);
+
     // 5. CONVERT TO CONTROLS
+    System.out.println("old xVel = " + targetVec.getX() / timeOfFlight);
+    System.out.println("old yVel = " + targetVec.getY() / timeOfFlight);
     turretAngle = shotVec.getAngle().getRadians();
+    System.out.println("shotVec = " + shotVec.getAngle());
+    System.out.println("manual shotVec angle = " + Math.atan(shotVec.getY() / shotVec.getX()));
     turretAngleRelative =
         Math.acos(
             (shotVec.dot(targetVec))
                 / (shotVec.getNorm()
-                    * targetVec
-                        .getNorm())); // Angle relative to a straight line from the turret to the
+                    * targetVec.getNorm())); // Angle relative to a straight line from the turret to
+    // the
     // hub (relative angle should be added counterclockwise)
     double newHorizontalSpeed = shotVec.getNorm();
+
+    double horizontalVel = Math.cos(turretPitchAngle) * initialVelocity;
+    // System.out.println("horizontalVel = " + horizontalVel);
+    double verticalVel = Math.sin(turretPitchAngle) * initialVelocity;
+    // System.out.println("verticalVel = " + verticalVel);
+    double xVel = horizontalVel * Math.cos(turretAngle);
+    // System.out.println("turretAngle.baseUnitMagnitude() = " + turretAngle.baseUnitMagnitude());
+    // System.out.println("old xVel = " + xVel);
+    double yVel = horizontalVel * Math.sin(turretAngle);
+    // System.out.println("old yVel = " + yVel);
+
+    xVel += robotSpeed.vxMetersPerSecond;
+    System.out.println("bro idk anymore xVel = " + xVel);
+    yVel += robotSpeed.vyMetersPerSecond;
+    System.out.println("bro idk anymore yVel = " + yVel);
+
+    // System.out.println(
+    //    "verticalVel manual = " + Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond));
+    // System.out.println("fieldSpeeds.vyMetersPerSecond = " + fieldSpeeds.vyMetersPerSecond);
+    // System.out.println("verticalVel = " + verticalVel);
+
+    // for (int i = 0; i < 3; i++) {
+    //   newGoalLocation =
+    //       new Pose2d(
+    //           predictTargetPos(
+    //                   new Translation3d(goalLocation.getTranslation()),
+    //                   robotSpeed,
+    //                   Seconds.of(timeOfFlight))
+    //               .toTranslation2d(),
+    //           new Rotation2d());
+    //   findIdealVelocityAndAngle(futurePos, robotSpeed);
+    //   timeOfFlight =
+    //       calculateTimeOfFlight(
+    //               LinearVelocity.ofBaseUnits(initialVelocity, MetersPerSecond),
+    //               Angle.ofBaseUnits(turretPitchAngle, Radians),
+    //               Distance.ofBaseUnits(
+    //
+    // newGoalLocation.getTranslation().minus(futurePos.getTranslation()).getNorm(),
+    //                   Meters))
+    //           .baseUnitMagnitude();
+    // }
+
+    shotVec = newGoalLocation.getTranslation().minus(futurePos.getTranslation());
+
+    Pose2d shotVecPose =
+        futurePos.transformBy(
+            new Transform2d(new Translation2d(xVel, yVel).times(-timeOfFlight), new Rotation2d()));
 
     // 6. SOLVE FOR NEW PITCH/RPM
     // velocity = newHorizontalSpeed / Math.cos(turretPitchAngle);
@@ -286,8 +367,19 @@ public class ShooterAimer extends SubsystemBase {
     // hoodSim.setAngle(Math.toDegrees(newPitch));
     // shootSim.setVelocity(velocity); //idk how to implement
 
+    System.out.println("goalLocation = " + goalLocation);
+    System.out.println(
+        "newGoalLocation = "
+            + newRobotPose.transformBy(
+                new Transform2d(-shotVec.getX(), -shotVec.getY(), new Rotation2d())));
+    System.out.println("robotSpeed = " + robotSpeed);
+
     shotVecPublisher.accept(
-        futurePos.transformBy(new Transform2d(-shotVec.getX(), -shotVec.getY(), new Rotation2d())));
+        // newRobotPose.transformBy(
+        //     new Transform2d(
+        //         -shotVec.getX(), -shotVec.getY(), new Rotation2d()))
+        shotVecPose);
+    newRobotPosePublisher.accept(newGoalLocation);
   }
 
   public static Time calculateTimeOfFlight(
@@ -474,21 +566,21 @@ public class ShooterAimer extends SubsystemBase {
   //     return shot;
   //   }
 
-  //   public record ShotData(double exitVelocity, double hoodAngle, Translation3d target) {
-  //     public ShotData(LinearVelocity exitVelocity, Angle hoodAngle, Translation3d target) {
-  //       this(exitVelocity.in(MetersPerSecond), hoodAngle.in(Radians), target);
-  //     }
+  public record ShotData(double exitVelocity, double hoodAngle, Translation3d target) {
+    public ShotData(LinearVelocity exitVelocity, Angle hoodAngle, Translation3d target) {
+      this(exitVelocity.in(MetersPerSecond), hoodAngle.in(Radians), target);
+    }
 
-  //     public LinearVelocity getExitVelocity() {
-  //       return MetersPerSecond.of(this.exitVelocity);
-  //     }
+    public LinearVelocity getExitVelocity() {
+      return MetersPerSecond.of(this.exitVelocity);
+    }
 
-  //     public Angle getHoodAngle() {
-  //       return Radians.of(this.hoodAngle);
-  //     }
+    public Angle getHoodAngle() {
+      return Radians.of(this.hoodAngle);
+    }
 
-  //     public Translation3d getTarget() {
-  //       return this.target;
-  //     }
-  //   }
+    public Translation3d getTarget() {
+      return this.target;
+    }
+  }
 }

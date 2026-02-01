@@ -47,7 +47,7 @@ public class TurretVisualizer {
       Supplier<Pose3d> poseSupplier, Supplier<ChassisSpeeds> fieldSpeedsSupplier) {
     this.poseSupplier = poseSupplier;
     this.fieldSpeedsSupplier = fieldSpeedsSupplier;
-    shooterAimer = new ShooterAimer(new Transform3d());
+    shooterAimer = new ShooterAimer(new Transform3d(0, 0, 0.451739, new Rotation3d()));
   }
 
   private Translation3d launchVel(LinearVelocity vel, Angle angle, Angle turretAngle) {
@@ -65,9 +65,9 @@ public class TurretVisualizer {
     // System.out.println("old yVel = " + yVel);
 
     xVel += fieldSpeeds.vxMetersPerSecond;
-    // System.out.println("new xVel = " + xVel);
+    System.out.println("new xVel = " + xVel);
     yVel += fieldSpeeds.vyMetersPerSecond;
-    // System.out.println("new yVel = " + yVel);
+    System.out.println("new yVel = " + yVel);
 
     // System.out.println(
     //    "verticalVel manual = " + Math.sin(angle.in(Radians)) * vel.in(MetersPerSecond));
@@ -118,7 +118,7 @@ public class TurretVisualizer {
     Translation3d trajVel = launchVel(vel, angle, turretAngle);
     velocityVectorPublisher.accept(
         poseSupplier.get().transformBy(new Transform3d(trajVel, new Rotation3d())));
-    System.out.println(trajVel);
+    System.out.println("trajVel = " + trajVel);
     for (int i = 0; i < trajectory.length; i++) {
       double t = i * 0.02;
       double x = trajVel.getX() * t + poseSupplier.get().getTranslation().getX();

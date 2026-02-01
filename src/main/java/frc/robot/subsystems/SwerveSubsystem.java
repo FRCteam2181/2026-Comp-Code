@@ -4,8 +4,8 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.InchesPerSecond;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -253,9 +253,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // System.out.println(
     //     "shooterAimer.getTurretPitchAngle() = "
     //         + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
-    // System.out.println(
-    //     "shooterAimer.getTurretAngle() = " +
-    // Units.radiansToDegrees(shooterAimer.getTurretAngle()));
+    System.out.println("shooterAimer.getTurretAngle() = " + shooterAimer.getTurretAngle());
 
     // System.out.println(
     //     "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
@@ -263,17 +261,17 @@ public class SwerveSubsystem extends SubsystemBase {
     // System.out.println(
     //     "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
     //         + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
-    // System.out.println(
-    //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
-    //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+    System.out.println(
+        "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
+            + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
     turretVisualizer.launchFuel(
-        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond),
+        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), MetersPerSecond),
         Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
         Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
     turretVisualizer.updateFuel(
-        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond),
+        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), MetersPerSecond),
         Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
         Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
   }
