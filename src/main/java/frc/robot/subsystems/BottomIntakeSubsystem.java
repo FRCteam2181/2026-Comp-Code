@@ -53,8 +53,8 @@
 //           .withStatorCurrentLimit(Amps.of(40));
 
 //   // Vendor motor controller object
-//   // private SparkFlex bottomIntake =
-//   //     new SparkFlex(IntakeConstants.kBottomIntake_ID, MotorType.kBrushless);
+//   private SparkFlex bottomIntake =
+//       new SparkFlex(IntakeConstants.kBottomIntake_ID, MotorType.kBrushless);
 
 //   // Create our SmartMotorController from our Spark and config with the NEO.
 //   private SmartMotorController bottomIntakeMotor =

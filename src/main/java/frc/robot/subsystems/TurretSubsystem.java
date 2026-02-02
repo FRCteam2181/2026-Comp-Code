@@ -2,10 +2,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -87,11 +88,13 @@ public class TurretSubsystem extends SubsystemBase {
     motorConfig =
         new SmartMotorControllerConfig(this)
             // .withClosedLoopController(.2, 0, 0)
-            .withClosedLoopController(29.68, 0, 2.6489)
+            .withClosedLoopController(
+                29.68, 0, 2.6489, RotationsPerSecond.of(1), RotationsPerSecondPerSecond.of(2))
             .withSimClosedLoopController(
-                130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(360))
+                2.596, 0, 0, RotationsPerSecond.of(1), RotationsPerSecondPerSecond.of(2))
+            .withSoftLimit(Degrees.of(-185), Degrees.of(185))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
+            .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
@@ -115,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Degrees.of(0), Degrees.of(720))
+            .withHardLimit(Degrees.of(-200), Degrees.of(200))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -146,6 +149,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public Command setAngle(Angle angle) {
+    return turret.setAngle(angle);
+  }
+
+  public Command setAngleDynamic(Supplier<Angle> angle) {
     return turret.setAngle(angle);
   }
 
@@ -268,9 +275,9 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.916048))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(-0.1), Rotations.of(1.1))
+        .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {

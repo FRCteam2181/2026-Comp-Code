@@ -560,6 +560,16 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
+   * Gets the current 3d pose (position and rotation) of the robot, as reported by odometry.
+   * Transforms into a 3d pose assuming on the XY plane.
+   *
+   * @return
+   */
+  public Pose3d getPose3d() {
+    return new Pose3d(swerveDrive.getPose());
+  }
+
+  /**
    * Resets odometry to the given pose. Gyro angle and module positions do not need to be reset when
    * calling this method. However, if either gyro angle or module position is reset, this must be
    * called in order for odometry to keep working.

@@ -99,8 +99,12 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooter.setSpeed(speed);
   }
 
-  public Command setVelocity(Supplier<AngularVelocity> speed) {
+  public Command setVelocityDynamic(Supplier<AngularVelocity> speed) {
     return shooter.setSpeed(speed);
+  }
+
+  public AngularVelocity getSpeed() {
+    return shooter.getSpeed();
   }
 
   /**

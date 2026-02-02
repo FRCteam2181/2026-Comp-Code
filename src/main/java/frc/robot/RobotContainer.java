@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -26,17 +25,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.OperatorConstants;
-// import frc.robot.subsystems.ArmSubsystem;
 // import frc.robot.subsystems.BottomIntakeSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.InputSubsystem;
+// import frc.robot.subsystems.InputSubsystem;
+// import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 // import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 // import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
-import frc.robot.utils.field.FieldConstants;
+import frc.robot.systems.ScoringSystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -60,21 +59,21 @@ public class RobotContainer {
   // selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
-  private final ClimberSubsystem climber = new ClimberSubsystem();
+  // private final ClimberSubsystem climber = new ClimberSubsystem();
 
   // private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
   // private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
-
+  // private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   // private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
-  private final InputSubsystem input = new InputSubsystem();
+  // private final InputSubsystem input = new InputSubsystem();
 
-  private final ShootOnTheMoveCommand shootOnFly =
-      new ShootOnTheMoveCommand(
-          drivebase::getPose, drivebase::getFieldVelocity, FieldConstants.Hub.nearFace, turret);
+  final ScoringSystem scoringSystem =
+      new ScoringSystem(
+          shooter, turret, drivebase, feeder); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -181,7 +180,7 @@ public class RobotContainer {
     // spindexer.setDefaultCommand(spindexer.set(0));
 
     feeder.setDefaultCommand(feeder.set(0));
-    input.setDefaultCommand(input.set(0));
+    // input.setDefaultCommand(input.set(0));
 
     turret.setDefaultCommand(turret.set(0));
 
@@ -199,13 +198,13 @@ public class RobotContainer {
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-      driverXbox
-          .button(2)
-          .whileTrue(
-              Commands.runEnd(
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+      // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+      // driverXbox
+      //     .button(2)
+      //     .whileTrue(
+      //         Commands.runEnd(
+      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
+      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -216,8 +215,8 @@ public class RobotContainer {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
-    driverXbox.rightBumper().whileTrue(climber.c_climb());
-    driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
+    // driverXbox.rightBumper().whileTrue(climber.c_climb());
+    // driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
 
     // operatorControler
     //     .a()
@@ -226,14 +225,15 @@ public class RobotContainer {
     //             .set(IntakeConstants.kBottomIntakeDutyCycle)
     //             .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
 
-    operatorControler
-        .y()
-        .whileTrue(shooter.setVelocity(() -> RPM.of(SmartDashboard.getNumber("ShootSpeed", 100))));
+    // operatorControler
+    //     .y()
+    //     .whileTrue(shooter.setVelocity(() -> RPM.of(SmartDashboard.getNumber("ShootSpeed",
+    // 100))));
 
     // operatorControler
     //     .b()
     //     .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
-    operatorControler.b().whileTrue(feeder.set(-.25).alongWith(input.set(.35)));
+    // operatorControler.b().whileTrue(feeder.set(-.25).alongWith(input.set(.35)));
     operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
     operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
@@ -241,7 +241,19 @@ public class RobotContainer {
     operatorControler.leftBumper().whileTrue(turret.set(.2));
     operatorControler.rightBumper().whileTrue(turret.set(-.2));
 
-    operatorControler.x().whileTrue(shootOnFly);
+    driverXbox
+        .x()
+        .toggleOnTrue(
+            new ShootOnTheMoveCommand(drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
+                .ignoringDisable(true)
+                .withName("OperatorControls.aimCommand"));
+
+    // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
+
+    // driverXbox.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+
+    // driverXbox.leftBumper().whileTrue(turret.set(.2));
+    // driverXbox.rightBumper().whileTrue(turret.set(-.2));
 
     // Schedule `setAngle` when the Xbox controller's B button is pressed,
     // cancelling on release.
