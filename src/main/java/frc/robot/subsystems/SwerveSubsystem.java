@@ -5,8 +5,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Radians;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -32,8 +30,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -46,6 +42,7 @@ import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
 import frc.robot.subsystems.TurretSubsystem.*;
 // import frc.robot.subsystems.TurretSubsystem.ShooterAimer.ShotData;
+import frc.robot.subsystems.TurretSubsystem.ShooterAimer.Shot;
 import frc.robot.utils.*;
 import frc.robot.utils.field.FieldConstants;
 import gg.questnav.questnav.*;
@@ -224,7 +221,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public void launchFuel() {
     // var vel = shooterAimer.getVelocity();
 
-    shooterAimer.updateSim(getPose(), getFieldVelocity());
+    // shooterAimer.updateSim(getPose(), getFieldVelocity());
     // Distance FIELD_LENGTH = Inches.of(650.12);
     // Distance FIELD_WIDTH = Inches.of(316.64);
     // ShotData calculatedShot =
@@ -253,7 +250,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // System.out.println(
     //     "shooterAimer.getTurretPitchAngle() = "
     //         + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
-    System.out.println("shooterAimer.getTurretAngle() = " + shooterAimer.getTurretAngle());
+    // System.out.println("shooterAimer.getTurretAngle() = " + shooterAimer.getTurretAngle());
 
     // System.out.println(
     //     "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
@@ -261,19 +258,15 @@ public class SwerveSubsystem extends SubsystemBase {
     // System.out.println(
     //     "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
     //         + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
-    System.out.println(
-        "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
-            + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+    // System.out.println(
+    //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
+    //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
-    turretVisualizer.launchFuel(
-        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), MetersPerSecond),
-        Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
-        Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+    Shot shot = ShooterAimer.getShotData(getPose(), getFieldVelocity());
 
-    turretVisualizer.updateFuel(
-        LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), MetersPerSecond),
-        Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians),
-        Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+    turretVisualizer.launchFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
+
+    turretVisualizer.updateFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
   }
 
   @Override
