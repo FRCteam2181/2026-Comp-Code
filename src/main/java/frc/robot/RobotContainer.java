@@ -27,7 +27,6 @@ import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.OperatorConstants;
 // import frc.robot.subsystems.BottomIntakeSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
 // import frc.robot.subsystems.InputSubsystem;
 // import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -68,12 +67,11 @@ public class RobotContainer {
   private final TurretSubsystem turret = new TurretSubsystem();
   // private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   // private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
-  private final FeederSubsystem feeder = new FeederSubsystem();
+  // private final FeederSubsystem feeder = new FeederSubsystem();
   // private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
-      new ScoringSystem(
-          shooter, turret, drivebase, feeder); // intakeArm, climber, topintake, spindexer,
+      new ScoringSystem(shooter, turret, drivebase); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -179,7 +177,7 @@ public class RobotContainer {
 
     // spindexer.setDefaultCommand(spindexer.set(0));
 
-    feeder.setDefaultCommand(feeder.set(0));
+    // feeder.setDefaultCommand(feeder.set(0));
     // input.setDefaultCommand(input.set(0));
 
     turret.setDefaultCommand(turret.set(0));
@@ -245,15 +243,14 @@ public class RobotContainer {
         .x()
         .toggleOnTrue(
             new ShootOnTheMoveCommand(drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
-                .ignoringDisable(true)
                 .withName("OperatorControls.aimCommand"));
 
-    // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
+    driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
-    // driverXbox.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+    driverXbox.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
 
-    // driverXbox.leftBumper().whileTrue(turret.set(.2));
-    // driverXbox.rightBumper().whileTrue(turret.set(-.2));
+    driverXbox.leftBumper().whileTrue(turret.set(.2));
+    driverXbox.rightBumper().whileTrue(turret.set(-.2));
 
     // Schedule `setAngle` when the Xbox controller's B button is pressed,
     // cancelling on release.

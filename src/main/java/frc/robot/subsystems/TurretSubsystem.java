@@ -88,11 +88,10 @@ public class TurretSubsystem extends SubsystemBase {
     motorConfig =
         new SmartMotorControllerConfig(this)
             // .withClosedLoopController(.2, 0, 0)
-            .withClosedLoopController(
-                29.68, 0, 2.6489, RotationsPerSecond.of(1), RotationsPerSecondPerSecond.of(2))
+            .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(
                 2.596, 0, 0, RotationsPerSecond.of(1), RotationsPerSecondPerSecond.of(2))
-            .withSoftLimit(Degrees.of(-185), Degrees.of(185))
+            .withSoftLimit(Rotations.of(-.6), Rotations.of(0.6))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
@@ -118,7 +117,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Degrees.of(-200), Degrees.of(200))
+            .withHardLimit(Rotations.of(-.6), Rotations.of(0.6))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -179,7 +178,7 @@ public class TurretSubsystem extends SubsystemBase {
       startTimer = true;
     }
 
-    if (startUpTimer.hasElapsed(5)) {
+    if (startUpTimer.hasElapsed(3)) {
       delayForCRTDone = true;
     }
 
@@ -275,7 +274,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.165807))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))

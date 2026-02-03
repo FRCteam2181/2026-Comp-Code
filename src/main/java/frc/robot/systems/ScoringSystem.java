@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+// import frc.robot.subsystems.FeederSubsystem;
 // import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 // import frc.robot.subsystems.SpindexerSubsystem;
@@ -41,7 +41,7 @@ public class ScoringSystem {
   // public final TopIntakeSubsystem topIntake
   // public final BottomIntakeSubsystem bottomIntake
   // public final SpindexerSubsystem spindexer;
-  public final FeederSubsystem feeder;
+  // public final FeederSubsystem feeder;
 
   // Tolerance for "at setpoint" checks
   private static final AngularVelocity SHOOTER_TOLERANCE = RPM.of(100);
@@ -61,16 +61,13 @@ public class ScoringSystem {
   // Default aim point is red hub
   private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
 
-  public ScoringSystem(
-      ShooterSubsystem shooter,
-      TurretSubsystem turret,
-      SwerveSubsystem swerve,
+  public ScoringSystem(ShooterSubsystem shooter, TurretSubsystem turret, SwerveSubsystem swerve
       // IntakeArmSubsystem intakeArm,
       // ClimberSubsystem climber,
       // TopIntakeSubsystem intake,
       // SpindexerSubsystem spindexer,
-      FeederSubsystem
-          feeder) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
+      // FeederSubsystem feeder
+      ) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
     // bottomIntake
 
     this.shooter = shooter;
@@ -80,7 +77,7 @@ public class ScoringSystem {
     // this.climber = climber;
     // this.intake = intake;
     // this.spindexer = spindexer;
-    this.feeder = feeder;
+    // this.feeder = feeder;
     // this.hood = hood;
     // this.topIntake = topIntake;
     // this.bottomIntake = bottomIntake;

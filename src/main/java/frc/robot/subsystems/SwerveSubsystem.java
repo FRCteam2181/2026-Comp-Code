@@ -62,7 +62,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SwerveDrive swerveDrive;
 
   /** Enable vision odometry updates while driving. */
-  private final boolean visionDriveTest = true;
+  private final boolean visionDriveTest = false;
 
   /** QuestNav class to keep accurate odometry. */
   QuestNav questNav = new QuestNav();
