@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
@@ -89,8 +87,7 @@ public class TurretSubsystem extends SubsystemBase {
         new SmartMotorControllerConfig(this)
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
-            .withSimClosedLoopController(
-                2.596, 0, 0, RotationsPerSecond.of(1), RotationsPerSecondPerSecond.of(2))
+            .withSimClosedLoopController(2.596, 0, 0)
             .withSoftLimit(Rotations.of(-.6), Rotations.of(0.6))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
@@ -155,12 +152,16 @@ public class TurretSubsystem extends SubsystemBase {
     return turret.setAngle(angle);
   }
 
-  public Angle getAngle() {
+  public Angle getRawAngle() {
     return turret.getAngle();
   }
 
+  public Angle getRobotAdjustedAngle() {
+    return turret.getAngle().plus(Degrees.of(180));
+  }
+
   public double getRobotRelativeYawRadians() {
-    return getAngle().in(edu.wpi.first.units.Units.Radians);
+    return getRawAngle().in(edu.wpi.first.units.Units.Radians);
   }
 
   /** Forces a CRT reseed attempt */
@@ -197,7 +198,7 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Encoder A Adjusted", (getAbsoluteEncoderWithOffset()));
     SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
-    SmartDashboard.putNumber("Position", getAngle().in(Rotations));
+    SmartDashboard.putNumber("Position", getRawAngle().in(Rotations));
   }
 
   public void simulationPeriodic() {

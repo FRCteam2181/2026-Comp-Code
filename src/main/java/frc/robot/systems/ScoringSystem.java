@@ -92,7 +92,7 @@ public class ScoringSystem {
     this.isTurretOnTarget =
         new Trigger(
             () ->
-                Math.abs(turret.getAngle().in(Degrees) - targetTurretAngle.in(Degrees))
+                Math.abs(turret.getRawAngle().in(Degrees) - targetTurretAngle.in(Degrees))
                     < TURRET_TOLERANCE.in(Degrees));
 
     // this.isHoodOnTarget = new Trigger(
@@ -186,7 +186,7 @@ public class ScoringSystem {
   }
 
   public Angle getTurretAngle() {
-    return turret.getAngle();
+    return turret.getRawAngle();
   }
 
   public Angle getHoodAngle() {
@@ -220,7 +220,7 @@ public class ScoringSystem {
     return new Rotation3d(
         Degrees.of(0), // no roll 🤞
         Degrees.of(0), // hood.getAngle().unaryMinus(), // pitch is negative hood angle
-        turret.getAngle());
+        turret.getRobotAdjustedAngle());
   }
 
   // public Command useRequirement() {
