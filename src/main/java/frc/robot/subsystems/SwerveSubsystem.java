@@ -38,10 +38,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.RobotContainer;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
 import frc.robot.subsystems.TurretSubsystem.*;
-// import frc.robot.subsystems.TurretSubsystem.ShooterAimer.ShotData;
 import frc.robot.subsystems.TurretSubsystem.ShooterAimer.Shot;
 import frc.robot.utils.*;
 import frc.robot.utils.field.FieldConstants;
@@ -262,11 +262,15 @@ public class SwerveSubsystem extends SubsystemBase {
     //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
     //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
-    Shot shot = ShooterAimer.getShotData(getPose(), getFieldVelocity());
+    Shot shot = ShooterAimer.getShotData(getPose(), getFieldVelocity(), 0);
 
+    System.out.println("before launchFuel = " + RobotContainer.timerThing.get());
     turretVisualizer.launchFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
+    System.out.println("after launchFuel = " + RobotContainer.timerThing.get());
 
     turretVisualizer.updateFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
+    System.out.println("after updateFuel = " + RobotContainer.timerThing.get());
+    RobotContainer.timerThing.reset();
   }
 
   @Override
