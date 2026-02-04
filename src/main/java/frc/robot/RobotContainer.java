@@ -212,6 +212,12 @@ public class RobotContainer {
               Commands.runOnce(() -> timerThing.start())
                   .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
                   .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
+      driverXbox
+          .button(3)
+          .onTrue(
+              Commands.runOnce(() -> timerThing.start())
+                  .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
+                  .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(

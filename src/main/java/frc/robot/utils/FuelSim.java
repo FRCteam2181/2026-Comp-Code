@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -19,10 +19,10 @@ public class FuelSim {
   //    new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve/maxSwerve"));
 
   // public Array
-  private final StructPublisher<Translation3d> fuelSimPublisher =
+  private final StructArrayPublisher<Translation3d> fuelSimPublisher =
       NetworkTableInstance.getDefault()
           .getTable("fuelSim")
-          .getStructTopic("fuelSimPose", Translation3d.struct)
+          .getStructArrayTopic("fuelSimPose", Translation3d.struct)
           .publish();
 
   private static final double PERIOD = 0.02; // sec
@@ -222,7 +222,7 @@ public class FuelSim {
   public void spawnStartingFuel() {
     // Center fuel
     Translation3d center = new Translation3d(FIELD_LENGTH / 2, FIELD_WIDTH / 2, FUEL_RADIUS);
-    /*for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 15; i++) {
       for (int j = 0; j < 6; j++) {
         fuels.add(
             new Fuel(
@@ -256,7 +256,7 @@ public class FuelSim {
                 new Translation3d(
                     FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 - 0.076 - 0.152 * i, FUEL_RADIUS)));
       }
-    }*/
+    }
   }
 
   /**
@@ -267,9 +267,14 @@ public class FuelSim {
     // Logger.recordOutput(
     // SmartDashboard.putData("Fuel Simulation/Fuels", fuels.stream().map((fuel) ->
     // fuel.pos).toArray(Translation3d[]::new));
-    for (Fuel fuel : fuels) {
-      fuelSimPublisher.accept(fuel.pos);
+    // Fuel[] fuelArray = fuels.toArray(Fuel[]::new);
+    Translation3d[] fuelArray = new Translation3d[fuels.size()];
+
+    for (int i = 0; i < fuels.size(); i++) {
+      fuelArray[i] = fuels.get(i).pos;
     }
+
+    fuelSimPublisher.accept(fuelArray);
   }
 
   /** Start the simulation. `updateSim` must still be called every loop */
@@ -411,6 +416,24 @@ public class FuelSim {
         }
       }
     }
+  }
+
+  public int handleIntakes(int CAPACITY) {
+    Pose2d robot = robotSupplier.get();
+    int n = 0;
+    for (SimIntake intake : intakes) {
+      for (int i = 0; i < fuels.size(); i++) {
+        if (intake.shouldIntake(fuels.get(i), robot)) {
+          if (n >= CAPACITY) {
+            // break;
+          }
+          fuels.remove(i);
+          i--;
+          n++;
+        }
+      }
+    }
+    return n;
   }
 
   /**

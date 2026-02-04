@@ -218,6 +218,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
   }
 
+  public void intakeFuel() {
+
+    System.out.println("before intakeFuel = " + RobotContainer.timerThing.get());
+    turretVisualizer.intakeFuel();
+    System.out.println("after intakeFuel = " + RobotContainer.timerThing.get());
+
+    RobotContainer.timerThing.reset();
+  }
+
   public void launchFuel() {
     // var vel = shooterAimer.getVelocity();
 

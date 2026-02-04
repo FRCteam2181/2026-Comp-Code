@@ -16,8 +16,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.utils.FuelSim;
 import java.util.function.Supplier;
 
@@ -29,7 +27,7 @@ public class TurretVisualizer {
   private Supplier<Pose3d> poseSupplier;
   private Supplier<ChassisSpeeds> fieldSpeedsSupplier;
   private final int CAPACITY = 30;
-  public int fuelStored = 29;
+  public int fuelStored = 8;
   private ShooterAimer shooterAimer;
 
   private final StructPublisher<Pose3d> turretVisualizerPublisher =
@@ -82,12 +80,14 @@ public class TurretVisualizer {
   }
 
   public void intakeFuel() {
+    // int a = FuelSim.getInstance().handleIntakes(CAPACITY);
+    // fuelStored += a;
     fuelStored++;
   }
 
   public void launchFuel(LinearVelocity vel, Angle angle, Angle turretAngle) {
     if (fuelStored == 0) return;
-    // fuelStored--;
+    fuelStored--;
     Pose3d robot = poseSupplier.get();
 
     Translation3d initialPosition =
@@ -102,16 +102,12 @@ public class TurretVisualizer {
     FuelSim.getInstance().spawnFuel(initialPosition, launchVel(vel, angle, turretAngle));
   }
 
-  public Command repeatedlyLaunchFuel(
-      Supplier<LinearVelocity> velSupplier,
-      Supplier<Angle> angleSupplier,
-      TurretSubsystem turret,
-      ShooterSubsystem shooter,
-      Supplier<Angle> turretAngle) {
-    return turret
-        .runOnce(() -> launchFuel(velSupplier.get(), angleSupplier.get(), turretAngle.get()))
-        .andThen(Commands.waitSeconds(0.25))
-        .repeatedly();
+  public void repeatedlyLaunchFuel() {
+    // FuelSim.getInstance().spawnFuel(initialPosition, launchVel(vel, angle, turretAngle))
+    //     .runOnce(() ->
+    // launchFuel(ShooterAimer.getShotData(poseSupplier.get().toPose2d(),fieldSpeedsSupplier.get(),0).getVelocity(), ShooterAimer.getShotData(poseSupplier.get().toPose2d(),fieldSpeedsSupplier.get(),0).getPitchAngle(), ShooterAimer.getShotData(poseSupplier.get().toPose2d(),fieldSpeedsSupplier.get(),0).getAngle()))
+    //     .andThen(Commands.waitSeconds(0.25))
+    //     .repeatedly();
   }
 
   public void updateFuel(LinearVelocity vel, Angle angle, Angle turretAngle) {
