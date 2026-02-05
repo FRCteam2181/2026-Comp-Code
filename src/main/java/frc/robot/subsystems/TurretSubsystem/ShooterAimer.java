@@ -493,7 +493,7 @@ public class ShooterAimer extends SubsystemBase {
                 .times(-1 * latency));
     System.out.println(
         "chassisSpeeds X thing = "
-            + (chassisSpeeds.vxMetersPerSecond * ((chassisSpeeds.vxMetersPerSecond < 0) ? 0 : 1)));
+            + (chassisSpeeds.vxMetersPerSecond * ((chassisSpeeds.vxMetersPerSecond < 0) ? -1 : 1)));
     System.out.println("chassisSpeeds Y thing = " + (chassisSpeeds.vyMetersPerSecond));
 
     Shot initialCalcShot = findIdealVelocityAndAngle(robotPose, chassisSpeeds);
