@@ -275,7 +275,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.165807))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.650758))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))

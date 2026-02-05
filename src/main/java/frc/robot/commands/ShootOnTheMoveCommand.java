@@ -115,7 +115,8 @@ public class ShootOnTheMoveCommand extends Command {
 
     var correctedDistance = Meters.of(vectorToTarget.getNorm());
     var calculatedHeading =
-        vectorToTarget.getAngle().rotateBy(drivetrain.getHeading().unaryMinus()).getMeasure();
+        vectorToTarget.getAngle().rotateBy(drivetrain.getHeading()).getMeasure();
+    // .minus(Degrees.of(180)); // .unaryminus
 
     // Logger.recordOutput("ShootOnTheMove/RobotHeading", drivetrain.getHeading());
     // Logger.recordOutput("ShootOnTheMove/CalculatedHeading", calculatedHeading);
@@ -130,6 +131,10 @@ public class ShootOnTheMoveCommand extends Command {
     latestHoodAngle = superstructure.getHoodAngle();
 
     superstructure.setShooterSetpoints(latestShootSpeed, latestTurretAngle, latestHoodAngle);
+
+    // SmartDashboard.putNumber("shoot speed", latestShootSpeed);
+    // SmartDashboard.putNumber("target angle", latestTurretAngle);
+    // SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
 
     // System.out.println("Shooting at distance: " + correctedDistance + " requires
     // speed: " + latestShootSpeed

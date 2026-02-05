@@ -220,7 +220,7 @@ public class ScoringSystem {
     return new Rotation3d(
         Degrees.of(0), // no roll 🤞
         Degrees.of(0), // hood.getAngle().unaryMinus(), // pitch is negative hood angle
-        turret.getRobotAdjustedAngle());
+        turret.getRawAngle());
   }
 
   // public Command useRequirement() {
@@ -234,7 +234,9 @@ public class ScoringSystem {
     // TODO add actual turret pose
     return new Pose3d(
         new Translation3d(
-            Inches.of(-6.25).in(Meters), Inches.of(6.25).in(Meters), Inches.of(14).in(Meters)),
+            Inches.of(-7.25).in(Meters), Inches.of(7.25).in(Meters), Inches.of(16.945).in(Meters)),
+        // Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
+        // real robot values
         getAimRotation3d());
   }
 }

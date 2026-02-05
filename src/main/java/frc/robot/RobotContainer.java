@@ -27,7 +27,7 @@ import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.OperatorConstants;
 // import frc.robot.subsystems.BottomIntakeSubsystem;
 // import frc.robot.subsystems.ClimberSubsystem;
-// import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.InputSubsystem;
 // import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 // import frc.robot.subsystems.SpindexerSubsystem;
@@ -68,7 +68,7 @@ public class RobotContainer {
   // private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   // private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   // private final FeederSubsystem feeder = new FeederSubsystem();
-  // private final InputSubsystem input = new InputSubsystem();
+  private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
       new ScoringSystem(shooter, turret, drivebase); // intakeArm, climber, topintake, spindexer,
@@ -178,7 +178,7 @@ public class RobotContainer {
     // spindexer.setDefaultCommand(spindexer.set(0));
 
     // feeder.setDefaultCommand(feeder.set(0));
-    // input.setDefaultCommand(input.set(0));
+    input.setDefaultCommand(input.set(0));
 
     turret.setDefaultCommand(turret.set(0));
 
@@ -231,7 +231,7 @@ public class RobotContainer {
     // operatorControler
     //     .b()
     //     .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
-    // operatorControler.b().whileTrue(feeder.set(-.25).alongWith(input.set(.35)));
+    operatorControler.b().whileTrue(input.set(.35));
     operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
     operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
