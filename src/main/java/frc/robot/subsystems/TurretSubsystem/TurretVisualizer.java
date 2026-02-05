@@ -87,7 +87,7 @@ public class TurretVisualizer {
 
   public void launchFuel(LinearVelocity vel, Angle angle, Angle turretAngle) {
     if (fuelStored == 0) return;
-    fuelStored--;
+    // fuelStored--;
     Pose3d robot = poseSupplier.get();
 
     Translation3d initialPosition =

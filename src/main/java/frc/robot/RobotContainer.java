@@ -179,7 +179,7 @@ public class RobotContainer {
 
     if (Robot.isSimulation()) {
       // Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocityKeyboard);
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
       // drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
       /*driveDirectAngleKeyboard.driveToPose(
       () -> target,
@@ -206,14 +206,28 @@ public class RobotContainer {
       shooter,
       shooterAimer);*/
       // driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      //   driverXbox
+      //       .button(2)
+      //       .onTrue(
+      //           Commands.runOnce(() -> timerThing.start())
+      //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
+      // timerThing.get())))
+      //               .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
       driverXbox
-          .button(2)
+          .x()
           .onTrue(
               Commands.runOnce(() -> timerThing.start())
                   .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
                   .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
+      //   driverXbox
+      //       .button(3)
+      //       .onTrue(
+      //           Commands.runOnce(() -> timerThing.start())
+      //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
+      // timerThing.get())))
+      //               .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
       driverXbox
-          .button(3)
+          .a()
           .onTrue(
               Commands.runOnce(() -> timerThing.start())
                   .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
@@ -225,7 +239,7 @@ public class RobotContainer {
 
       driverXbox.rightBumper().onTrue(Commands.none());
     } else {
-      driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      //   driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
