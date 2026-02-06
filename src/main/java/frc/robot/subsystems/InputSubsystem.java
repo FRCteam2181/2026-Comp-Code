@@ -28,7 +28,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class InputSubsystem extends SubsystemBase {
-  private SparkFlex spark = new SparkFlex(18, MotorType.kBrushless);
+  private SparkFlex spark = new SparkFlex(15, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)

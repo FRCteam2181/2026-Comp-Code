@@ -9,8 +9,8 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -32,10 +32,10 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  private SparkFlex shooterLeader =
-      new SparkFlex(ShooterConstants.kShooterLeader_ID, MotorType.kBrushless);
-  private SparkFlex shooterFollower =
-      new SparkFlex(ShooterConstants.kShooterFollower_ID, MotorType.kBrushless);
+  private SparkMax shooterLeader =
+      new SparkMax(ShooterConstants.kShooterLeader_ID, MotorType.kBrushless);
+  private SparkMax shooterFollower =
+      new SparkMax(ShooterConstants.kShooterFollower_ID, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)

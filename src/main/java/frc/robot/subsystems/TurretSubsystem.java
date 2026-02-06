@@ -45,7 +45,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   // private final TalonFX turretMotor;
 
-  private final SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
+  private final SparkFlex turretMotor = new SparkFlex(16, MotorType.kBrushless);
   private final AbsoluteEncoder cancoderB = turretMotor.getAbsoluteEncoder(); // 20t B SparkFlex
   private final DutyCycleEncoder cancoderA = new DutyCycleEncoder(0); // 19 A rio
   // Create a timer to delay CRT run until encoders are ready
@@ -88,7 +88,7 @@ public class TurretSubsystem extends SubsystemBase {
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(2.596, 0, 0)
-            .withSoftLimit(Rotations.of(-.6), Rotations.of(0.6))
+            .withSoftLimit(Rotations.of(-.3), Rotations.of(0.3))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
@@ -275,7 +275,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.650758))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.734803))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))
