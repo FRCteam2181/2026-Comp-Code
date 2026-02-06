@@ -31,7 +31,7 @@
 
 // public class IntakeArmSubsystem extends SubsystemBase {
 
-//   private SparkMax spark = new SparkMax(66, MotorType.kBrushless);
+//   private SparkMax spark = new SparkMax(14, MotorType.kBrushless);
 //   private SparkMax sparkFollower = new SparkMax(65, MotorType.kBrushless);
 
 //   private SmartMotorControllerConfig smcConfig =

@@ -4,11 +4,12 @@ import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.utils.field.FieldConstants;
 
-public class GameData {
+public class GameData extends SubsystemBase {
 
   // private CoralPlacer          m_coralPlacer;
   // private Elevator             m_elevator;
@@ -37,6 +38,8 @@ public class GameData {
   }
 
   public void periodic() {
+    canShoot();
+    SmartDashboard.putNumber("Match_Time", DriverStation.getMatchTime());
     SmartDashboard.putBoolean("can_shoot", canShoot());
   }
 
@@ -55,33 +58,37 @@ public class GameData {
     boolean canShootBool = true;
     DriverStation.Alliance alliance = DriverStation.getAlliance().get();
     boolean is_blue = (alliance == DriverStation.Alliance.Blue);
-    String gameData = DriverStation.getGameSpecificMessage();
+    String gameData = DriverStation.getGameSpecificMessage(); //This sends who won(B/R)
     double matchTime = DriverStation.getMatchTime();
+
+    System.out.println("gameData = '" + gameData + "'");
+
     if (gameData.length() > 0) {
       switch (gameData.charAt(0)) {
         case 'B':
           // Blue case code
-          if (is_blue && (matchTime >= 140 && matchTime <= 130)) {
+          if (is_blue && (matchTime <= 140 && matchTime >= 130)) {
             canShootBool = false;
-          } else if (!is_blue && (matchTime >= 130 && matchTime <= 105)) {
+          } else if (!is_blue && (matchTime <= 130 && matchTime >= 105)) {
             canShootBool = false;
-          } else if (is_blue && (matchTime >= 105 && matchTime <= 55)) {
+          } else if (is_blue && (matchTime <= 105 && matchTime >= 55)) {
             canShootBool = false;
-          } else if (!is_blue && (matchTime >= 55 && matchTime <= 30)) {
+          } else if (!is_blue && (matchTime <= 55 && matchTime >= 30)) {
             canShootBool = false;
           }
           break;
+          // Red case code
         case 'R':
-          if (!is_blue && (matchTime >= 140 && matchTime <= 130)) {
+          if (!is_blue && (matchTime <= 140 && matchTime >= 130)) {
             canShootBool = false;
-          } else if (is_blue && (matchTime >= 130 && matchTime <= 105)) {
+          } else if (is_blue && (matchTime <= 130 && matchTime >= 105)) {
             canShootBool = false;
-          } else if (!is_blue && (matchTime >= 105 && matchTime <= 55)) {
+          } else if (!is_blue && (matchTime <= 105 && matchTime >= 55)) {
             canShootBool = false;
-          } else if (is_blue && (matchTime >= 55 && matchTime <= 30)) {
+          } else if (is_blue && (matchTime <= 55 && matchTime >= 30)) {
             canShootBool = false;
           }
-          // Red case code
+          break;
         default:
           // This is corrupt data
           canShootBool = true;
@@ -89,6 +96,7 @@ public class GameData {
       }
     } else {
       // Code for no data received yet
+      System.out.print("we hate everything");
       canShootBool = true;
     }
     return canShootBool;

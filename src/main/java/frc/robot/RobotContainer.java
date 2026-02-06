@@ -34,6 +34,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 // import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.systems.GameData;
 import frc.robot.systems.ScoringSystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -72,6 +73,8 @@ public class RobotContainer {
 
   final ScoringSystem scoringSystem =
       new ScoringSystem(shooter, turret, drivebase); // intakeArm, climber, topintake, spindexer,
+
+  private final GameData gameData = new GameData(drivebase);
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
