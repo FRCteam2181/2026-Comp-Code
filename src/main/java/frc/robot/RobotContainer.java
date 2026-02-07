@@ -4,8 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -185,7 +184,7 @@ public class RobotContainer {
 
     turret.setDefaultCommand(turret.set(0));
 
-    intakeArm.setDefaultCommand(intakeArm.setAngle(Degrees.of(0)));
+    intakeArm.setDefaultCommand(intakeArm.set(0));
 
     if (Robot.isSimulation()) {
       Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
@@ -226,18 +225,15 @@ public class RobotContainer {
                 .set(IntakeConstants.kBottomIntakeDutyCycle)
                 .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle)));
 
-    // operatorControler
-    //     .y()
-    //     .whileTrue(shooter.setVelocity(() -> RPM.of(SmartDashboard.getNumber("ShootSpeed",
-    // 100))));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
 
     operatorControler
         .b()
-        .whileTrue((input.set(.55).alongWith(new WaitCommand(.1).andThen(spindexer.set(-.65)))));
+        .whileTrue((input.set(.55).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85)))));
     // operatorControler.b().whileTrue(input.set(.35));
-    operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
+    // operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
-    operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+    // operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
 
     operatorControler.leftBumper().whileTrue(turret.set(.2));
     operatorControler.rightBumper().whileTrue(turret.set(-.2));
