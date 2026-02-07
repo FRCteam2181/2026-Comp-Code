@@ -167,11 +167,11 @@ public class ShootOnTheMoveCommand extends Command {
   // meters, RPS
   private static final InterpolatingDoubleTreeMap SHOOTING_SPEED_BY_DISTANCE =
       InterpolatingDoubleTreeMap.ofEntries(
-          Map.entry(Inches.of(88).in(Meters), 5500.0),
-          Map.entry(Inches.of(101).in(Meters), 6000.0),
-          Map.entry(Inches.of(133).in(Meters), 6750.0),
-          Map.entry(Inches.of(166).in(Meters), 7600.0),
-          Map.entry(Inches.of(209).in(Meters), 8300.0));
+          Map.entry(Inches.of(88).in(Meters), 5800.0),
+          Map.entry(Inches.of(101).in(Meters), 6300.0),
+          Map.entry(Inches.of(133).in(Meters), 7050.0),
+          Map.entry(Inches.of(166).in(Meters), 7900.0),
+          Map.entry(Inches.of(209).in(Meters), 8600.0));
 
   // meters, degrees
   private static final InterpolatingDoubleTreeMap HOOD_ANGLE_BY_DISTANCE =

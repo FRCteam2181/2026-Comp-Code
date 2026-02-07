@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ShootOnTheMoveCommand;
@@ -230,7 +231,9 @@ public class RobotContainer {
     //     .whileTrue(shooter.setVelocity(() -> RPM.of(SmartDashboard.getNumber("ShootSpeed",
     // 100))));
 
-    operatorControler.b().whileTrue(spindexer.set(-.65).alongWith(input.set(.35)));
+    operatorControler
+        .b()
+        .whileTrue((input.set(.55).alongWith(new WaitCommand(.1).andThen(spindexer.set(-.65)))));
     // operatorControler.b().whileTrue(input.set(.35));
     operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
