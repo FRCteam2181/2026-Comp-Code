@@ -243,25 +243,23 @@ public class FuelSim {
     //   }
     // }
 
-    // // Depots
-    // for (int i = 0; i < 3; i++) {
-    //   for (int j = 0; j < 4; j++) {
-    //     fuels.add(
-    //         new Fuel(new Translation3d(0.076 + 0.152 * j, 5.95 + 0.076 + 0.152 * i,
-    // FUEL_RADIUS)));
-    //     fuels.add(
-    //         new Fuel(new Translation3d(0.076 + 0.152 * j, 5.95 - 0.076 - 0.152 * i,
-    // FUEL_RADIUS)));
-    //     fuels.add(
-    //         new Fuel(
-    //             new Translation3d(
-    //                 FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 + 0.076 + 0.152 * i, FUEL_RADIUS)));
-    //     fuels.add(
-    //         new Fuel(
-    //             new Translation3d(
-    //                 FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 - 0.076 - 0.152 * i, FUEL_RADIUS)));
-    //   }
-    // }
+    // Depots
+    for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 4; j++) {
+        fuels.add(
+            new Fuel(new Translation3d(0.076 + 0.152 * j, 5.95 + 0.076 + 0.152 * i, FUEL_RADIUS)));
+        fuels.add(
+            new Fuel(new Translation3d(0.076 + 0.152 * j, 5.95 - 0.076 - 0.152 * i, FUEL_RADIUS)));
+        fuels.add(
+            new Fuel(
+                new Translation3d(
+                    FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 + 0.076 + 0.152 * i, FUEL_RADIUS)));
+        fuels.add(
+            new Fuel(
+                new Translation3d(
+                    FIELD_LENGTH - 0.076 - 0.152 * j, 2.09 - 0.076 - 0.152 * i, FUEL_RADIUS)));
+      }
+    }
   }
 
   /**
@@ -430,14 +428,19 @@ public class FuelSim {
       for (int i = 0; i < fuels.size(); i++) {
         if (intake.shouldIntake(fuels.get(i), robot)) {
           if (n >= CAPACITY) {
-            // break;
+            break;
           }
           fuels.remove(i);
           i--;
           n++;
         }
       }
+
+      if (n >= CAPACITY) {
+        break;
+      }
     }
+    System.out.println(n);
     return n;
   }
 
@@ -647,12 +650,14 @@ public class FuelSim {
               .getTranslation();
 
       boolean result =
-          fuelRelativePos.getX() >= xMin
-              && fuelRelativePos.getX() <= xMax
-              && fuelRelativePos.getY() >= yMin
-              && fuelRelativePos.getY() <= yMax;
+          fuelRelativePos.getX() >= xMin - (FUEL_RADIUS + 1)
+              && fuelRelativePos.getX() <= xMax + (FUEL_RADIUS + 1)
+              && fuelRelativePos.getY() >= yMin - (FUEL_RADIUS + 1)
+              && fuelRelativePos.getY() <= yMax + (FUEL_RADIUS + 1);
+
+      // System.out.println(result);
       if (result) {
-        callback.run();
+        // callback.run();
       }
       return result;
     }

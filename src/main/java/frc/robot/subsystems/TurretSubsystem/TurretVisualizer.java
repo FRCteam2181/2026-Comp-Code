@@ -80,14 +80,14 @@ public class TurretVisualizer {
   }
 
   public void intakeFuel() {
-    // int a = FuelSim.getInstance().handleIntakes(CAPACITY);
-    // fuelStored += a;
+    int a = FuelSim.getInstance().handleIntakes(CAPACITY);
+    fuelStored += a;
     fuelStored++;
   }
 
   public void launchFuel(LinearVelocity vel, Angle angle, Angle turretAngle) {
     if (fuelStored == 0) return;
-    // fuelStored--;
+    fuelStored--;
     Pose3d robot = poseSupplier.get();
 
     Translation3d initialPosition =

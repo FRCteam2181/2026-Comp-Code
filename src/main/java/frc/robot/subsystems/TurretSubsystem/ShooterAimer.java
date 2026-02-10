@@ -59,8 +59,7 @@ public class ShooterAimer extends SubsystemBase {
         new Transform2d(this.ROBOT_TO_TURRET.getX(), this.ROBOT_TO_TURRET.getY(), new Rotation2d());
   }
 
-
-    // see https://www.desmos.com/calculator/08uifyukvc for more info
+  // see https://www.desmos.com/calculator/08uifyukvc for more info
   public static Shot findIdealVelocityAndAngle(Pose2d robotPose, ChassisSpeeds robotSpeed) {
     Transform3d ROBOT_TO_TURRET =
         new Transform3d(

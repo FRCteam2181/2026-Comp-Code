@@ -205,33 +205,33 @@ public class RobotContainer {
       turret,
       shooter,
       shooterAimer);*/
-      // driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      //   driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      driverXbox
+          .button(2)
+          .onTrue(
+              Commands.runOnce(() -> timerThing.start())
+                  .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
+                  .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
       //   driverXbox
-      //       .button(2)
+      //       .x()
       //       .onTrue(
       //           Commands.runOnce(() -> timerThing.start())
       //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
       // timerThing.get())))
       //               .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
       driverXbox
-          .x()
+          .button(3)
           .onTrue(
               Commands.runOnce(() -> timerThing.start())
                   .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
-                  .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
+                  .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
       //   driverXbox
-      //       .button(3)
+      //       .a()
       //       .onTrue(
       //           Commands.runOnce(() -> timerThing.start())
       //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
       // timerThing.get())))
       //               .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
-      driverXbox
-          .a()
-          .onTrue(
-              Commands.runOnce(() -> timerThing.start())
-                  .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
-                  .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
