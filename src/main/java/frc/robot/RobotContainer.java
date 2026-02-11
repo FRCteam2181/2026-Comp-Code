@@ -69,6 +69,7 @@ public class RobotContainer {
   private final TurretSubsystem turret = new TurretSubsystem();
   private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
+
   // private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
 
@@ -239,6 +240,10 @@ public class RobotContainer {
     operatorControler.rightBumper().whileTrue(turret.set(-.2));
     // operatorControler.rightTrigger().whileTrue(intake)
 
+    driverXbox.leftTrigger().whileTrue(intakeArm.set(-.5));
+    driverXbox.rightTrigger().whileTrue(intakeArm.set(.5));
+    // the current degree value isn't final, it's just a placeholder for now. we will update it
+    // eventually.
     driverXbox
         .x()
         .toggleOnTrue(
