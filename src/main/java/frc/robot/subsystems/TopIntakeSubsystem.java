@@ -46,7 +46,7 @@ public class TopIntakeSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1, 1)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(3)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
