@@ -108,11 +108,10 @@ public class RobotState {
     odometryPose = odometryPose.exp(twist);
 
     // Replace odometry pose with gyro if present
-  
-          // Add offset to measured angle
-          Rotation2d angle = observation.gyroAngle.plus(gyroOffset);
-          odometryPose = new Pose2d(odometryPose.getTranslation(), angle);
-        
+
+    // Add offset to measured angle
+    Rotation2d angle = observation.gyroAngle.plus(gyroOffset);
+    odometryPose = new Pose2d(odometryPose.getTranslation(), angle);
 
     // Add pose to buffer at timestamp
     poseBuffer.addSample(observation.timestamp(), odometryPose);

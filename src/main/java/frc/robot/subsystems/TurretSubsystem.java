@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
@@ -13,15 +14,28 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import frc.robot.Robot;
+import frc.robot.RobotState;
+
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -36,10 +50,44 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.EasyCRT;
+import frc.robot.utils.FullSubsystem;
 import yams.units.EasyCRTConfig;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 /** Turret that uses YAMS CRT */
-public class TurretSubsystem extends SubsystemBase {
+public class TurretSubsystem extends FullSubsystem {
+
+    private static final double minAngle = Units.degreesToRadians(-210.0);
+  private static final double maxAngle = Units.degreesToRadians(210.0);
+  private static final double trackOverlapMargin = Units.degreesToRadians(10);
+  private static final double trackCenterRads = (minAngle + maxAngle) / 2;
+  private static final double trackMinAngle = trackCenterRads - Math.PI - trackOverlapMargin;
+  private static final double trackMaxAngle = trackCenterRads + Math.PI + trackOverlapMargin;
+
+  private static final LoggedTunableNumber maxVelocity =
+      new LoggedTunableNumber("Turret/MaxVelocity");
+  private static final LoggedTunableNumber maxAcceleration =
+      new LoggedTunableNumber("Turret/MaxAcceleration", 9999999);
+  private static final LoggedTunableNumber kP = new LoggedTunableNumber("Turret/kP");
+  private static final LoggedTunableNumber kD = new LoggedTunableNumber("Turret/kD");
+  private static final LoggedTunableNumber kA = new LoggedTunableNumber("Turret/kA");
+
   /** Manually rerun CRT seeding. */
   private static final String RERUN_SEED = "Turret/CRT/RerunSeed";
 
@@ -70,7 +118,32 @@ public class TurretSubsystem extends SubsystemBase {
   private double lastAbsB = Double.NaN;
   private String lastSeedStatus = "NOT_ATTEMPTED";
 
-  public TurretSubsystem() {
+
+   private LaunchState launchState = LaunchState.ACTIVE_LAUNCHING;
+   private Rotation2d goalAngle = Rotation2d.kZero;
+   private double goalVelocity = 0.0;
+   private double lastGoalAngle = 0.0;
+
+//   private final Debouncer motorConnectedDebouncer = new Debouncer(0.5, DebounceType.kFalling);
+
+//   private final Alert disconnected =
+//       new Alert("Turret motor disconnected!", Alert.AlertType.kWarning);
+//   @Setter private BooleanSupplier coastOverride = () -> false;
+
+   TrapezoidProfile profile =
+       new TrapezoidProfile(
+           new TrapezoidProfile.Constraints(maxVelocity.get(), maxAcceleration.get()));
+   private State setpoint = new State();
+   private double turretOffset;
+   private boolean turretZeroed = false;
+
+//   @Getter
+//   @Accessors(fluent = true)
+//   @AutoLogOutput
+    private boolean atGoal = false;
+
+
+   public TurretSubsystem() {
 
     absPositionASignal = (getAbsoluteEncoderWithOffset());
     absPositionBSignal = cancoderB.getPosition();
@@ -126,6 +199,10 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean(RERUN_SEED, false);
   }
 
+
+
+  
+
   public Command sysId() {
     return turret.sysId(
         Volts.of(4.0), // maximumVoltage
@@ -156,6 +233,9 @@ public class TurretSubsystem extends SubsystemBase {
     return turret.getAngle();
   }
 
+  public double getPosition(){
+return ((turret.getAngle()).in(Radians));
+  }
   public Angle getRobotAdjustedAngle() {
     return turret.getAngle().plus(Degrees.of(180));
   }
@@ -199,7 +279,86 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
     SmartDashboard.putNumber("Position", getRawAngle().in(Rotations));
+
+   // Stop when disabled
+    if (DriverStation.isDisabled() || !rotorSeededFromAbs) {
+      atGoal = false;
+    }
+
+    // Update lastGoalAngle & reset setpoint
+    if (DriverStation.isDisabled()) {
+      setpoint = new State(inputs.positionRads, 0.0);
+      lastGoalAngle = getPosition();
+    }
+
+    // Publish position
+    if (rotorSeededFromAbs) {
+      RobotState.getInstance()
+          .addTurretObservation(
+              new RobotState.TurretObservation(
+                  Timer.getTimestamp(), new Rotation2d(getPosition())));
   }
+
+    @Override
+  public void periodicAfterScheduler() {
+    // Delay tracking math until after the RobotState has been updated & turret zeroed
+    if (DriverStation.isEnabled() && rotorSeededFromAbs) {
+      Rotation2d robotAngle = RobotState.getInstance().getRotation();
+      double robotAngularVelocity =
+          RobotState.getInstance().getFieldVelocity().omegaRadiansPerSecond;
+
+      Rotation2d robotRelativeGoalAngle = goalAngle.minus(robotAngle);
+      double robotRelativeGoalVelocity = goalVelocity - robotAngularVelocity;
+
+      boolean hasBestAngle = false;
+      double bestAngle = 0;
+      double minLegalAngle =
+          switch (launchState) {
+            case ACTIVE_LAUNCHING -> minAngle;
+            case TRACKING -> trackMinAngle;
+          };
+      double maxLegalAngle =
+          switch (launchState) {
+            case ACTIVE_LAUNCHING -> maxAngle;
+            case TRACKING -> trackMaxAngle;
+          };
+      for (int i = -2; i < 3; i++) {
+        double potentialSetpoint = robotRelativeGoalAngle.getRadians() + Math.PI * 2.0 * i;
+        if (potentialSetpoint < minLegalAngle || potentialSetpoint > maxLegalAngle) {
+          continue;
+        } else {
+          if (!hasBestAngle) {
+            bestAngle = potentialSetpoint;
+            hasBestAngle = true;
+          }
+          if (Math.abs(lastGoalAngle - potentialSetpoint) < Math.abs(lastGoalAngle - bestAngle)) {
+            bestAngle = potentialSetpoint;
+          }
+        }
+      }
+      lastGoalAngle = bestAngle;
+
+      State goalState =
+          new State(
+              MathUtil.clamp(bestAngle, minLegalAngle, maxLegalAngle), robotRelativeGoalVelocity);
+
+      setpoint = profile.calculate(Constants.loopPeriodSecs, setpoint, goalState);
+      atGoal =
+          EqualsUtil.epsilonEquals(bestAngle, setpoint.position)
+              && EqualsUtil.epsilonEquals(robotRelativeGoalVelocity, setpoint.velocity);
+
+
+      outputs.mode = TurretIOOutputMode.CLOSED_LOOP;
+      outputs.position = setpoint.position - turretOffset;
+      outputs.velocity = setpoint.velocity;
+      outputs.kP = kP.get();
+      outputs.kD = kD.get();
+    }
+
+    // Apply outputs
+    turretIO.applyOutputs(outputs);
+  }
+
 
   public void simulationPeriodic() {
     turret.simIterate();
@@ -322,4 +481,10 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}
+
+    public enum LaunchState {
+    ACTIVE_LAUNCHING,
+    TRACKING
+  }
+
 }
