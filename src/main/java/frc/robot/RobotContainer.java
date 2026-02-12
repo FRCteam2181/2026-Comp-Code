@@ -47,7 +47,7 @@ public class RobotContainer
   final CommandXboxController driverXbox = new CommandXboxController(0);
 
   // Vision Camera
-  PhotonCamera camera = new PhotonCamera("PhotonVision");
+  PhotonCamera camera = new PhotonCamera("Arducam_OV9782_USB_Camera");
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
@@ -201,11 +201,16 @@ public class RobotContainer
     } else
     {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+      // driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
 
       /*driverXbox.x().onTrue(drivebase.aimAtTarget());
       driverXbox.b().onTrue(drivebase.driveToTarget());*/
     }
+
+    driverXbox.a().onTrue(new RunCommand(() -> {System.out.println(drivebase.getTargetPose());}));
+    driverXbox.b().onTrue(new RunCommand(() -> {System.out.println(drivebase.getTargetYaw());}));
+    driverXbox.x().onTrue(new RunCommand(() -> {System.out.println(drivebase.vision.getBestObjectPose());}));
+    driverXbox.y().onTrue(new RunCommand(() -> {System.out.println(drivebase.vision.getBestTargetYaw());}));
 
   }
 

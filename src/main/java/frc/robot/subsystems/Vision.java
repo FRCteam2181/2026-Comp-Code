@@ -80,7 +80,8 @@ public class Vision extends SubsystemBase{
     public static PhotonCamera camera, camera1, camera2;
     public PhotonCameraSim cameraSim, cameraSim1, cameraSim2;
 
-    List<PhotonTrackedTarget> targets;
+    // List<PhotonTrackedTarget> targetsSim;
+    ArrayList<PhotonPipelineResult> targets;
 
 
     /**
@@ -148,19 +149,23 @@ public class Vision extends SubsystemBase{
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    if(camera.getLatestResult().hasTargets()){
+
+    targets = new ArrayList<PhotonPipelineResult>(camera.getAllUnreadResults());
+
+
+    if(targets.get(0).hasTargets()){
       SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
       SmartDashboard.putNumber("PhotonVisionYaw", getBestTargetYaw());
-      SmartDashboard.putNumber("DetectedObjectRelativeX", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getX());
-      SmartDashboard.putNumber("DetectedObjectRelativeY", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getY());
-      SmartDashboard.putNumber("DetectedObjectRelativeZ", camera.getLatestResult().getBestTarget().getBestCameraToTarget().getZ());
+      SmartDashboard.putNumber("DetectedObjectRelativeX", targets.get(0).getBestTarget().getBestCameraToTarget().getX());
+      SmartDashboard.putNumber("DetectedObjectRelativeY", targets.get(0).getBestTarget().getBestCameraToTarget().getY());
+      SmartDashboard.putNumber("DetectedObjectRelativeZ", targets.get(0).getBestTarget().getBestCameraToTarget().getZ());
+      SmartDashboard.putNumber("DetectedObjectPoseAmbiguity", targets.get(0).getBestTarget().getPoseAmbiguity());
+      System.out.println("getBestTarget()" + targets.get(0).getBestTarget());
     }
     
+    // visionSim.update(currentPose.get());
 
-    targets = camera.getLatestResult().getTargets();
-    visionSim.update(currentPose.get());
-
-    SmartDashboard.putBoolean("hasTargets", camera.getLatestResult().hasTargets());
+    SmartDashboard.putBoolean("hasTargets", targets.get(0).hasTargets());
 
   }
 
@@ -207,9 +212,9 @@ public class Vision extends SubsystemBase{
   public Pose3d getBestObjectPose()
   {
     //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
-    if (camera.getLatestResult().hasTargets())
+    if (targets.get(0).hasTargets())
     {
-      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(camera.getLatestResult().getBestTarget().getBestCameraToTarget());
+      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(targets.get(0).getBestTarget().getBestCameraToTarget());
     } else
     {
       throw new RuntimeException("Cannot get Best Object");
@@ -248,9 +253,9 @@ public class Vision extends SubsystemBase{
    *
    * @return The yaw difference between the robot and a detected object.
    */
-  public static double getBestTargetYaw(){
-    if(camera.getLatestResult().hasTargets()){
-      double yaw = camera.getLatestResult().getBestTarget().getYaw();
+  public double getBestTargetYaw(){
+    if(targets.get(0).hasTargets()){
+      double yaw = targets.get(0).getBestTarget().getYaw();
       return yaw;
     }else{
       return 0;

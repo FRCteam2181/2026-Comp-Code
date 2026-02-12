@@ -97,7 +97,7 @@ public class SwerveSubsystem extends SubsystemBase
 
   public Vision vision;
 
-  public static PhotonCamera camera = new PhotonCamera("PhotonCamera");
+  public static PhotonCamera camera = new PhotonCamera("Arducam_OV9782_USB_Camera");
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -277,8 +277,8 @@ public Command aimAtTarget()
   });
 }
 
-public Pose2d targetPose(Supplier<Pose2d> a){
-  return a.get();
+public double getTargetYaw(){
+  return vision.getBestTargetYaw();
 }
 
 public Command aimAtTargetSim()
