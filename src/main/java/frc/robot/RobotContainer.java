@@ -36,6 +36,7 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.systems.GameData;
 import frc.robot.systems.ScoringSystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -69,6 +70,8 @@ public class RobotContainer {
   private final TurretSubsystem turret = new TurretSubsystem();
   private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
+
+  private final GameData gameData = new GameData(drivebase);
 
   // private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
