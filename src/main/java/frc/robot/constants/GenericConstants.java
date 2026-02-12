@@ -10,6 +10,8 @@ public class GenericConstants {
     disableHAL = true;
   }
 
+  public static final double loopPeriodSecs = 0.02;
+
   public static enum AimPoints {
     RED_HUB(new Translation3d(11.938, 4.034536, 1.5748)),
     RED_OUTPOST(new Translation3d(15.75, 7.25, 0)),

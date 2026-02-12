@@ -24,6 +24,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -36,6 +38,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.RobotState;
+import frc.robot.RobotState.OdometryObservation;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
 import frc.robot.utils.field.FieldConstants;
@@ -75,6 +79,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   Field2d m_field2d = new Field2d();
 
+  private final Timer lastMovementTimer = new Timer();
+
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -84,6 +90,8 @@ public class SwerveSubsystem extends SubsystemBase {
     SmartDashboard.putData("RealField", m_field2d);
     Pose3d initialPose = new Pose3d();
     questNav.setPose(initialPose);
+
+    lastMovementTimer.start();
 
     boolean blueAlliance = false;
     Pose2d startingPose =
@@ -196,6 +204,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // System.out.print(questNav.getConnected());
 
+    RobotState.getInstance()
+        .addOdometryObservation(
+            new OdometryObservation(
+                Timer.getTimestamp(),
+                swerveDrive.getModulePositions(),
+                swerveDrive.getOdometryHeading()));
+    RobotState.getInstance().setRobotVelocity(getRobotVelocity());
   }
 
   @Override
@@ -750,4 +765,27 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveDrive getSwerveDrive() {
     return swerveDrive;
   }
+
+
+  /** Returns the module states (turn angles and drive velocities) for all of the modules. */
+  //@AutoLogOutput(key = "SwerveStates/Measured")
+  private SwerveModuleState[] getModuleStates() {
+    SwerveModuleState[] states = new SwerveModuleState[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = modules[i].getState();
+    }
+    return states;
+  }
+
+  /** Returns the module positions (turn angles and drive positions) for all of the modules. */
+  private SwerveModulePosition[] getModulePositions() {
+    SwerveModulePosition[] states = new SwerveModulePosition[4];
+    for (int i = 0; i < 4; i++) {
+      states[i] = modules[i].getPosition();
+    }
+    return states;
+  }
+
+
+
 }

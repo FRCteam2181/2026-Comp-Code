@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
@@ -34,4 +35,14 @@ public class DrivebaseConstants {
   public static final Transform2d robotOffset =
       new Transform2d(
           Inches.of(17).in(Meters), Inches.of(0).in(Meters), Rotation2d.fromDegrees(180));
+
+  public static final double trackWidthX = Units.inchesToMeters(23.5);
+  public static final double trackWidthY = Units.inchesToMeters(23.5);
+
+  public static final Translation2d[] moduleTranslations = {
+    new Translation2d(trackWidthX / 2, trackWidthY / 2),
+    new Translation2d(trackWidthX / 2, -trackWidthY / 2),
+    new Translation2d(-trackWidthX / 2, trackWidthY / 2),
+    new Translation2d(-trackWidthX / 2, -trackWidthY / 2)
+  };
 }
