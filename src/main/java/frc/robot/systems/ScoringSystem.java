@@ -16,12 +16,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
-// import frc.robot.subsystems.FeederSubsystem;
-// import frc.robot.subsystems.IntakeArmSubsystem;
+import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-// import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-// import frc.robot.subsystems.TopIntakeSubsystem;
+import frc.robot.subsystems.TopIntakeSubsystem;
+import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import java.util.function.Supplier;
 
@@ -35,13 +36,13 @@ public class ScoringSystem {
   public final TurretSubsystem turret;
   // public final HoodSubsystem hood;
   public final SwerveSubsystem swerve;
-  // public final IntakeArmSubsystem intakeArm;
+  public final IntakeArmSubsystem intakeArm;
   // public final ClimberSubsystem climber;
   // public final TopIntakeSubsystem intake;
-  // public final TopIntakeSubsystem topIntake
-  // public final BottomIntakeSubsystem bottomIntake
-  // public final SpindexerSubsystem spindexer;
-  // public final FeederSubsystem feeder;
+  public final TopIntakeSubsystem topIntake;
+  public final BottomIntakeSubsystem bottomIntake;
+  public final SpindexerSubsystem spindexer;
+  public final InputSubsystem input;
 
   // Tolerance for "at setpoint" checks
   private static final AngularVelocity SHOOTER_TOLERANCE = RPM.of(100);
@@ -61,26 +62,27 @@ public class ScoringSystem {
   // Default aim point is red hub
   private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
 
-  public ScoringSystem(ShooterSubsystem shooter, TurretSubsystem turret, SwerveSubsystem swerve
-      // IntakeArmSubsystem intakeArm,
+  public ScoringSystem(ShooterSubsystem shooter, TurretSubsystem turret, SwerveSubsystem swerve,
+      IntakeArmSubsystem intakeArm,
       // ClimberSubsystem climber,
-      // TopIntakeSubsystem intake,
-      // SpindexerSubsystem spindexer,
-      // FeederSubsystem feeder
+      TopIntakeSubsystem topIntake,
+      BottomIntakeSubsystem bottomIntake,
+      SpindexerSubsystem spindexer,
+      InputSubsystem input
       ) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
     // bottomIntake
 
     this.shooter = shooter;
     this.turret = turret;
     this.swerve = swerve;
-    // this.intakeArm = intakeArm;
+    this.intakeArm = intakeArm;
     // this.climber = climber;
     // this.intake = intake;
-    // this.spindexer = spindexer;
-    // this.feeder = feeder;
+    this.spindexer = spindexer;
+    this.input = input;
     // this.hood = hood;
-    // this.topIntake = topIntake;
-    // this.bottomIntake = bottomIntake;
+    this.topIntake = topIntake;
+    this.bottomIntake = bottomIntake;
 
     // Create triggers for checking if mechanisms are at their targets
     this.isShooterAtSpeed =
@@ -166,6 +168,18 @@ public class ScoringSystem {
     return aimDynamicCommand(() -> shooterSpeed, () -> turretAngle, () -> hoodAngle)
         .andThen(waitUntilReadyCommand())
         .withName("Superstructure.aimAndWait");
+  }
+
+  public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed){
+    return intakeArm.setAngle(angle).andThen(topIntake.set(topSpeed)).alongWith(bottomIntake.set(bottomSpeed));
+  }
+
+  public Command inputAndSpindexer(AngularVelocity speedInput, AngularVelocity speedSpindexer){
+    return input.setVelocity(speedInput).alongWith(spindexer.setVelocity(speedSpindexer));
+  }
+
+  public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity){
+    return shooter.setVelocity(shooterVelocity).andThen(input.setVelocity(inputVelocity));
   }
 
   public Command setTurretForward() {
