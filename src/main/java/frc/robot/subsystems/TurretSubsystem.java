@@ -88,7 +88,7 @@ public class TurretSubsystem extends SubsystemBase {
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(2.596, 0, 0)
-            .withSoftLimit(Rotations.of(-.3), Rotations.of(0.3))
+            .withSoftLimit(Rotations.of(-.5), Rotations.of(0.5))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
