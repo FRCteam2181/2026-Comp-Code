@@ -13,6 +13,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
@@ -170,6 +171,10 @@ public class ScoringSystem {
         .withName("Superstructure.aimAndWait");
   }
 
+  public Command pullIntake(Angle angle){
+    return intakeArm.setAngle(angle);
+  }
+
   public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed){
     return intakeArm.setAngle(angle).andThen(topIntake.set(topSpeed)).alongWith(bottomIntake.set(bottomSpeed));
   }
@@ -179,7 +184,7 @@ public class ScoringSystem {
   }
 
   public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity){
-    return shooter.setVelocity(shooterVelocity).andThen(input.setVelocity(inputVelocity));
+    return shooter.setVelocity(shooterVelocity).alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
   }
 
   public Command setTurretForward() {
