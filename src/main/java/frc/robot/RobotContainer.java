@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ShootOnTheMoveCommand;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
@@ -77,7 +77,15 @@ public class RobotContainer {
   private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
-      new ScoringSystem(shooter, turret, drivebase); // intakeArm, climber, topintake, spindexer,
+      new ScoringSystem(
+          shooter,
+          turret,
+          drivebase,
+          intakeArm,
+          topintake,
+          bottomintake,
+          spindexer,
+          input); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -250,7 +258,8 @@ public class RobotContainer {
     driverXbox
         .x()
         .toggleOnTrue(
-            new ShootOnTheMoveCommand(drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
+            new ShootOnTheMoveCommandRevised(
+                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
                 .withName("OperatorControls.aimCommand"));
 
     // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));

@@ -17,13 +17,13 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
-import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import java.util.function.Supplier;
 
@@ -63,14 +63,17 @@ public class ScoringSystem {
   // Default aim point is red hub
   private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
 
-  public ScoringSystem(ShooterSubsystem shooter, TurretSubsystem turret, SwerveSubsystem swerve,
+  public ScoringSystem(
+      ShooterSubsystem shooter,
+      TurretSubsystem turret,
+      SwerveSubsystem swerve,
       IntakeArmSubsystem intakeArm,
       // ClimberSubsystem climber,
       TopIntakeSubsystem topIntake,
       BottomIntakeSubsystem bottomIntake,
       SpindexerSubsystem spindexer,
-      InputSubsystem input
-      ) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
+      InputSubsystem
+          input) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
     // bottomIntake
 
     this.shooter = shooter;
@@ -171,20 +174,25 @@ public class ScoringSystem {
         .withName("Superstructure.aimAndWait");
   }
 
-  public Command pullIntake(Angle angle){
+  public Command pullIntake(Angle angle) {
     return intakeArm.setAngle(angle);
   }
 
-  public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed){
-    return intakeArm.setAngle(angle).andThen(topIntake.set(topSpeed)).alongWith(bottomIntake.set(bottomSpeed));
+  public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed) {
+    return intakeArm
+        .setAngle(angle)
+        .andThen(topIntake.set(topSpeed))
+        .alongWith(bottomIntake.set(bottomSpeed));
   }
 
-  public Command inputAndSpindexer(AngularVelocity speedInput, AngularVelocity speedSpindexer){
+  public Command inputAndSpindexer(AngularVelocity speedInput, AngularVelocity speedSpindexer) {
     return input.setVelocity(speedInput).alongWith(spindexer.setVelocity(speedSpindexer));
   }
 
-  public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity){
-    return shooter.setVelocity(shooterVelocity).alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
+  public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity) {
+    return shooter
+        .setVelocity(shooterVelocity)
+        .alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
   }
 
   public Command setTurretForward() {

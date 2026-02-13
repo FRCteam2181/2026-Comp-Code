@@ -53,7 +53,7 @@ public class GameData extends SubsystemBase {
     // String gameData;
     boolean canShootBool = true;
     if (DriverStation.getAlliance().isEmpty()) {
-      System.out.println("In first");
+      // System.out.println("In first");
       return true;
     }
     DriverStation.Alliance alliance = DriverStation.getAlliance().get();
@@ -61,7 +61,7 @@ public class GameData extends SubsystemBase {
     String gameData = DriverStation.getGameSpecificMessage();
     double matchTime = DriverStation.getMatchTime();
     if (gameData.length() > 0) {
-      System.out.print("HellpoGabriella");
+      // System.out.print("HellpoGabriella");
       switch (gameData.charAt(0)) {
         case 'B':
           // Blue case code
@@ -96,7 +96,7 @@ public class GameData extends SubsystemBase {
     } else {
       // Code for no data received yet
       canShootBool = true;
-      System.out.print("IHATEMYLFIE");
+      // System.out.print("IHATEMYLFIE");
     }
     return canShootBool;
   }
