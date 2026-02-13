@@ -152,20 +152,36 @@ public class Vision extends SubsystemBase{
 
     targets = new ArrayList<PhotonPipelineResult>(camera.getAllUnreadResults());
 
+    // var result = targets.get(targets.size() - 1);
 
-    if(targets.get(0).hasTargets()){
-      SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
-      SmartDashboard.putNumber("PhotonVisionYaw", getBestTargetYaw());
-      SmartDashboard.putNumber("DetectedObjectRelativeX", targets.get(0).getBestTarget().getBestCameraToTarget().getX());
-      SmartDashboard.putNumber("DetectedObjectRelativeY", targets.get(0).getBestTarget().getBestCameraToTarget().getY());
-      SmartDashboard.putNumber("DetectedObjectRelativeZ", targets.get(0).getBestTarget().getBestCameraToTarget().getZ());
-      SmartDashboard.putNumber("DetectedObjectPoseAmbiguity", targets.get(0).getBestTarget().getPoseAmbiguity());
-      System.out.println("getBestTarget()" + targets.get(0).getBestTarget());
+
+    if(!targets.isEmpty()){
+      try{
+        if(targets.get(targets.size() - 1).hasTargets()){
+          // SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
+          SmartDashboard.putNumber("PhotonCamera distance from target", getDistanceToTarget());
+          SmartDashboard.putNumber("PhotonVisionYaw", getBestTargetYaw());
+          // SmartDashboard.putNumber("DetectedObjectRelativeX", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getX());
+          // SmartDashboard.putNumber("DetectedObjectRelativeY", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getY());
+          // SmartDashboard.putNumber("DetectedObjectRelativeZ", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getZ());
+          SmartDashboard.putNumber("DetectedObjectRelativeX", getBestCameraToTarget().getX());
+          SmartDashboard.putNumber("DetectedObjectRelativeY", getBestCameraToTarget().getY());
+          SmartDashboard.putNumber("DetectedObjectRelativeZ", getBestCameraToTarget().getZ());
+          SmartDashboard.putNumber("DetectedObjectPoseAmbiguity", targets.get(targets.size() - 1).getBestTarget().getPoseAmbiguity());
+          SmartDashboard.putBoolean("hasTargets", targets.get(targets.size() - 1).hasTargets());
+          // System.out.println("getBestTarget() = " + targets.get(targets.size() - 1).getBestTarget());
+          // getDistanceToTarget();
+          getBestCameraToTarget();
+        }
+      } catch(IndexOutOfBoundsException a) {
+        System.out.println("ts code tweaking");
+      }
+      
     }
     
     // visionSim.update(currentPose.get());
 
-    SmartDashboard.putBoolean("hasTargets", targets.get(0).hasTargets());
+    SmartDashboard.putBoolean("isEmpty", targets.isEmpty());
 
   }
 
@@ -203,6 +219,49 @@ public class Vision extends SubsystemBase{
 
   }
 
+  public double getDistanceToTarget(){
+    if(!targets.isEmpty()){
+      try{
+        if(targets.get(targets.size() - 1).hasTargets()){
+          double pixelRatio = Math.sqrt(targets.get(targets.size() - 1).getBestTarget().getArea())/(Math.pow(5.9,2));
+          double base = 24*(Math.sqrt(7.23)/(Math.pow(5.9,2)));
+          double dist = base/pixelRatio;
+          System.out.println("distance = " + dist + ", area = " + Math.sqrt(targets.get(targets.size() - 1).getBestTarget().getArea()));
+          return dist;
+        }
+      } catch(IndexOutOfBoundsException a) {
+        System.out.println("ts code tweaking #2: electric boogaloo");
+      }
+      
+    }
+
+    return 0;
+  }
+
+  public Translation3d getBestCameraToTarget(){
+    if(!targets.isEmpty()){
+      try{
+        if(targets.get(targets.size() - 1).hasTargets()){
+          double dist = getDistanceToTarget();
+          double yaw = targets.get(targets.size() - 1).getBestTarget().getYaw();
+          double pitch = targets.get(targets.size() - 1).getBestTarget().getPitch();
+          double x_dist = dist*Math.cos(Units.degreesToRadians(yaw));
+          double y_dist = dist*Math.sin(Units.degreesToRadians(yaw));
+          double z_dist = dist*Math.sin(Units.degreesToRadians(pitch));
+
+          System.out.println(new Translation3d(x_dist,y_dist,z_dist));
+
+          return new Translation3d(x_dist,y_dist,z_dist);
+        }
+      } catch(IndexOutOfBoundsException a) {
+        System.out.println("ts code tweaking #3: electric boogalee");
+      }
+      
+    }
+
+    return new Translation3d();
+  }
+
   /**
    * Calculates a target pose relative to the Robot Pose on the field.
    *
@@ -212,9 +271,9 @@ public class Vision extends SubsystemBase{
   public Pose3d getBestObjectPose()
   {
     //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
-    if (targets.get(0).hasTargets())
+    if (!targets.isEmpty() && targets.get(targets.size() - 1).hasTargets())
     {
-      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(targets.get(0).getBestTarget().getBestCameraToTarget());
+      return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget());
     } else
     {
       throw new RuntimeException("Cannot get Best Object");
@@ -254,8 +313,8 @@ public class Vision extends SubsystemBase{
    * @return The yaw difference between the robot and a detected object.
    */
   public double getBestTargetYaw(){
-    if(targets.get(0).hasTargets()){
-      double yaw = targets.get(0).getBestTarget().getYaw();
+    if(!targets.isEmpty() && targets.get(targets.size() - 1).hasTargets()){
+      double yaw = targets.get(targets.size() - 1).getBestTarget().getYaw();
       return yaw;
     }else{
       return 0;
