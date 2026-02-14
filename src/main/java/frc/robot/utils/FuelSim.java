@@ -39,6 +39,8 @@ public class FuelSim {
   private static final double FRICTION =
       0.1; // proportion of horizontal velocity to lose per second while on ground
 
+  public int a = 0;
+
   private static FuelSim instance = null;
 
   private static final Translation3d[] FIELD_XZ_LINE_STARTS = {
@@ -416,33 +418,43 @@ public class FuelSim {
         if (intake.shouldIntake(fuels.get(i), robot)) {
           fuels.remove(i);
           i--;
+          a++;
+          System.out.println("a = " + a);
         }
       }
     }
   }
 
-  public int handleIntakes(int CAPACITY) {
-    Pose2d robot = robotSupplier.get();
-    int n = 0;
-    for (SimIntake intake : intakes) {
-      for (int i = 0; i < fuels.size(); i++) {
-        if (intake.shouldIntake(fuels.get(i), robot)) {
-          if (n >= CAPACITY) {
-            break;
-          }
-          fuels.remove(i);
-          i--;
-          n++;
-        }
-      }
-
-      if (n >= CAPACITY) {
-        break;
-      }
-    }
-    System.out.println(n);
-    return n;
+  public int getIntakedBalls() {
+    return a;
   }
+
+  public void clearIntakedBalls() {
+    a = 0;
+  }
+
+  // public int handleIntakes(int CAPACITY) {
+  //   Pose2d robot = robotSupplier.get();
+  //   int n = 0;
+  //   for (SimIntake intake : intakes) {
+  //     for (int i = 0; i < fuels.size(); i++) {
+  //       if (intake.shouldIntake(fuels.get(i), robot)) {
+  // if (n >= CAPACITY) {
+  //   break;
+  // }
+  //         fuels.remove(i);
+  //         i--;
+  //         n++;
+  //       }
+  //     }
+
+  //     if (n >= CAPACITY) {
+  //       break;
+  //     }
+  //   }
+  //   System.out.println(n);
+  //   return n;
+  // }
 
   /**
    * Registers an intake with the fuel simulator. This intake will remove fuel from the field based

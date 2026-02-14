@@ -80,9 +80,9 @@ public class TurretVisualizer {
   }
 
   public void intakeFuel() {
-    int a = FuelSim.getInstance().handleIntakes(CAPACITY);
+    int a = FuelSim.getInstance().getIntakedBalls();
     fuelStored += a;
-    fuelStored++;
+    FuelSim.getInstance().clearIntakedBalls();
   }
 
   public void launchFuel(LinearVelocity vel, Angle angle, Angle turretAngle) {
