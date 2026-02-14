@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
@@ -88,7 +89,7 @@ public class TurretSubsystem extends SubsystemBase {
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(2.596, 0, 0)
-            .withSoftLimit(Rotations.of(-.5), Rotations.of(0.5))
+            .withSoftLimit(Rotations.of(-.3), Rotations.of(0.3))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
@@ -96,7 +97,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
             .withStatorCurrentLimit(Amps.of(40))
             // .withSupplyCurrentLimit(Amps.of(4))
-            .withMotorInverted(true)
+            .withMotorInverted(false)
             .withControlMode(ControlMode.CLOSED_LOOP);
 
     motor = new SparkWrapper(turretMotor, DCMotor.getNeoVortex(1), motorConfig);
@@ -107,9 +108,9 @@ public class TurretSubsystem extends SubsystemBase {
             .withMaxRobotLength(Meters.of(0.75))
             .withRelativePosition(
                 new Translation3d(
-                    Meters.of(0.0), // back from robot center
-                    Meters.of(0.0), // centered left/right
-                    Meters.of(0.451739) // up from the floor reference
+                    Inches.of(-5.25).in(Meters),
+                    Inches.of(5.25).in(Meters),
+                    Inches.of(16.945).in(Meters) // up from the floor reference
                     ));
 
     pivotConfig =
@@ -275,7 +276,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.734803))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.821256))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
         .withMatchTolerance(Rotations.of(0.05))

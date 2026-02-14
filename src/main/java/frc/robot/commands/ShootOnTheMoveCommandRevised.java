@@ -7,6 +7,7 @@ import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ShotingOnTheFlyConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.systems.ScoringSystem;
@@ -152,10 +154,32 @@ public class ShootOnTheMoveCommandRevised extends Command {
                 robotRelativeVelocity.omegaRadiansPerSecond * phaseDelay));
 
     // Calculate distance from turret to target
-    Translation2d target =
-        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     Pose2d turretPosition =
         estimatedPose.transformBy(ShotingOnTheFlyConstants.robotToTurret.toTransform2d());
+
+    // Designate desired target
+
+    Translation2d target =
+        AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    // if (inScoringZone(turretPosition).getAsBoolean()) {
+    //   target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    // }
+
+    // if (inRightNeutralZone(turretPosition).getAsBoolean()) {
+    //   target =
+    //       AllianceFlipUtil.apply(
+    //           FieldConstants.RightBump.nearRightCorner.plus(
+    //               new Translation2d(0, Inches.of(36.5).in(Meters))));
+    // }
+
+    // if (inLeftNeutralZone(turretPosition).getAsBoolean()) {
+    //   target =
+    //       AllianceFlipUtil.apply(
+    //           FieldConstants.LeftBump.nearRightCorner.plus(
+    //               new Translation2d(0, Inches.of(36.5).in(Meters))));
+    // }
+
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
 
     // Calculate field relative turret velocity
@@ -221,5 +245,44 @@ public class ShootOnTheMoveCommandRevised extends Command {
 
   public void clearLaunchingParameters() {
     latestParameters = null;
+  }
+
+  public Trigger inScoringZone(Pose2d turretPose) {
+    return new Trigger(
+        () ->
+            new Rectangle2d(
+                    AllianceFlipUtil.apply(new Translation2d(0, 0)),
+                    AllianceFlipUtil.apply(
+                        new Translation2d(
+                            FieldConstants.LinesVertical.starting, FieldConstants.fieldWidth)))
+                .contains(turretPose.getTranslation()));
+  }
+
+  public Trigger inRightNeutralZone(Pose2d turretPose) {
+    return new Trigger(
+        () ->
+            new Rectangle2d(
+                    AllianceFlipUtil.apply(
+                        new Translation2d(FieldConstants.LinesVertical.starting, 0)),
+                    AllianceFlipUtil.apply(
+                        new Translation2d(
+                            FieldConstants.LinesVertical.oppAllianceZone,
+                            FieldConstants.LinesHorizontal.center)))
+                .contains(turretPose.getTranslation()));
+  }
+
+  public Trigger inLeftNeutralZone(Pose2d turretPose) {
+    return new Trigger(
+        () ->
+            new Rectangle2d(
+                    AllianceFlipUtil.apply(
+                        new Translation2d(
+                            FieldConstants.LinesVertical.starting,
+                            FieldConstants.LinesHorizontal.center)),
+                    AllianceFlipUtil.apply(
+                        new Translation2d(
+                            FieldConstants.LinesVertical.oppAllianceZone,
+                            FieldConstants.fieldWidth)))
+                .contains(turretPose.getTranslation()));
   }
 }

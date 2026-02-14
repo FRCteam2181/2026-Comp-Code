@@ -260,7 +260,8 @@ public class RobotContainer {
         .toggleOnTrue(
             new ShootOnTheMoveCommandRevised(
                     drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
-                .withName("OperatorControls.aimCommand"));
+                .withName("OperatorControls.aimCommand"))
+        .onFalse(shooter.set(0).alongWith(turret.set(0)));
 
     // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
