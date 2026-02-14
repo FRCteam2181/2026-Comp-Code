@@ -251,8 +251,9 @@ public class RobotContainer {
     operatorControler.rightBumper().whileTrue(turret.set(-.2));
     // operatorControler.rightTrigger().whileTrue(intake)
 
-    driverXbox.leftTrigger().whileTrue(intakeArm.set(-.5));
-    driverXbox.rightTrigger().whileTrue(intakeArm.set(.5));
+    driverXbox.leftTrigger().whileTrue(intakeArm.set(-.95));
+    driverXbox.rightTrigger().whileTrue(intakeArm.set(.25));
+    driverXbox.rightBumper().whileTrue(intakeArm.set(45));
     // the current degree value isn't final, it's just a placeholder for now. we will update it
     // eventually.
     driverXbox
