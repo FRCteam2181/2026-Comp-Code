@@ -7,6 +7,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import frc.robot.subsystems.TurretSubsystem.TurretVisualizer.Vectors;
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -81,16 +82,170 @@ public class FuelSim {
     }
 
     private void update() {
-      pos = pos.plus(vel.times(PERIOD / subticks));
-      if (pos.getZ() > FUEL_RADIUS) {
-        vel = vel.plus(GRAVITY.times(PERIOD / subticks));
-      }
+      // pos = pos.plus(vel.times(PERIOD / subticks));
+      // if (pos.getZ() > FUEL_RADIUS) {
+      //   vel = vel.plus(GRAVITY.times(PERIOD / subticks));
+      // }
+
+      double v_h = vel.toTranslation2d().getNorm();
+      double v_z = vel.getZ();
+      double x = pos.getX();
+      double y = pos.getY();
+
+      Vectors vector = new Vectors(vel, pos, 0);
+
+      // Runge-Kutta 4th Order Attempt
+      // for (int i = 0; i < trajectory.length; i++) {
+      vector =
+          runRK4(
+              vel,
+              Math.sqrt(
+                  Math.pow(vector.getVelVec().getX(), 2) + Math.pow(vector.getVelVec().getY(), 2)),
+              vector.getVelVec().getZ(),
+              Math.sqrt(
+                  Math.pow(vector.getPosVec().getX(), 2) + Math.pow(vector.getPosVec().getY(), 2)),
+              vector.getPosVec().getZ());
+
+      System.out.println(vector);
+
+      pos = vector.getPosVec();
+      System.out.println(pos);
+      // trajectory[i] =
+      //     new Translation3d(
+      //         vector.getPosVec().getX(), vector.getPosVec().getY(), vector.getPosVec().getZ());
+      // }
+
       if (Math.abs(vel.getZ()) < 0.05 && pos.getZ() <= FUEL_RADIUS + 0.03) {
         vel = new Translation3d(vel.getX(), vel.getY(), 0);
         vel = vel.times(1 - FRICTION * PERIOD / subticks);
         // pos = new Translation3d(pos.getX(), pos.getY(), FUEL_RADIUS);
       }
       handleFieldCollisions();
+    }
+
+    public Vectors runRK4(Translation3d trajVel, double v_h, double v_z, double h, double z) {
+      double dt = PERIOD / subticks;
+      double step = dt / 4;
+      double c = 0.1;
+      double m = 1;
+      double g = 9.81;
+      // dv_h/dt=(-c*sqrt((v_h)^2+(v_z)^2)*v_h)/m
+      // dv_z/dt=-g-(c*sqrt((v_h)^2+(v_z)^2)*v_z)/m
+
+      double k1_hv = (-c * Math.sqrt(Math.pow(v_h, 2) + Math.pow(v_z, 2)) * v_h) / m;
+      double k1_zv = -g - (c * Math.sqrt(Math.pow(v_h, 2) + Math.pow(v_z, 2)) * v_h) / m;
+      double k1_h = v_h;
+      double k1_z = v_z;
+      // System.out.println(
+      //     "k1_hv = "
+      //         + k1_hv
+      //         + "\n"
+      //         + "k1_zv = "
+      //         + k1_zv
+      //         + "\n"
+      //         + "k1_h = "
+      //         + k1_h
+      //         + "\n"
+      //         + "k1_z = "
+      //         + k1_z);
+
+      double k2_hv =
+          (-c
+                  * Math.sqrt(Math.pow(v_h + k1_hv / 2, 2) + Math.pow(v_z + k1_zv / 2, 2))
+                  * (v_h + k1_hv / 2))
+              / m;
+      double k2_zv =
+          -g
+              - (c
+                      * Math.sqrt(Math.pow(v_h + k1_hv / 2, 2) + Math.pow(v_z + k1_zv / 2, 2))
+                      * (v_z + k1_zv / 2))
+                  / m;
+      double k2_h = v_h + k1_hv;
+      double k2_z = v_z + k1_zv;
+      // System.out.println(
+      //     "k2_hv = "
+      //         + k2_hv
+      //         + "\n"
+      //         + "k2_zv = "
+      //         + k2_zv
+      //         + "\n"
+      //         + "k2_h = "
+      //         + k2_h
+      //         + "\n"
+      //         + "k2_z = "
+      //         + k2_z);
+
+      double k3_hv =
+          (-c
+                  * Math.sqrt(Math.pow(v_h + k2_hv / 2, 2) + Math.pow(v_z + k2_zv / 2, 2))
+                  * (v_h + k2_hv / 2))
+              / m;
+      double k3_zv =
+          -g
+              - (c
+                      * Math.sqrt(Math.pow(v_h + k2_hv / 2, 2) + Math.pow(v_z + k2_zv / 2, 2))
+                      * (v_z + k2_zv / 2))
+                  / m;
+      double k3_h = v_h + k2_hv;
+      double k3_z = v_z + k2_zv;
+      // System.out.println(
+      //     "k3_hv = "
+      //         + k3_hv
+      //         + "\n"
+      //         + "k3_zv = "
+      //         + k3_zv
+      //         + "\n"
+      //         + "k3_h = "
+      //         + k3_h
+      //         + "\n"
+      //         + "k3_z = "
+      //         + k3_z);
+
+      double k4_hv =
+          (-c * Math.sqrt(Math.pow(v_h + k3_hv, 2) + Math.pow(v_z + k3_zv, 2)) * (v_h + k3_hv)) / m;
+      double k4_zv =
+          -g
+              - (c * Math.sqrt(Math.pow(v_h + k3_hv, 2) + Math.pow(v_z + k3_zv, 2)) * (v_z + k3_zv))
+                  / m;
+      double k4_h = v_h + k3_hv;
+      double k4_z = v_z + k3_zv;
+      // System.out.println(
+      //     "k4_hv = "
+      //         + k4_hv
+      //         + "\n"
+      //         + "k4_zv = "
+      //         + k4_zv
+      //         + "\n"
+      //         + "k4_h = "
+      //         + k4_h
+      //         + "\n"
+      //         + "k4_z = "
+      //         + k4_z);
+
+      double dv_h = step * (k1_hv + 2 * k2_hv + 2 * k3_hv + k4_hv) / 6;
+      double dv_z = step * (k1_zv + 2 * k2_zv + 2 * k3_zv + k4_zv) / 6;
+      double dh = step * (k1_h + 2 * k2_h + 2 * k3_h + k4_h) / 6;
+      double dz = step * (k1_z + 2 * k2_z + 2 * k3_z + k4_z) / 6;
+      System.out.println(
+          "dv_h = " + dv_h + "\n" + "dv_z = " + dv_z + "\n" + "dh = " + dh + "\n" + "dz = " + dz);
+
+      v_h = v_h + dv_h;
+      v_z = v_z + dv_z;
+      h = h + dh;
+      if (z != 0) {
+        z = z + dz;
+      }
+
+      System.out.println("trajVel angle = " + trajVel.toTranslation2d().getAngle().getRadians());
+
+      double vx = v_h * Math.cos(trajVel.toTranslation2d().getAngle().getRadians());
+      double vy = v_h * Math.sin(trajVel.toTranslation2d().getAngle().getRadians());
+      double x = h * Math.cos(trajVel.toTranslation2d().getAngle().getRadians());
+      double y = h * Math.sin(trajVel.toTranslation2d().getAngle().getRadians());
+
+      System.out.println(
+          "vx = " + vx + "\n" + "vy = " + vy + "\n" + "x = " + x + "\n" + "y = " + y);
+      return new Vectors(new Translation3d(vx, vy, v_z), new Translation3d(x, y, z), 0);
     }
 
     private void handleXZLineCollision(Translation3d lineStart, Translation3d lineEnd) {

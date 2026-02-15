@@ -117,6 +117,7 @@ public class TurretVisualizer {
     // System.out.println("trajVel = " + trajVel);
     for (int i = 0; i < trajectory.length; i++) {
       double t = i * 0.02;
+      double step = 0.04 / 4;
       double x = trajVel.getX() * t + poseSupplier.get().getTranslation().getX();
       double y = trajVel.getY() * t + poseSupplier.get().getTranslation().getY();
       double z =
@@ -136,6 +137,112 @@ public class TurretVisualizer {
     }
   }
 
+  public void updateFuelDrag(LinearVelocity vel, Angle angle, Angle turretAngle) {
+    Translation3d trajVel = launchVel(vel, angle, turretAngle);
+    velocityVectorPublisher.accept(
+        poseSupplier.get().transformBy(new Transform3d(trajVel, new Rotation3d())));
+    // System.out.println("trajVel = " + trajVel);
+
+    double v_h = trajVel.toTranslation2d().getNorm();
+    double v_z = trajVel.getZ();
+    double x = poseSupplier.get().getTranslation().getX();
+    double y = poseSupplier.get().getTranslation().getY();
+
+    Vectors vector = new Vectors(trajVel, new Translation3d(x, y, 0.451739), 0);
+
+    // Runge-Kutta 4th Order Attempt
+    for (int i = 0; i < trajectory.length; i++) {
+      vector =
+          runRK4(
+              trajVel,
+              Math.sqrt(
+                  Math.pow(vector.getVelVec().getX(), 2) + Math.pow(vector.getVelVec().getY(), 2)),
+              vector.getVelVec().getZ(),
+              Math.sqrt(
+                  Math.pow(vector.getPosVec().getX(), 2) + Math.pow(vector.getPosVec().getY(), 2)),
+              vector.getPosVec().getZ());
+
+      trajectory[i] =
+          new Translation3d(
+              vector.getPosVec().getX(), vector.getPosVec().getY(), vector.getPosVec().getZ());
+    }
+
+    // Logger.recordOutput("Turret/Trajectory", trajectory);
+    // turretVisualizerPublisher.accept(trajectory);
+    for (Translation3d trajectori : trajectory) {
+      // System.out.println("\n" + trajectori);
+      turretVisualizerPublisher.accept(new Pose3d(trajectori, new Rotation3d()));
+    }
+  }
+
+  public Vectors runRK4(Translation3d trajVel, double v_h, double v_z, double h, double z) {
+    double dt = 0.04;
+    double step = dt;
+    double c = 8;
+    double m = 1;
+    double g = 9.81;
+    // dv_h/dt=(-c*sqrt((v_h)^2+(v_z)^2)*v_h)/m
+    // dv_z/dt=-g-(c*sqrt((v_h)^2+(v_z)^2)*v_z)/m
+
+    double k1_hv = (-c * Math.sqrt(Math.pow(v_h, 2) + Math.pow(v_z, 2)) * v_h) / m;
+    double k1_zv = -g - (c * Math.sqrt(Math.pow(v_h, 2) + Math.pow(v_z, 2)) * v_h) / m;
+    double k1_h = v_h;
+    double k1_z = v_z;
+
+    double k2_hv =
+        (-c
+                * Math.sqrt(Math.pow(v_h + k1_hv / 2, 2) + Math.pow(v_z + k1_zv / 2, 2))
+                * (v_h + k1_hv / 2))
+            / m;
+    double k2_zv =
+        -g
+            - (c
+                    * Math.sqrt(Math.pow(v_h + k1_hv / 2, 2) + Math.pow(v_z + k1_zv / 2, 2))
+                    * (v_z + k1_zv / 2))
+                / m;
+    double k2_h = v_h + k1_hv;
+    double k2_z = v_z + k1_zv;
+
+    double k3_hv =
+        (-c
+                * Math.sqrt(Math.pow(v_h + k2_hv / 2, 2) + Math.pow(v_z + k2_zv / 2, 2))
+                * (v_h + k2_hv / 2))
+            / m;
+    double k3_zv =
+        -g
+            - (c
+                    * Math.sqrt(Math.pow(v_h + k2_hv / 2, 2) + Math.pow(v_z + k2_zv / 2, 2))
+                    * (v_z + k2_zv / 2))
+                / m;
+    double k3_h = v_h + k2_hv;
+    double k3_z = v_z + k2_zv;
+
+    double k4_hv =
+        (-c * Math.sqrt(Math.pow(v_h + k3_hv, 2) + Math.pow(v_z + k3_zv, 2)) * (v_h + k3_hv)) / m;
+    double k4_zv =
+        -g
+            - (c * Math.sqrt(Math.pow(v_h + k3_hv, 2) + Math.pow(v_z + k3_zv, 2)) * (v_z + k3_zv))
+                / m;
+    double k4_h = v_h + k3_hv;
+    double k4_z = v_z + k3_zv;
+
+    double dv_h = step * (k1_hv + 2 * k2_hv + 2 * k3_hv + k4_hv) / 6;
+    double dv_z = step * (k1_zv + 2 * k2_zv + 2 * k3_zv + k4_zv) / 6;
+    double dh = step * (k1_h + 2 * k2_h + 2 * k3_h + k4_h) / 6;
+    double dz = step * (k1_z + 2 * k2_z + 2 * k3_z + k4_z) / 6;
+
+    v_h = v_h + dv_h;
+    v_z = v_z + dv_z;
+    h = h + dh;
+    z = z + dz;
+
+    double vx = v_h * Math.cos(trajVel.toTranslation2d().getAngle().getRadians());
+    double vy = v_h * Math.sin(trajVel.toTranslation2d().getAngle().getRadians());
+    double x = h * Math.cos(trajVel.toTranslation2d().getAngle().getRadians());
+    double y = h * Math.sin(trajVel.toTranslation2d().getAngle().getRadians());
+    return new Vectors(new Translation3d(vx, vy, v_z), new Translation3d(x, y, z), 0);
+  }
+
   public void update3dPose(Angle azimuthAngle) {
     // Logger.recordOutput("Turret/TurretPose", new Pose3d(0, 0, 0, new Rotation3d(0, 0,
     // azimuthAngle.in(Radians))));
@@ -147,4 +254,23 @@ public class TurretVisualizer {
   public void simulationPeriodic(){
     FuelSim.updateSim();
   }*/
+
+  public record Vectors(Translation3d velVec, Translation3d posVec, int a) {
+    public Vectors(Translation3d velVec, Translation3d posVec, double a) {
+      this(velVec, posVec, (int) a);
+    }
+
+    public Translation3d getVelVec() {
+      return velVec;
+    }
+
+    public Translation3d getPosVec() {
+      return posVec;
+    }
+
+    @Override
+    public final String toString() {
+      return "velVec = " + velVec + ", posVec = " + posVec;
+    }
+  }
 }

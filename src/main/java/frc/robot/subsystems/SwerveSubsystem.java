@@ -277,7 +277,7 @@ public class SwerveSubsystem extends SubsystemBase {
     turretVisualizer.launchFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
     System.out.println("after launchFuel = " + RobotContainer.timerThing.get());
 
-    turretVisualizer.updateFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
+    turretVisualizer.updateFuelDrag(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
     System.out.println("after updateFuel = " + RobotContainer.timerThing.get());
     RobotContainer.timerThing.reset();
   }
