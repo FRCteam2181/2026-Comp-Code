@@ -218,13 +218,13 @@ public class TurretSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Turret/CRT/AbsA", absA);
     SmartDashboard.putNumber("Turret/CRT/AbsB", absB);
-    SmartDashboard.putString("Turret/CRT/SolverStatus", solver.getLastStatus());
+    SmartDashboard.putString("Turret/CRT/SolverStatus", solver.getLastStatus().toString());
     SmartDashboard.putNumber("Turret/CRT/SolverErrorRot", solver.getLastErrorRotations());
     SmartDashboard.putNumber("Turret/CRT/SolverIterations", solver.getLastIterations());
 
     if (solvedAngle.isEmpty()) {
       SmartDashboard.putBoolean("Turret/CRT/SolutionFound", false);
-      lastSeedStatus = solver.getLastStatus();
+      lastSeedStatus = solver.getLastStatus().toString();
       return;
     }
 

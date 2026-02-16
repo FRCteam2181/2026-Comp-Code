@@ -15,6 +15,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,9 +31,6 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem.*;
-import frc.robot.subsystems.TurretSubsystem.InputSubsystem;
-import frc.robot.subsystems.TurretSubsystem.ShooterSubsystem;
-import frc.robot.subsystems.TurretSubsystem.TurretSubsystem;
 import frc.robot.utils.FuelSim;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -71,6 +69,7 @@ public class RobotContainer {
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
   private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
+  public static Timer timerThing = new Timer();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -206,9 +205,33 @@ public class RobotContainer {
       turret,
       shooter,
       shooterAimer);*/
-      // driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));//
-      // button 2 = x
-      driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      //   driverXbox.button(2).onTrue(Commands.runOnce(() -> drivebase.launchFuel(), drivebase));
+      driverXbox
+          .button(2)
+          .onTrue(
+              Commands.runOnce(() -> timerThing.start())
+                  .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
+                  .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
+      //   driverXbox
+      //       .x()
+      //       .onTrue(
+      //           Commands.runOnce(() -> timerThing.start())
+      //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
+      // timerThing.get())))
+      //               .andThen(Commands.runOnce(() -> drivebase.launchFuel(), drivebase)));
+      driverXbox
+          .button(3)
+          .onTrue(
+              Commands.runOnce(() -> timerThing.start())
+                  .andThen(Commands.runOnce(() -> System.out.println("time = " + timerThing.get())))
+                  .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
+      //   driverXbox
+      //       .a()
+      //       .onTrue(
+      //           Commands.runOnce(() -> timerThing.start())
+      //               .andThen(Commands.runOnce(() -> System.out.println("time = " +
+      // timerThing.get())))
+      //               .andThen(Commands.runOnce(() -> drivebase.intakeFuel(), drivebase)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -216,7 +239,7 @@ public class RobotContainer {
 
       driverXbox.rightBumper().onTrue(Commands.none());
     } else {
-      driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      //   driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
