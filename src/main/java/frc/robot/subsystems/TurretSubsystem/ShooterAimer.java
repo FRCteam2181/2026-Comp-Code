@@ -60,7 +60,7 @@ public class ShooterAimer extends SubsystemBase {
   }
 
   // see https://www.desmos.com/calculator/08uifyukvc for more info
-  public static Shot findIdealVelocityAndAngle(Pose2d robotPose, ChassisSpeeds robotSpeed) {
+  public Shot findIdealVelocityAndAngle(Pose2d robotPose, ChassisSpeeds robotSpeed) {
     Transform3d ROBOT_TO_TURRET =
         new Transform3d(
             0, // back from robot center
@@ -409,7 +409,7 @@ public class ShooterAimer extends SubsystemBase {
   //     newRobotPosePublisher.accept(newGoalLocation);
   //   }
 
-  public static Time calculateTimeOfFlight(
+  public Time calculateTimeOfFlight(
       LinearVelocity exitVelocity, Angle hoodAngle, Distance distance) {
     double vel = exitVelocity.in(MetersPerSecond);
     double angle = hoodAngle.in(Radians);
@@ -417,7 +417,7 @@ public class ShooterAimer extends SubsystemBase {
     return Seconds.of(dist / (vel * Math.cos(angle)));
   }
 
-  public static Translation2d getTargetVector(Pose2d robotPose) {
+  public Translation2d getTargetVector(Pose2d robotPose) {
     Pose2d goalLocation =
         new Pose2d(
             Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
@@ -428,38 +428,36 @@ public class ShooterAimer extends SubsystemBase {
     // double dist = targetVec.getNorm();
   }
 
-  public static Pose2d getNewRobotPose(
-      Pose2d robotPose, ChassisSpeeds chassisSpeeds, Time timeOfFlight) {
-    Pose2d newRobotPose =
-        robotPose.transformBy(
-            new Transform2d(
-                getRobotVelocityVector(chassisSpeeds).times(-1 * timeOfFlight.baseUnitMagnitude()),
-                new Rotation2d()));
+  public Translation2d getNewRobotPose(
+      Translation2d robotPose, ChassisSpeeds chassisSpeeds, Time timeOfFlight) {
+    Translation2d newRobotPose =
+        robotPose.plus(
+            getRobotVelocityVector(chassisSpeeds).times(-1 * timeOfFlight.baseUnitMagnitude()));
     return newRobotPose;
   }
 
-  public static Translation2d getRobotVelocityVector(ChassisSpeeds chassisSpeeds) {
+  public Translation2d getRobotVelocityVector(ChassisSpeeds chassisSpeeds) {
     Translation2d robotVelVec =
         new Translation2d(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond);
     return robotVelVec;
   }
 
-  public static Pose2d getNewGoalLocation(
-      Pose2d robotPose, ChassisSpeeds chassisSpeeds, Time timeOfFlight) {
+  public Translation2d getNewGoalLocation(
+      Translation2d robotPose, ChassisSpeeds chassisSpeeds, Time timeOfFlight) {
     Pose2d goalLocation =
         new Pose2d(
             Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
             Units.inchesToMeters(317.7 / 2),
             new Rotation2d());
-    Pose2d newGoalLocation =
-        goalLocation.transformBy(
-            new Transform2d(
-                getRobotVelocityVector(chassisSpeeds).times(-1 * timeOfFlight.baseUnitMagnitude()),
-                new Rotation2d()));
+    Translation2d newGoalLocation =
+        goalLocation
+            .getTranslation()
+            .plus(
+                getRobotVelocityVector(chassisSpeeds).times(-1 * timeOfFlight.baseUnitMagnitude()));
     return newGoalLocation;
   }
 
-  public static Translation2d getShotVector(Pose2d newGoalLocation, Pose2d robotPose) {
+  public Translation2d getShotVector(Pose2d newGoalLocation, Pose2d robotPose) {
     Translation2d shotVec = newGoalLocation.getTranslation().minus(robotPose.getTranslation());
     return shotVec;
   }
@@ -472,7 +470,7 @@ public class ShooterAimer extends SubsystemBase {
   //     return turretPitchAngle;
   //   }
 
-  public static Shot getShotData(Pose2d oldRobotPose, ChassisSpeeds chassisSpeeds, int iterations) {
+  public Shot getShotData(Pose2d oldRobotPose, ChassisSpeeds chassisSpeeds, int iterations) {
     Transform3d ROBOT_TO_TURRET =
         new Transform3d(
             0, // back from robot center
@@ -506,13 +504,15 @@ public class ShooterAimer extends SubsystemBase {
             initialCalcShot.getPitchAngle(),
             Distance.ofBaseUnits(targetVec.getNorm(), Meters));
 
-    Pose2d newGoalLocation = getNewGoalLocation(robotPose, chassisSpeeds, timeOfFlight);
-    Pose2d newRobotPose = getNewRobotPose(robotPose, chassisSpeeds, timeOfFlight);
-    Translation2d shotVec = getShotVector(newGoalLocation, robotPose);
+    Translation2d newGoalLocation =
+        getNewGoalLocation(robotPose.getTranslation(), chassisSpeeds, timeOfFlight);
+    Translation2d newRobotPose =
+        getNewRobotPose(robotPose.getTranslation(), chassisSpeeds, timeOfFlight);
+    Translation2d shotVec = getShotVector(new Pose2d(newGoalLocation, new Rotation2d()), robotPose);
 
     for (int i = 0; i < iterations; i++) {
-      newGoalLocation = getNewGoalLocation(robotPose, chassisSpeeds, timeOfFlight);
-      newRobotPose = getNewRobotPose(robotPose, chassisSpeeds, timeOfFlight);
+      newGoalLocation = getNewGoalLocation(robotPose.getTranslation(), chassisSpeeds, timeOfFlight);
+      newRobotPose = getNewRobotPose(robotPose.getTranslation(), chassisSpeeds, timeOfFlight);
 
       targetVec = getTargetVector(robotPose);
       timeOfFlight =
@@ -521,12 +521,16 @@ public class ShooterAimer extends SubsystemBase {
               initialCalcShot.getPitchAngle(),
               Distance.ofBaseUnits(targetVec.getNorm(), Meters));
 
-      shotVec = getShotVector(newGoalLocation, robotPose);
+      shotVec = getShotVector(new Pose2d(newGoalLocation, new Rotation2d()), robotPose);
     }
 
     Angle turretAngle = Angle.ofBaseUnits(shotVec.getAngle().getRadians(), Radians);
-    Shot newCalcShot = findIdealVelocityAndAngle(newRobotPose, chassisSpeeds);
+    Shot newCalcShot =
+        findIdealVelocityAndAngle(new Pose2d(newRobotPose, new Rotation2d()), chassisSpeeds);
     Shot shot = new Shot(newCalcShot.getVelocity(), newCalcShot.getPitchAngle(), turretAngle);
+    shotVecPublisher.accept(
+        new Pose2d(robotPose.getTranslation().plus(new Translation2d(-shotVec.getX(), -shotVec.getY())), new Rotation2d()));
+    newRobotPosePublisher.accept(new Pose2d(newGoalLocation, new Rotation2d()));
 
     return shot;
   }

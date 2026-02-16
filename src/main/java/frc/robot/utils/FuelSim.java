@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import frc.robot.subsystems.TurretSubsystem.TurretVisualizer.Vectors;
@@ -26,6 +27,12 @@ public class FuelSim {
           .getStructArrayTopic("fuelSimPose", Translation3d.struct)
           .publish();
 
+  private final StructArrayPublisher<Translation3d> dragForcePublisher =
+      NetworkTableInstance.getDefault()
+          .getTable("fuelSim")
+          .getStructArrayTopic("dragForcePose", Translation3d.struct)
+          .publish();
+
   private static final double PERIOD = 0.02; // sec
   private static int subticks = 5;
   private static final Translation3d GRAVITY = new Translation3d(0, 0, -9.81); // m/s^2
@@ -39,6 +46,9 @@ public class FuelSim {
   private static final double FIELD_WIDTH = 8.04;
   private static final double FRICTION =
       0.1; // proportion of horizontal velocity to lose per second while on ground
+  private static final double C_d = 0.47;
+  private static final double rho = 1.225;
+  private static final double surfaceArea = Math.pow(Units.inchesToMeters(5.9), 2);
 
   public int a = 0;
 
@@ -71,6 +81,7 @@ public class FuelSim {
   private class Fuel {
     private Translation3d pos;
     private Translation3d vel;
+    private Translation3d dragForce;
 
     private Fuel(Translation3d pos, Translation3d vel) {
       this.pos = pos;
@@ -82,38 +93,60 @@ public class FuelSim {
     }
 
     private void update() {
-      // pos = pos.plus(vel.times(PERIOD / subticks));
-      // if (pos.getZ() > FUEL_RADIUS) {
-      //   vel = vel.plus(GRAVITY.times(PERIOD / subticks));
-      // }
+      pos = pos.plus(vel.times(PERIOD / subticks));
+      if (pos.getZ() > FUEL_RADIUS) {
+        vel = vel.plus(GRAVITY.times(PERIOD / subticks));
+      }
 
       double v_h = vel.toTranslation2d().getNorm();
       double v_z = vel.getZ();
       double x = pos.getX();
       double y = pos.getY();
+      boolean dragTest = true;
+      if (dragTest) {
+        dragForce =
+            new Translation3d(
+                    Math.pow(vel.getX(), 2), Math.pow(vel.getY(), 2), Math.pow(vel.getZ(), 2))
+                .times(-C_d * rho * surfaceArea / 2);
+        // System.out.println(dragForce);
+        vel = vel.plus(dragForce.times(PERIOD / subticks));
+        // System.out.println(vel);
+        Translation3d[] fuelArraya = new Translation3d[fuels.size()];
+        int j = 0;
+        for (int i = 0; i < fuels.size(); i++) {
+          if (fuels.get(i).pos.getMeasureZ().baseUnitMagnitude() > FUEL_RADIUS) {
+            fuelArraya[j] = fuels.get(i).pos.plus(dragForce);
+            j++;
+          }
+        }
+        dragForcePublisher.accept(fuelArraya);
+      }
 
-      Vectors vector = new Vectors(vel, pos, 0);
+      // Vectors vector = new Vectors(vel, pos, 0);
 
-      // Runge-Kutta 4th Order Attempt
-      // for (int i = 0; i < trajectory.length; i++) {
-      vector =
-          runRK4(
-              vel,
-              Math.sqrt(
-                  Math.pow(vector.getVelVec().getX(), 2) + Math.pow(vector.getVelVec().getY(), 2)),
-              vector.getVelVec().getZ(),
-              Math.sqrt(
-                  Math.pow(vector.getPosVec().getX(), 2) + Math.pow(vector.getPosVec().getY(), 2)),
-              vector.getPosVec().getZ());
+      // // Runge-Kutta 4th Order Attempt
+      // // for (int i = 0; i < trajectory.length; i++) {
+      // vector =
+      //     runRK4(
+      //         vel,
+      //         Math.sqrt(
+      //             Math.pow(vector.getVelVec().getX(), 2) + Math.pow(vector.getVelVec().getY(),
+      // 2)),
+      //         vector.getVelVec().getZ(),
+      //         Math.sqrt(
+      //             Math.pow(vector.getPosVec().getX(), 2) + Math.pow(vector.getPosVec().getY(),
+      // 2)),
+      //         vector.getPosVec().getZ());
 
-      System.out.println(vector);
+      // System.out.println(vector);
 
-      pos = vector.getPosVec();
-      System.out.println(pos);
-      // trajectory[i] =
-      //     new Translation3d(
-      //         vector.getPosVec().getX(), vector.getPosVec().getY(), vector.getPosVec().getZ());
-      // }
+      // pos = vector.getPosVec();
+      // System.out.println(pos);
+      // // trajectory[i] =
+      // //     new Translation3d(
+      // //         vector.getPosVec().getX(), vector.getPosVec().getY(),
+      // vector.getPosVec().getZ());
+      // // }
 
       if (Math.abs(vel.getZ()) < 0.05 && pos.getZ() <= FUEL_RADIUS + 0.03) {
         vel = new Translation3d(vel.getX(), vel.getY(), 0);

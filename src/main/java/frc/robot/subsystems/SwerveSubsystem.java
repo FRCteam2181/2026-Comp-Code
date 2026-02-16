@@ -271,7 +271,7 @@ public class SwerveSubsystem extends SubsystemBase {
     //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
     //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
 
-    Shot shot = ShooterAimer.getShotData(getPose(), getFieldVelocity(), 0);
+    Shot shot = shooterAimer.getShotData(getPose(), getFieldVelocity(), 0);
 
     System.out.println("before launchFuel = " + RobotContainer.timerThing.get());
     turretVisualizer.launchFuel(shot.getVelocity(), shot.getPitchAngle(), shot.getAngle());
