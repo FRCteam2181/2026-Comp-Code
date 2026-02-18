@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import java.math.*;
@@ -67,11 +68,18 @@ public class ShooterAimer extends SubsystemBase {
             0, // centered left/right
             0.451739, // up from the floor reference
             new Rotation3d());
-    Pose2d goalLocation =
-        new Pose2d(
-            Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
-            Units.inchesToMeters(317.7 / 2),
-            new Rotation2d());
+    Pose2d goalLocation;
+    if (DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
+      goalLocation =
+          new Pose2d(new Translation2d(4.61, Units.inchesToMeters(317.7 / 2)), new Rotation2d());
+    } else {
+      goalLocation =
+          new Pose2d(
+              Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
+              Units.inchesToMeters(317.7 / 2),
+              new Rotation2d());
+    }
+
     double clearance = Units.inchesToMeters(21); // clearance above goal (or smth idk)
     double hubRadius = Units.inchesToMeters(24); // inches
     double hubHeight = Units.inchesToMeters(72); // inches
@@ -418,11 +426,17 @@ public class ShooterAimer extends SubsystemBase {
   }
 
   public Translation2d getTargetVector(Pose2d robotPose) {
-    Pose2d goalLocation =
-        new Pose2d(
-            Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
-            Units.inchesToMeters(317.7 / 2),
-            new Rotation2d());
+    Pose2d goalLocation;
+    if (DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
+      goalLocation =
+          new Pose2d(new Translation2d(4.61, Units.inchesToMeters(317.7 / 2)), new Rotation2d());
+    } else {
+      goalLocation =
+          new Pose2d(
+              Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
+              Units.inchesToMeters(317.7 / 2),
+              new Rotation2d());
+    }
     Translation2d targetVec = goalLocation.getTranslation().minus(robotPose.getTranslation());
     return targetVec;
     // double dist = targetVec.getNorm();
@@ -445,11 +459,17 @@ public class ShooterAimer extends SubsystemBase {
 
   public Pose2d getNewGoalLocation(
       Pose2d robotPose, ChassisSpeeds chassisSpeeds, Time timeOfFlight) {
-    Pose2d goalLocation =
-        new Pose2d(
-            Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
-            Units.inchesToMeters(317.7 / 2),
-            new Rotation2d());
+    Pose2d goalLocation;
+    if (DriverStation.getAlliance().get().equals(DriverStation.Alliance.Blue)) {
+      goalLocation =
+          new Pose2d(new Translation2d(4.61, Units.inchesToMeters(317.7 / 2)), new Rotation2d());
+    } else {
+      goalLocation =
+          new Pose2d(
+              Units.inchesToMeters(651.2 - 158.6 - 47.0 / 2),
+              Units.inchesToMeters(317.7 / 2),
+              new Rotation2d());
+    }
     Pose2d newGoalLocation =
         goalLocation.transformBy(
             new Transform2d(
@@ -490,13 +510,15 @@ public class ShooterAimer extends SubsystemBase {
         new Pose2d(
             oldRobotPose
                 .getTranslation()
-                .plus(getRobotVelocityVector(chassisSpeeds).times(1 * latency)),
+                .plus(
+                    new Translation2d(
+                            (chassisSpeeds.vxMetersPerSecond), chassisSpeeds.vyMetersPerSecond)
+                        .times(1 * latency)),
             new Rotation2d(Units.degreesToRadians(180)));
     System.out.println("oldRobotPose = " + oldRobotPose + "\nnewrobotPose = " + robotPose);
     System.out.println(
         "chassisSpeeds X thing = "
-            + (chassisSpeeds.vxMetersPerSecond
-                * ((chassisSpeeds.vxMetersPerSecond < 0) ? -1 : 1)));
+            + (chassisSpeeds.vxMetersPerSecond * ((chassisSpeeds.vxMetersPerSecond < 0) ? -1 : 1)));
     System.out.println("chassisSpeeds Y thing = " + (chassisSpeeds.vyMetersPerSecond));
 
     Shot initialCalcShot = findIdealVelocityAndAngle(robotPose, chassisSpeeds);
