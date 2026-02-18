@@ -231,7 +231,6 @@ public class ScoringSystem {
   public Pose3d getShooterPose() {
     // Position of the shooter relative to the "front" of the robot. Rotation
     // element is based on hood and turret angles
-    // TODO add actual turret pose
     return new Pose3d(
         new Translation3d(
             Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
