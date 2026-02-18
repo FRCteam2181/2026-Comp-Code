@@ -53,7 +53,7 @@ public class GameData extends SubsystemBase {
     // String gameData;
     boolean canShootBool = true;
     if (DriverStation.getAlliance().isEmpty()) {
-      System.out.println("In first");
+      // System.out.println("In first");
       return true;
     }
     DriverStation.Alliance alliance = DriverStation.getAlliance().get();

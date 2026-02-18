@@ -51,9 +51,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(5)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(45)))
           // Motor properties to prevent over currenting.
-          .withMotorInverted(true)
+          .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Seconds.of(0.25))
@@ -66,9 +66,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
           // Soft limit is applied to the SmartMotorControllers PID
-          .withSoftLimits(Degrees.of(0), Degrees.of(60))
+          .withSoftLimits(Degrees.of(-110), Degrees.of(0))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-10), Degrees.of(70))
+          .withHardLimit(Degrees.of(-70), Degrees.of(10))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
