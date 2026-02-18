@@ -174,6 +174,18 @@ public class ScoringSystem {
         .withName("Superstructure.aimAndWait");
   }
 
+  public Command shootCommand(AngularVelocity velocity){
+    return shooter.setVelocity(velocity);
+  }
+  public Command spindexerCommand(AngularVelocity velocity){
+    return spindexer.setVelocity(velocity);
+  }
+
+
+  public Command shootWithSpin(AngularVelocity shootVelocity, AngularVelocity spinVelocity, AngularVelocity inputVelocity){
+    return shootCommand(shootVelocity).alongWith(new WaitCommand(.5)).andThen(inputAndSpindexer(inputVelocity, spinVelocity));
+  }
+
   public Command pullIntake(Angle angle) {
     return intakeArm.setAngle(angle);
   }
@@ -193,6 +205,13 @@ public class ScoringSystem {
     return shooter
         .setVelocity(shooterVelocity)
         .alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
+  }
+
+  public Command moveTurretLeft(double num){
+    return turret.set(num);
+  }
+  public Command moveTurretRight(){
+    return turret.set(-.2);
   }
 
   public Command setTurretForward() {

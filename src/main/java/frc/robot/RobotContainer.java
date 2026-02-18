@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -14,8 +15,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.IntakeConstants;
@@ -51,6 +55,7 @@ public class RobotContainer {
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController operatorControler = new CommandXboxController(1);
+  final Joystick buttonBoard = new Joystick(1);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
@@ -229,6 +234,36 @@ public class RobotContainer {
                 .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle)));
 
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
+
+//Joystick Buttons 
+
+    // JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
+    // intakeArmButton.whileTrue(ScoringSystem.pullIntake(angle));
+    
+    // JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
+    // shooterButton.whileTrue(ScoringSystem.shooterAndInput(velocity1, velocity2));
+
+    // JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
+    // spindexerButton.whileTrue(ScoringSystem.spindexerCommand(velocity));
+
+    // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
+    // hoodButton.whileTrue(ScoringSystem.hoodCommand);
+
+    // JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
+    // intakeUpButton.whileTrue(ScoringSystem.pullIntake(-angle));
+
+    // JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
+    // reverseShooterButton.whileTrue(ScoringSystem.shootCommand(-velocity));
+
+    // JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
+    // shootWithSpinButton.whileTrue(ScoringSystem.shootWithSpin(velocity1, velocity2, velocity3));
+
+    // JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
+    // reverseSpinButton.whileTrue(ScoringSystem.spindexerCommand(-velocity));
+    
+    // JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
+    // turretLButton.whileTrue(ScoringSystem.moveTurretLeft);
+
 
     operatorControler
         .b()
