@@ -93,6 +93,15 @@ public class FuelSim {
     }
 
     private void update() {
+      boolean dragTest = true;
+      if (dragTest) {
+        dragForce =
+            new Translation3d(
+                    Math.pow(vel.getX(), 2), Math.pow(vel.getY(), 2), Math.pow(vel.getZ(), 2))
+                .times(-C_d * rho * surfaceArea / 2);
+        // System.out.println(dragForce);
+        vel = vel.plus(dragForce.times(PERIOD / subticks));
+      }
       pos = pos.plus(vel.times(PERIOD / subticks));
       if (pos.getZ() > FUEL_RADIUS) {
         vel = vel.plus(GRAVITY.times(PERIOD / subticks));
@@ -102,25 +111,16 @@ public class FuelSim {
       double v_z = vel.getZ();
       double x = pos.getX();
       double y = pos.getY();
-      boolean dragTest = true;
-      if (dragTest) {
-        dragForce =
-            new Translation3d(
-                    Math.pow(vel.getX(), 2), Math.pow(vel.getY(), 2), Math.pow(vel.getZ(), 2))
-                .times(-C_d * rho * surfaceArea / 2);
-        // System.out.println(dragForce);
-        vel = vel.plus(dragForce.times(PERIOD / subticks));
-        // System.out.println(vel);
-        Translation3d[] fuelArraya = new Translation3d[fuels.size()];
-        int j = 0;
-        for (int i = 0; i < fuels.size(); i++) {
-          if (fuels.get(i).pos.getMeasureZ().baseUnitMagnitude() > FUEL_RADIUS) {
-            fuelArraya[j] = fuels.get(i).pos.plus(dragForce);
-            j++;
-          }
+      // System.out.println(vel);
+      Translation3d[] fuelArraya = new Translation3d[fuels.size()];
+      int j = 0;
+      for (int i = 0; i < fuels.size(); i++) {
+        if (fuels.get(i).pos.getMeasureZ().baseUnitMagnitude() > FUEL_RADIUS) {
+          fuelArraya[j] = fuels.get(i).pos.plus(dragForce);
+          j++;
         }
-        dragForcePublisher.accept(fuelArraya);
       }
+      dragForcePublisher.accept(fuelArraya);
 
       // Vectors vector = new Vectors(vel, pos, 0);
 
