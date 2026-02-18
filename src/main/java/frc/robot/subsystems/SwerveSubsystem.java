@@ -37,7 +37,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.DrivebaseConstants;
-import frc.robot.constants.QuestNavConstants;
 import frc.robot.utils.field.FieldConstants;
 import gg.questnav.questnav.*;
 import java.io.File;
@@ -61,8 +60,10 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
   private final SwerveDrive swerveDrive;
 
+  private PhotonVision vision;
+
   /** Enable vision odometry updates while driving. */
-  private final boolean visionDriveTest = false;
+  private final boolean visionDriveTest = true;
 
   /** QuestNav class to keep accurate odometry. */
   QuestNav questNav = new QuestNav();
@@ -117,7 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal
     // encoder and push the offsets onto it. Throws warning if not possible
     if (visionDriveTest) {
-
+      setupPhotonVision();
       // Stop the odometry thread if we are using vision that way we can synchronize updates better.
       swerveDrive.stopOdometryThread();
     }
@@ -139,6 +140,10 @@ public class SwerveSubsystem extends SubsystemBase {
             controllerCfg,
             DrivebaseConstants.MAX_SPEED,
             new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)), Rotation2d.fromDegrees(0)));
+  }
+
+  public void setupPhotonVision() {
+    vision = new PhotonVision(swerveDrive::getPose, swerveDrive.field);
   }
 
   @Override
@@ -166,32 +171,34 @@ public class SwerveSubsystem extends SubsystemBase {
       */
 
       // Get the latest pose data frames from the Quest
-      PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+      // PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
-      // Loop over the pose data frames and send them to the pose estimator
-      for (PoseFrame questFrame : questFrames) {
-        // Make sure the Quest was tracking the pose for this frame
-        if (questFrame.isTracking()) {
-          // Get the pose of the Quest
-          Pose3d questPose = questFrame.questPose3d();
-          // Get timestamp for when the data was sent
-          double timestamp = questFrame.dataTimestamp();
+      // // Loop over the pose data frames and send them to the pose estimator
+      // for (PoseFrame questFrame : questFrames) {
+      //   // Make sure the Quest was tracking the pose for this frame
+      //   if (questFrame.isTracking()) {
+      //     // Get the pose of the Quest
+      //     Pose3d questPose = questFrame.questPose3d();
+      //     // Get timestamp for when the data was sent
+      //     double timestamp = questFrame.dataTimestamp();
 
-          // Transform by the mount pose to get your robot pose
-          Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
+      //     // Transform by the mount pose to get your robot pose
+      //     Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
 
-          // You can put some sort of filtering here if you would like!
+      //     // You can put some sort of filtering here if you would like!
 
-          // Add the measurement to our estimator
-          swerveDrive.addVisionMeasurement(
-              robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
-        }
-      }
+      //     // Add the measurement to our estimator
+      //     swerveDrive.addVisionMeasurement(
+      //         robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+      // }
+      // }
       SmartDashboard.putBoolean("Is Quest Connected", questNav.isConnected());
       SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
       /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
       SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
       swerveDrive.updateOdometry();
+
+      vision.updatePoseEstimation(swerveDrive);
     }
 
     // System.out.print(questNav.getConnected());

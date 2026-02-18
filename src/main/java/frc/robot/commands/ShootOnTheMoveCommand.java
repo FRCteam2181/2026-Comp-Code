@@ -115,7 +115,7 @@ public class ShootOnTheMoveCommand extends Command {
 
     var correctedDistance = Meters.of(vectorToTarget.getNorm());
     var calculatedHeading =
-        vectorToTarget.getAngle().rotateBy(drivetrain.getHeading()).getMeasure();
+        vectorToTarget.getAngle().rotateBy(drivetrain.getHeading()).getMeasure(); // .negate();
     // .minus(Degrees.of(180)); // .unaryminus
 
     // Logger.recordOutput("ShootOnTheMove/RobotHeading", drivetrain.getHeading());
@@ -171,11 +171,11 @@ public class ShootOnTheMoveCommand extends Command {
           Map.entry(Inches.of(101).in(Meters), 6300.0),
           Map.entry(Inches.of(133).in(Meters), 7050.0),
           Map.entry(Inches.of(166).in(Meters), 7900.0),
-          Map.entry(Inches.of(209).in(Meters), 8600.0), 
+          Map.entry(Inches.of(209).in(Meters), 8600.0),
           Map.entry(Inches.of(118.51).in(Meters), 7500.0),
-          Map.entry(Inches.of(111.51).in(Meters), 7000.0), 
-          Map.entry(Inches.of(97.51).in(Meters), 6800.0), 
-          Map.entry(Inches.of(87.51).in(Meters), 6600.0), 
+          Map.entry(Inches.of(111.51).in(Meters), 7000.0),
+          Map.entry(Inches.of(97.51).in(Meters), 6800.0),
+          Map.entry(Inches.of(87.51).in(Meters), 6600.0),
           Map.entry(Inches.of(77.51).in(Meters), 6100.0));
 
   // meters, degrees

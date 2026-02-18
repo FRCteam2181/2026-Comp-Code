@@ -40,7 +40,7 @@ public class SpindexerSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("SpindexerMotor", TelemetryVerbosity.HIGH)
+          .withTelemetry("SpindexerMotor", TelemetryVerbosity.LOW)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
