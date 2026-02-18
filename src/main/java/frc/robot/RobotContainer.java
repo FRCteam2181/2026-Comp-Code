@@ -28,7 +28,6 @@ import frc.robot.commands.ShootOnTheMoveCommand;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
-// import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -77,7 +76,7 @@ public class RobotContainer {
   private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
-      new ScoringSystem(shooter, turret, drivebase); // intakeArm, climber, topintake, spindexer,
+      new ScoringSystem(shooter, turret, drivebase, intakeArm, topintake, bottomintake, spindexer, input); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
