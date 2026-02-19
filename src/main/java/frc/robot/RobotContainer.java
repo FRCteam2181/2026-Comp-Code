@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -17,25 +16,29 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.systems.GameData;
+import frc.robot.systems.ScoringSystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -50,6 +53,7 @@ public class RobotContainer {
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
   final CommandXboxController operatorControler = new CommandXboxController(1);
+  final Joystick buttonBoard = new Joystick(1);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
@@ -66,12 +70,26 @@ public class RobotContainer {
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
-
+  private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
-  private final FeederSubsystem feeder = new FeederSubsystem();
+
+  private final GameData gameData = new GameData(drivebase);
+
+  // private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
 
-  private final ArmSubsystem arm = new ArmSubsystem();
+  final ScoringSystem scoringSystem =
+      new ScoringSystem(
+          shooter,
+          turret,
+          drivebase,
+          intakeArm,
+          topintake,
+          bottomintake,
+          spindexer,
+          input); // intakeArm, climber, topintake, spindexer,
+
+  // private final ArmSubsystem arm = new ArmSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -138,6 +156,7 @@ public class RobotContainer {
 
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putNumber("ShootSpeed", 100);
   }
 
   /**
@@ -174,12 +193,12 @@ public class RobotContainer {
 
     spindexer.setDefaultCommand(spindexer.set(0));
 
-    feeder.setDefaultCommand(feeder.set(0));
+    // feeder.setDefaultCommand(feeder.set(0));
     input.setDefaultCommand(input.set(0));
 
     turret.setDefaultCommand(turret.set(0));
 
-    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
+    intakeArm.setDefaultCommand(intakeArm.set(0));
 
     if (Robot.isSimulation()) {
       Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
@@ -193,13 +212,13 @@ public class RobotContainer {
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-      driverXbox
-          .button(2)
-          .whileTrue(
-              Commands.runEnd(
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
+      // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
+      // driverXbox
+      //     .button(2)
+      //     .whileTrue(
+      //         Commands.runEnd(
+      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
+      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -211,29 +230,80 @@ public class RobotContainer {
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
-    driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
+    driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
 
     operatorControler
         .a()
         .whileTrue(
             topintake
                 .set(IntakeConstants.kBottomIntakeDutyCycle)
-                .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
+                .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle)));
 
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6250)));
+    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
+
+    // Joystick Buttons
+
+    // JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
+    // intakeArmButton.whileTrue(ScoringSystem.pullIntake(angle));
+
+    // JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
+    // shooterButton.whileTrue(ScoringSystem.shooterAndInput(velocity1, velocity2));
+
+    // JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
+    // spindexerButton.whileTrue(ScoringSystem.spindexerCommand(velocity));
+
+    // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
+    // hoodButton.whileTrue(ScoringSystem.hoodCommand);
+
+    // JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
+    // intakeUpButton.whileTrue(ScoringSystem.pullIntake(-angle));
+
+    // JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
+    // reverseShooterButton.whileTrue(ScoringSystem.shootCommand(-velocity));
+
+    // JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
+    // shootWithSpinButton.whileTrue(ScoringSystem.shootWithSpin(velocity1, velocity2, velocity3));
+
+    // JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
+    // reverseSpinButton.whileTrue(ScoringSystem.spindexerCommand(-velocity));
+
+    // JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
+    // turretLButton.whileTrue(ScoringSystem.moveTurretLeft);
 
     operatorControler
         .b()
-        .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
+        .whileTrue((input.set(.55).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85)))));
+    // operatorControler.b().whileTrue(input.set(.35));
+    // operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
-    operatorControler.rightTrigger().whileTrue(turret.set(.3));
+    // operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
 
-    operatorControler.leftTrigger().whileTrue(turret.set(-.3));
+    operatorControler.leftBumper().whileTrue(turret.set(.2));
+    operatorControler.rightBumper().whileTrue(turret.set(-.2));
+    // operatorControler.rightTrigger().whileTrue(intake)
+
+    driverXbox.leftTrigger().whileTrue(intakeArm.set(-.85));
+    driverXbox.rightTrigger().whileTrue(intakeArm.set(.5));
+    // the current degree value isn't final, it's just a placeholder for now. we will update it
+    // eventually.
+    driverXbox
+        .x()
+        .toggleOnTrue(
+            new ShootOnTheMoveCommandRevised(
+                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
+                .withName("OperatorControls.aimCommand"));
+
+    // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
+
+    // driverXbox.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+
+    // driverXbox.leftBumper().whileTrue(turret.set(.2));
+    // driverXbox.rightBumper().whileTrue(turret.set(-.2));
 
     // Schedule `setAngle` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
-    driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
+    // driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
+    // driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
     // Schedule `set` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // driverXbox.x().whileTrue(arm.set(0.3));

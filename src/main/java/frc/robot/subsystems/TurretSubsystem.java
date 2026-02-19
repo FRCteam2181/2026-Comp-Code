@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
@@ -14,6 +12,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -23,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ShooterConstants;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.MechanismPositionConfig;
@@ -45,7 +45,7 @@ public class TurretSubsystem extends SubsystemBase {
 
   // private final TalonFX turretMotor;
 
-  private final SparkFlex turretMotor = new SparkFlex(12, MotorType.kBrushless);
+  private final SparkFlex turretMotor = new SparkFlex(16, MotorType.kBrushless);
   private final AbsoluteEncoder cancoderB = turretMotor.getAbsoluteEncoder(); // 20t B SparkFlex
   private final DutyCycleEncoder cancoderA = new DutyCycleEncoder(0); // 19 A rio
   // Create a timer to delay CRT run until encoders are ready
@@ -85,12 +85,12 @@ public class TurretSubsystem extends SubsystemBase {
 
     motorConfig =
         new SmartMotorControllerConfig(this)
-            .withClosedLoopController(
-                4, 0, 0, DegreesPerSecond.of(180), DegreesPerSecondPerSecond.of(90))
-            .withSimClosedLoopController(
-                130, 0, 3.4, DegreesPerSecond.of(1000), DegreesPerSecondPerSecond.of(1500))
-            .withSoftLimit(Degrees.of(0), Degrees.of(180))
-            // .withFeedforward(new SimpleMotorFeedforward(0.15,1.2))
+            // .withClosedLoopController(.2, 0, 0)
+            .withClosedLoopController(29.68, 0, 2.6489)
+            .withSimClosedLoopController(2.596, 0, 0)
+            .withSoftLimit(Rotations.of(-.25), Rotations.of(1.25))
+            .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
+            .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
             .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
@@ -114,7 +114,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Degrees.of(0), Degrees.of(720))
+            .withHardLimit(Rotations.of(-.3), Rotations.of(1.3))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -148,12 +148,20 @@ public class TurretSubsystem extends SubsystemBase {
     return turret.setAngle(angle);
   }
 
-  public Angle getAngle() {
+  public Command setAngleDynamic(Supplier<Angle> angle) {
+    return turret.setAngle(angle);
+  }
+
+  public Angle getRawAngle() {
     return turret.getAngle();
   }
 
+  public Angle getRobotAdjustedAngle() {
+    return turret.getAngle().plus(Degrees.of(180));
+  }
+
   public double getRobotRelativeYawRadians() {
-    return getAngle().in(edu.wpi.first.units.Units.Radians);
+    return getRawAngle().in(edu.wpi.first.units.Units.Radians);
   }
 
   /** Forces a CRT reseed attempt */
@@ -171,7 +179,7 @@ public class TurretSubsystem extends SubsystemBase {
       startTimer = true;
     }
 
-    if (startUpTimer.hasElapsed(5)) {
+    if (startUpTimer.hasElapsed(3)) {
       delayForCRTDone = true;
     }
 
@@ -190,7 +198,7 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Encoder A Adjusted", (getAbsoluteEncoderWithOffset()));
     SmartDashboard.putNumber("Encoder B", cancoderB.getPosition());
     SmartDashboard.putBoolean("Encoder A Raw", rotorSeededFromAbs);
-    SmartDashboard.putNumber("Position", getAngle().in(Rotations));
+    SmartDashboard.putNumber("Position", getRawAngle().in(Rotations));
   }
 
   public void simulationPeriodic() {
@@ -267,9 +275,9 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(0))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.472905))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(-0.1), Rotations.of(0.6))
+        .withMechanismRange(Rotations.of(-0.25), Rotations.of(1.25))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {
