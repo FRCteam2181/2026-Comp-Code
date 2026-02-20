@@ -127,7 +127,11 @@ public class ShootOnTheMoveCommandRevised extends Command {
               return this.lastShootSpeed;
             },
             () -> {
-              return Rotations.of(this.lastTurretAngle.getRotations());
+              if (this.lastTurretAngle.getRotations() < 0) {
+                return Rotations.of(this.lastTurretAngle.getRotations() + 1);
+              } else {
+                return Rotations.of(this.lastTurretAngle.getRotations());
+              }
             },
             () -> {
               return Rotations.of(this.lastHoodAngle);
@@ -212,7 +216,8 @@ public class ShootOnTheMoveCommandRevised extends Command {
     }
 
     // Calculate parameters accounted for imparted velocity
-    turretAngle = target.minus(lookaheadPose.getTranslation()).getAngle();
+    turretAngle =
+        target.minus(lookaheadPose.getTranslation()).getAngle().minus(estimatedPose.getRotation());
     hoodAngle = launchHoodAngleMap.get(lookaheadTurretToTargetDistance).getRadians();
     if (lastTurretAngle == null) lastTurretAngle = turretAngle;
     if (Double.isNaN(lastHoodAngle)) lastHoodAngle = hoodAngle;

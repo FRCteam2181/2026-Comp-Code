@@ -315,6 +315,10 @@ public class SwerveSubsystem extends SubsystemBase {
         );
   }
 
+  public Command resetAutoBuilderOdometry() {
+    return AutoBuilder.resetOdom(swerveDrive.getPose());
+  }
+
   /**
    * Implement the driveToPose command that uses PathPlanner Path finding to go to a point on the
    * field as a defered commmand.

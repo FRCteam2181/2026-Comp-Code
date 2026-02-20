@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -15,7 +14,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,16 +22,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ShootOnTheMoveCommand;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -67,7 +63,7 @@ public class RobotContainer {
   // selection of desired auto
   private final SendableChooser<Command> autoChooser;
 
-  // private final ClimberSubsystem climber = new ClimberSubsystem();
+  private final ClimberSubsystem climber = new ClimberSubsystem();
 
   private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
   private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
@@ -83,7 +79,15 @@ public class RobotContainer {
   private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
-      new ScoringSystem(shooter, turret, drivebase, intakeArm, topintake, bottomintake, spindexer, input); // intakeArm, climber, topintake, spindexer,
+      new ScoringSystem(
+          shooter,
+          turret,
+          drivebase,
+          intakeArm,
+          topintake,
+          bottomintake,
+          spindexer,
+          input); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -153,6 +157,20 @@ public class RobotContainer {
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putNumber("ShootSpeed", 100);
+
+    NamedCommands.registerCommand(
+        "Auto Target Then Shoot",
+        new ShootOnTheMoveCommandRevised(
+            drivebase, scoringSystem, () -> scoringSystem.getAimPoint()));
+
+    // new ParallelCommandGroup(
+    //     new  ShootOnTheMoveCommandRevised(
+    //         drivebase, scoringSystem, () -> scoringSystem.getAimPoint()),
+    //     input.set(.65).alongWith(new WaitCommand(.45).andThen(spindexer.set(-.85))))
+    // .withTimeout(8));
+
+    NamedCommands.registerCommand(
+        "Localize", drivebase.resetAutoBuilderOdometry().withTimeout(.15));
   }
 
   /**
@@ -225,8 +243,8 @@ public class RobotContainer {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
-    // driverXbox.rightBumper().whileTrue(climber.c_climb());
-    // driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
+    driverXbox.rightBumper().whileTrue(climber.c_climb());
+    driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
 
     operatorControler
         .a()
@@ -237,40 +255,40 @@ public class RobotContainer {
 
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
 
-//Joystick Buttons 
-    
+    // Joystick Buttons
 
-    JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
-        intakeArmButton.whileTrue(scoringSystem.pullIntake(Degrees.of(90)));
-    
-    JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
-    shooterButton.whileTrue(scoringSystem.shooterAndInput(ShooterConstants.kShooterVelocity, velocity2));
+    //   JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
+    //       intakeArmButton.whileTrue(scoringSystem.pullIntake(Degrees.of(90)));
 
-    JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
-    spindexerButton.whileTrue(scoringSystem.spindexerCommand(velocity));
+    //   JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
+    //   shooterButton.whileTrue(scoringSystem.shooterAndInput(ShooterConstants.kShooterVelocity,
+    // velocity2));
 
-   // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
-   // hoodButton.whileTrue(scoringSystem.hoodCommand);
+    //   JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
+    //   spindexerButton.whileTrue(scoringSystem.spindexerCommand(velocity));
 
-    JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
-    intakeUpButton.whileTrue(scoringSystem.pullIntake(-angle));
+    //  // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
+    //  // hoodButton.whileTrue(scoringSystem.hoodCommand);
 
-    JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
-    reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
+    //   JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
+    //   intakeUpButton.whileTrue(scoringSystem.pullIntake(-angle));
 
-    JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
-    shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2, velocity3));
+    //   JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
+    //   reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
 
-    JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
-    reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
-    
-    JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
-    turretLButton.whileTrue(scoringSystem.moveTurretLeft);
+    //   JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
+    //   shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2,
+    // velocity3));
 
+    //   JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
+    //   reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
+
+    //   JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
+    //   turretLButton.whileTrue(scoringSystem.moveTurretLeft);
 
     operatorControler
         .b()
-        .whileTrue((input.set(.55).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85)))));
+        .whileTrue((input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85)))));
     // operatorControler.b().whileTrue(input.set(.35));
     // operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
 
@@ -280,14 +298,15 @@ public class RobotContainer {
     operatorControler.rightBumper().whileTrue(turret.set(-.2));
     // operatorControler.rightTrigger().whileTrue(intake)
 
-    driverXbox.leftTrigger().whileTrue(intakeArm.set(-.85));
-    driverXbox.rightTrigger().whileTrue(intakeArm.set(.5));
+    operatorControler.leftTrigger().whileTrue(intakeArm.set(-.85));
+    operatorControler.rightTrigger().whileTrue(intakeArm.set(.5));
     // the current degree value isn't final, it's just a placeholder for now. we will update it
     // eventually.
     driverXbox
         .x()
         .toggleOnTrue(
-            new ShootOnTheMoveCommand(drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
+            new ShootOnTheMoveCommandRevised(
+                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
                 .withName("OperatorControls.aimCommand"));
 
     // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));

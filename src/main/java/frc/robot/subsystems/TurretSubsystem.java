@@ -88,7 +88,7 @@ public class TurretSubsystem extends SubsystemBase {
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(2.596, 0, 0)
-            .withSoftLimit(Rotations.of(-.3), Rotations.of(0.3))
+            .withSoftLimit(Rotations.of(-.25), Rotations.of(1.25))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
@@ -114,7 +114,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Rotations.of(-.6), Rotations.of(0.6))
+            .withHardLimit(Rotations.of(-.3), Rotations.of(1.3))
             .withTelemetry("Turret", TelemetryVerbosity.HIGH)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -275,9 +275,9 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.673913))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.472905))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(-0.6), Rotations.of(0.6))
+        .withMechanismRange(Rotations.of(-0.3), Rotations.of(1.3))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
     // } else {
