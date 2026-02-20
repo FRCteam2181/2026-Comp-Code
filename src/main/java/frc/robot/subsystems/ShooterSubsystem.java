@@ -47,7 +47,7 @@ public class ShooterSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("Shooter Leader Motor", TelemetryVerbosity.HIGH)
+          .withTelemetry("Shooter Leader Motor", TelemetryVerbosity.LOW)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -75,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("Shooter Mech", TelemetryVerbosity.HIGH);
+          .withTelemetry("Shooter Mech", TelemetryVerbosity.LOW);
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);

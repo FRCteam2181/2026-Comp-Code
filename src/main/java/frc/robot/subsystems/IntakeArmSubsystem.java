@@ -75,7 +75,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withLength(Feet.of(3))
           .withMass(Pounds.of(1))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("Arm", TelemetryVerbosity.HIGH);
+          .withTelemetry("Arm", TelemetryVerbosity.LOW);
 
   private Arm arm = new Arm(armCfg);
 

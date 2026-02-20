@@ -93,7 +93,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
-            .withTelemetry("TurretMotorV2", TelemetryVerbosity.HIGH)
+            .withTelemetry("TurretMotorV2", TelemetryVerbosity.LOW)
             .withStatorCurrentLimit(Amps.of(40))
             // .withSupplyCurrentLimit(Amps.of(4))
             .withMotorInverted(true)
@@ -115,7 +115,7 @@ public class TurretSubsystem extends SubsystemBase {
     pivotConfig =
         new PivotConfig(motor)
             .withHardLimit(Rotations.of(-.3), Rotations.of(1.3))
-            .withTelemetry("Turret", TelemetryVerbosity.HIGH)
+            .withTelemetry("Turret", TelemetryVerbosity.LOW)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
             .withMOI(0.2);

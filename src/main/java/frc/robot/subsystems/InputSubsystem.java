@@ -67,7 +67,7 @@ public class InputSubsystem extends SubsystemBase {
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH);
+          .withTelemetry("FeederMech", TelemetryVerbosity.LOW);
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);

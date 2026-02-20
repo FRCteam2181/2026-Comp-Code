@@ -13,6 +13,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Auto Target Then Shoot"
           }
         }

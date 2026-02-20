@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -145,6 +146,26 @@ public class RobotContainer {
     // Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
+    NamedCommands.registerCommand(
+        "Auto Target Then Shoot",
+        new ParallelCommandGroup(
+                new ShootOnTheMoveCommandRevised(
+                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint()),
+                input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85))))
+            .withTimeout(5));
+
+    NamedCommands.registerCommand(
+        "Localize", Commands.runOnce(() -> drivebase.resetAutoBuilderOdometry(), drivebase));
+
+    NamedCommands.registerCommand(
+        "Intake Down",
+        topintake
+            .set(IntakeConstants.kBottomIntakeDutyCycle)
+            .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
+            .withTimeout(5));
+
+    NamedCommands.registerCommand("Run Intake", intakeArm.set(-.85).withTimeout(3));
+
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -157,20 +178,6 @@ public class RobotContainer {
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
     SmartDashboard.putNumber("ShootSpeed", 100);
-
-    NamedCommands.registerCommand(
-        "Auto Target Then Shoot",
-        new ShootOnTheMoveCommandRevised(
-            drivebase, scoringSystem, () -> scoringSystem.getAimPoint()));
-
-    // new ParallelCommandGroup(
-    //     new  ShootOnTheMoveCommandRevised(
-    //         drivebase, scoringSystem, () -> scoringSystem.getAimPoint()),
-    //     input.set(.65).alongWith(new WaitCommand(.45).andThen(spindexer.set(-.85))))
-    // .withTimeout(8));
-
-    NamedCommands.registerCommand(
-        "Localize", drivebase.resetAutoBuilderOdometry().withTimeout(.15));
   }
 
   /**

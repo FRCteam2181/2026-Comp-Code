@@ -315,8 +315,8 @@ public class SwerveSubsystem extends SubsystemBase {
         );
   }
 
-  public Command resetAutoBuilderOdometry() {
-    return AutoBuilder.resetOdom(swerveDrive.getPose());
+  public void resetAutoBuilderOdometry() {
+    AutoBuilder.resetOdom(swerveDrive.getPose());
   }
 
   /**
