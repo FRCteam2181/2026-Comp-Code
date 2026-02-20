@@ -200,6 +200,7 @@ public class ScoringSystem {
         .alongWith(bottomIntake.set(bottomSpeed));
   }
 
+
   public Command inputAndSpindexer(AngularVelocity speedInput, AngularVelocity speedSpindexer) {
     return input.setVelocity(speedInput).alongWith(spindexer.setVelocity(speedSpindexer));
   }
@@ -221,9 +222,8 @@ public class ScoringSystem {
   public Command moveTurretLeft(double num) {
     return turret.set(num);
   }
-
-  public Command moveTurretRight() {
-    return turret.set(-.2);
+  public Command moveTurretRight(double num){
+    return turret.set(num);
   }
 
   public Command setTurretForward() {

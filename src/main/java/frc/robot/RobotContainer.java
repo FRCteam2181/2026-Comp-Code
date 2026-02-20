@@ -280,9 +280,14 @@ public class RobotContainer {
     //   JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
     //   reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
 
-    //   JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
-    //   shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2,
-    // velocity3));
+    JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
+    reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
+    
+    JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
+    turretLButton.whileTrue(scoringSystem.moveTurretLeft(0.2));
+
+    JoystickButton turretRButton = new JoystickButton(buttonBoard, 10);
+    turretRButton.whileTrue(scoringSystem.moveTurretRight(-0.2));
 
     //   JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
     //   reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
