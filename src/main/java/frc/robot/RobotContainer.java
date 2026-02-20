@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,15 +25,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ShootOnTheMoveCommand;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.constants.ShooterConstants;
 import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
@@ -83,7 +83,15 @@ public class RobotContainer {
   private final InputSubsystem input = new InputSubsystem();
 
   final ScoringSystem scoringSystem =
-      new ScoringSystem(shooter, turret, drivebase, intakeArm, topintake, bottomintake, spindexer, input); // intakeArm, climber, topintake, spindexer,
+      new ScoringSystem(
+          shooter,
+          turret,
+          drivebase,
+          intakeArm,
+          topintake,
+          bottomintake,
+          spindexer,
+          input); // intakeArm, climber, topintake, spindexer,
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -140,6 +148,20 @@ public class RobotContainer {
 
     // Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    NamedCommands.registerCommand(
+        "Aim And Shoot",
+        new ParallelCommandGroup(
+            scoringSystem.inputAndSpindexer(
+                AngularVelocity.ofBaseUnits(50, RPM), AngularVelocity.ofBaseUnits(50, RPM)),
+            new ShootOnTheMoveCommandRevised(
+                drivebase, scoringSystem, () -> scoringSystem.getAimPoint())));
+    NamedCommands.registerCommand(
+        "Intake Down + Start",
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(-90, Degrees), 0.5, 0.5));
+    NamedCommands.registerCommand(
+        "Intake Up + Stop", scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0));
+    NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
+    // NamedCommands.RegisterCommand("Climber Up", scoringSystem);
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -237,36 +259,36 @@ public class RobotContainer {
 
     operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
 
-//Joystick Buttons 
-    
+    // Joystick Buttons
 
-    JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
-        intakeArmButton.whileTrue(scoringSystem.pullIntake(Degrees.of(90)));
-    
-    JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
-    shooterButton.whileTrue(scoringSystem.shooterAndInput(ShooterConstants.kShooterVelocity, velocity2));
+    //   JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
+    //       intakeArmButton.whileTrue(scoringSystem.pullIntake(Degrees.of(90)));
 
-    JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
-    spindexerButton.whileTrue(scoringSystem.spindexerCommand(velocity));
+    //   JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
+    //   shooterButton.whileTrue(scoringSystem.shooterAndInput(ShooterConstants.kShooterVelocity,
+    // velocity2));
 
-   // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
-   // hoodButton.whileTrue(scoringSystem.hoodCommand);
+    //   JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
+    //   spindexerButton.whileTrue(scoringSystem.spindexerCommand(velocity));
 
-    JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
-    intakeUpButton.whileTrue(scoringSystem.pullIntake(-angle));
+    //  // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
+    //  // hoodButton.whileTrue(scoringSystem.hoodCommand);
 
-    JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
-    reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
+    //   JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
+    //   intakeUpButton.whileTrue(scoringSystem.pullIntake(-angle));
 
-    JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
-    shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2, velocity3));
+    //   JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
+    //   reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
 
-    JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
-    reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
-    
-    JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
-    turretLButton.whileTrue(scoringSystem.moveTurretLeft);
+    //   JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
+    //   shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2,
+    // velocity3));
 
+    //   JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
+    //   reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
+
+    //   JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
+    //   turretLButton.whileTrue(scoringSystem.moveTurretLeft);
 
     operatorControler
         .b()

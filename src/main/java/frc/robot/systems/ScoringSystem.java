@@ -174,16 +174,19 @@ public class ScoringSystem {
         .withName("Superstructure.aimAndWait");
   }
 
-  public Command shootCommand(AngularVelocity velocity){
+  public Command shootCommand(AngularVelocity velocity) {
     return shooter.setVelocity(velocity);
   }
-  public Command spindexerCommand(AngularVelocity velocity){
+
+  public Command spindexerCommand(AngularVelocity velocity) {
     return spindexer.setVelocity(velocity);
   }
 
-
-  public Command shootWithSpin(AngularVelocity shootVelocity, AngularVelocity spinVelocity, AngularVelocity inputVelocity){
-    return shootCommand(shootVelocity).alongWith(new WaitCommand(.5)).andThen(inputAndSpindexer(inputVelocity, spinVelocity));
+  public Command shootWithSpin(
+      AngularVelocity shootVelocity, AngularVelocity spinVelocity, AngularVelocity inputVelocity) {
+    return shootCommand(shootVelocity)
+        .alongWith(new WaitCommand(.5))
+        .andThen(inputAndSpindexer(inputVelocity, spinVelocity));
   }
 
   public Command pullIntake(Angle angle) {
@@ -201,16 +204,25 @@ public class ScoringSystem {
     return input.setVelocity(speedInput).alongWith(spindexer.setVelocity(speedSpindexer));
   }
 
+  public Command intake(double topSpeed, double bottomSpeed) {
+    return topIntake.set(topSpeed).alongWith(bottomIntake.set(bottomSpeed));
+  }
+
+  public Command reverseIntake(double topSpeed, double bottomSpeed) {
+    return topIntake.set(-topSpeed).alongWith(bottomIntake.set(-bottomSpeed));
+  }
+
   public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity) {
     return shooter
         .setVelocity(shooterVelocity)
         .alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
   }
 
-  public Command moveTurretLeft(double num){
+  public Command moveTurretLeft(double num) {
     return turret.set(num);
   }
-  public Command moveTurretRight(){
+
+  public Command moveTurretRight() {
     return turret.set(-.2);
   }
 

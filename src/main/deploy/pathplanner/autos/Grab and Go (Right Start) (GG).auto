@@ -5,9 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Right Start Grab & Go Path"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Right Start Grab & Go Path"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Down + Start"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Up + Stop"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim And Shoot"
           }
         }
       ]

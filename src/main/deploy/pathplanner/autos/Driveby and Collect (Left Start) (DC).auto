@@ -5,15 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left Start to Depot"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Aim And Shoot"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Start to Depot"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Depot to Climb"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim And Shoot"
           }
         }
       ]
