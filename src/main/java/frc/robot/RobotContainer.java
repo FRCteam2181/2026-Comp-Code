@@ -265,7 +265,10 @@ public class RobotContainer {
     reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
     
     JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
-    turretLButton.whileTrue(scoringSystem.moveTurretLeft);
+    turretLButton.whileTrue(scoringSystem.moveTurretLeft(0.2));
+
+    JoystickButton turretRButton = new JoystickButton(buttonBoard, 10);
+    turretRButton.whileTrue(scoringSystem.moveTurretRight(-0.2));
 
 
     operatorControler
