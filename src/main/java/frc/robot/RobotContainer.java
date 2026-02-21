@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Degrees;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -40,6 +41,7 @@ import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.systems.GameData;
 import frc.robot.systems.ScoringSystem;
+import frc.robot.utils.controllerUtils.compBoardOne.CompBoardOne;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -53,7 +55,8 @@ public class RobotContainer {
 
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  final CommandXboxController operatorControler = new CommandXboxController(1);
+  // final CommandXboxController operatorControler = new CommandXboxController(1);
+  final CompBoardOne compBoardOne;
   final Joystick buttonBoard = new Joystick(1);
 
   // The robot's subsystems and commands are defined here...
@@ -140,6 +143,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    this.compBoardOne = CompBoardOne.getInstance();
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
 
@@ -165,6 +169,13 @@ public class RobotContainer {
             .withTimeout(5));
 
     NamedCommands.registerCommand("Run Intake", intakeArm.set(-.85).withTimeout(3));
+
+    NamedCommands.registerCommand(
+        "Intake Down + Start",
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(-90, Degrees), 0.5, 0.5));
+    NamedCommands.registerCommand(
+        "Intake Up + Stop", scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0));
+    NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -233,13 +244,6 @@ public class RobotContainer {
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      // driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-      // driverXbox
-      //     .button(2)
-      //     .whileTrue(
-      //         Commands.runEnd(
-      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-      //             () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -253,86 +257,69 @@ public class RobotContainer {
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
 
-    operatorControler
-        .a()
-        .whileTrue(
-            topintake
-                .set(IntakeConstants.kBottomIntakeDutyCycle)
-                .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle)));
-
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6100)));
-
     // Joystick Buttons
 
-    //   JoystickButton intakeArmButton = new JoystickButton(buttonBoard, 1);
-    //       intakeArmButton.whileTrue(scoringSystem.pullIntake(Degrees.of(90)));
+    // Reverse shooter
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
 
-    //   JoystickButton shooterButton = new JoystickButton(buttonBoard, 2);
-    //   shooterButton.whileTrue(scoringSystem.shooterAndInput(ShooterConstants.kShooterVelocity,
-    // velocity2));
+    // Reverse intake
+    compBoardOne
+        .CompBoardOneButtonB()
+        .whileTrue(
+            scoringSystem.runIntakeReverse(
+                IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    //   JoystickButton spindexerButton = new JoystickButton(buttonBoard, 3);
-    //   spindexerButton.whileTrue(scoringSystem.spindexerCommand(velocity));
+    // Reverse spindexer and input
+    compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65, .85));
 
-    //  // JoystickButton hoodButton = new JoystickButton(buttonBoard, 4);
-    //  // hoodButton.whileTrue(scoringSystem.hoodCommand);
+    // light show
+    // compBoardOne.CompBoardOneButtonD().whileTrue();
 
-    //   JoystickButton intakeUpButton = new JoystickButton(buttonBoard, 5);
-    //   intakeUpButton.whileTrue(scoringSystem.pullIntake(-angle));
+    // Turret dutycycle left
+    compBoardOne.CompBoardOneButtonL1().whileTrue(scoringSystem.turnTurretLeft(.2));
 
-    //   JoystickButton reverseShooterButton = new JoystickButton(buttonBoard, 6);
-    //   reverseShooterButton.whileTrue(scoringSystem.shootCommand(-velocity));
+    // Turret dutycycle right
+    compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
-    //   JoystickButton shootWithSpinButton = new JoystickButton(buttonBoard, 7);
-    //   shootWithSpinButton.whileTrue(scoringSystem.shootWithSpin(velocity1, velocity2,
-    // velocity3));
-
-    //   JoystickButton reverseSpinButton = new JoystickButton(buttonBoard, 8);
-    //   reverseSpinButton.whileTrue(scoringSystem.spindexerCommand(-velocity));
-
-    //   JoystickButton turretLButton = new JoystickButton(buttonBoard, 9);
-    //   turretLButton.whileTrue(scoringSystem.moveTurretLeft);
-
-    operatorControler
-        .b()
-        .whileTrue((input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85)))));
-    // operatorControler.b().whileTrue(input.set(.35));
-    // operatorControler.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
-
-    // operatorControler.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
-
-    operatorControler.leftBumper().whileTrue(turret.set(.2));
-    operatorControler.rightBumper().whileTrue(turret.set(-.2));
-    // operatorControler.rightTrigger().whileTrue(intake)
-
-    operatorControler.leftTrigger().whileTrue(intakeArm.set(-.85));
-    operatorControler.rightTrigger().whileTrue(intakeArm.set(.5));
-    // the current degree value isn't final, it's just a placeholder for now. we will update it
-    // eventually.
-    driverXbox
-        .x()
+    // AutoAim
+    compBoardOne
+        .CompBoardOneButtonL2()
         .toggleOnTrue(
             new ShootOnTheMoveCommandRevised(
                     drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
                 .withName("OperatorControls.aimCommand"));
 
-    // driverXbox.rightTrigger().whileTrue(turret.setAngle(Rotations.of(.4)));
+    // Run spindexer+input
+    compBoardOne
+        .CompBoardOneButtonR2()
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
 
-    // driverXbox.leftTrigger().whileTrue(turret.setAngle(Rotations.of(.1)));
+    // Run spindexer+input w/ arm agitation
+    compBoardOne.CompBoardOneButtonStart().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
 
-    // driverXbox.leftBumper().whileTrue(turret.set(.2));
-    // driverXbox.rightBumper().whileTrue(turret.set(-.2));
+    // hood up
+    // compBoardOne.CompBoardOneButtonSelect().whileTrue();
 
-    // Schedule `setAngle` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
-    // driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // driverXbox.x().whileTrue(arm.set(0.3));
-    // driverXbox.y().whileTrue(arm.set(-0.3));
+    // hood down
 
-    // operatorControler.leftBumper().whileTrue(turret.sysId());
+    // TEMP SysID for arm
+    // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
+
+    // intake up
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
+
+    // intake down
+    compBoardOne.CompBoardOneButtonLeft().whileTrue(scoringSystem.armDown(.85));
+
+    // run intake
+    compBoardOne
+        .CompBoardOneButtonRight()
+        .whileTrue(
+            scoringSystem.runIntakeForwards(
+                IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
+
+    // shooter shoot
+    compBoardOne.CompBoardOneButtonDown().whileTrue(scoringSystem.setShooterRPMForwards(6100));
   }
 
   /**

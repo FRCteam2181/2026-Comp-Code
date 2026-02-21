@@ -36,6 +36,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.EasyCRT;
+import yams.units.EasyCRT.CRTStatus;
 import yams.units.EasyCRTConfig;
 
 /** Turret that uses YAMS CRT */
@@ -68,7 +69,9 @@ public class TurretSubsystem extends SubsystemBase {
   private double lastSeedError = Double.NaN;
   private double lastAbsA = Double.NaN;
   private double lastAbsB = Double.NaN;
-  private String lastSeedStatus = "NOT_ATTEMPTED";
+  private CRTStatus lastSeedStatus = CRTStatus.NOT_ATTEMPTED;
+
+  private String haveDevices = "NO_DEVICES";
 
   public TurretSubsystem() {
 
@@ -213,10 +216,10 @@ public class TurretSubsystem extends SubsystemBase {
   private void attemptRotorSeedFromCANCoders() {
     AbsSensorRead absRead = readAbsSensors();
     if (!absRead.ok()) {
-      if (!"NO_DEVICES".equals(absRead.status())) {
-        SmartDashboard.putString("Turret/CRT/SeedStatus", absRead.status());
+      if (!"NO_DEVICES".equals(absRead.deviceStatus())) {
+        SmartDashboard.putString("Turret/CRT/SeedStatus", absRead.crtStatus().name());
       }
-      lastSeedStatus = absRead.status();
+      lastSeedStatus = absRead.crtStatus();
       return;
     }
 
@@ -230,7 +233,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Turret/CRT/AbsA", absA);
     SmartDashboard.putNumber("Turret/CRT/AbsB", absB);
-    SmartDashboard.putString("Turret/CRT/SolverStatus", solver.getLastStatus());
+    SmartDashboard.putString("Turret/CRT/SolverStatus", solver.getLastStatus().name());
     SmartDashboard.putNumber("Turret/CRT/SolverErrorRot", solver.getLastErrorRotations());
     SmartDashboard.putNumber("Turret/CRT/SolverIterations", solver.getLastIterations());
 
@@ -249,23 +252,21 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Turret/CRT/SeededTurretDeg", lastSeededTurretDeg);
     SmartDashboard.putNumber("Turret/CRT/MatchErrorRot", lastSeedError);
 
-    lastSeedStatus = "OK";
-    SmartDashboard.putString("Turret/CRT/SeedStatus", lastSeedStatus);
+    lastSeedStatus = CRTStatus.OK;
+    SmartDashboard.putString("Turret/CRT/SeedStatus", lastSeedStatus.name());
     SmartDashboard.putBoolean("Turret/CRT/Seeded", rotorSeededFromAbs);
   }
 
   /** Reads both absolute encoders and returns their rotations plus a status. */
   private AbsSensorRead readAbsSensors() {
-    // Double absPositionASignal = (cancoderA.get());
-    // Double absPositionBSignal = cancoderB.getPosition();
-
     boolean haveDevices = cancoderA != null && cancoderB != null;
 
     if (haveDevices) {
 
-      return new AbsSensorRead(true, absPositionASignal, absPositionBSignal, "ok");
+      return new AbsSensorRead(
+          true, absPositionASignal, absPositionBSignal, "ok", CRTStatus.NOT_ATTEMPTED);
     }
-    return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES");
+    return new AbsSensorRead(false, Double.NaN, Double.NaN, "NO_DEVICES", CRTStatus.NOT_ATTEMPTED);
   }
 
   /** Build the CRT config */
@@ -280,9 +281,6 @@ public class TurretSubsystem extends SubsystemBase {
         .withMechanismRange(Rotations.of(-0.3), Rotations.of(1.3))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
-    // } else {
-    //   return null;
-    // }
   }
 
   /** Publish CRT config-derived values for debugging coverage/ratios. */
@@ -321,5 +319,6 @@ public class TurretSubsystem extends SubsystemBase {
     return MathUtil.inputModulus(cancoderA.get() - ShooterConstants.EncoderAOffset, 0, 1);
   }
 
-  private static record AbsSensorRead(boolean ok, double absA, double absB, String status) {}
+  private static record AbsSensorRead(
+      boolean ok, double absA, double absB, String deviceStatus, CRTStatus crtStatus) {}
 }

@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Second;
@@ -38,14 +36,14 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              1, 0, 0, DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45))
+              1, 0, 0) // , DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45))
           .withSimClosedLoopController(
-              50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+              35, 0, 0) // , DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
           // Feedforward Constants
           .withFeedforward(new ArmFeedforward(0, 0, 0))
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("ArmMotor", TelemetryVerbosity.LOW)
+          .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -66,16 +64,16 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
           // Soft limit is applied to the SmartMotorControllers PID
-          .withSoftLimits(Degrees.of(-110), Degrees.of(0))
+          .withSoftLimits(Degrees.of(-100), Degrees.of(0))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-70), Degrees.of(10))
+          .withHardLimit(Degrees.of(-110), Degrees.of(10))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
           .withLength(Feet.of(3))
           .withMass(Pounds.of(1))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("Arm", TelemetryVerbosity.LOW);
+          .withTelemetry("Arm", TelemetryVerbosity.HIGH);
 
   private Arm arm = new Arm(armCfg);
 
@@ -89,6 +87,19 @@ public class IntakeArmSubsystem extends SubsystemBase {
   }
 
   /**
+   * Move the arm to the desired Angle with a given tolerance, then end the command when within
+   * tolerance.
+   *
+   * @param angle
+   * @param tolerance
+   * @return A command that will move the Arm to the desired Angle within the desired tolerance,
+   *     then end the command
+   */
+  public Command runToAngle(Angle angle, Angle tolerance) {
+    return arm.runTo(angle, tolerance);
+  }
+
+  /**
    * Move the arm up and down.
    *
    * @param dutycycle [-1, 1] speed to set the arm too.
@@ -99,7 +110,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
   /** Run sysId on the {@link Arm} */
   public Command sysId() {
-    return arm.sysId(Volts.of(7), Volts.of(2).per(Second), Seconds.of(4));
+    return arm.sysId(Volts.of(5), Volts.of(1).per(Second), Seconds.of(8));
   }
 
   public IntakeArmSubsystem() {}

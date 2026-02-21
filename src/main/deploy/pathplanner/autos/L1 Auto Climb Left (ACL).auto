@@ -5,9 +5,16 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Left Start to Climb"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Left Start to Climb"
+                }
+              }
+            ]
           }
         }
       ]

@@ -174,25 +174,150 @@ public class ScoringSystem {
         .withName("Superstructure.aimAndWait");
   }
 
-  public Command shootCommand(AngularVelocity velocity) {
-    return shooter.setVelocity(velocity);
+  /**
+   * Command that converts the inputed value into RPM and sets the Shooter's velocity in the
+   * forwards direction
+   *
+   * @param velocity
+   * @return A command that runs the Shooter forwards with RPM
+   */
+  public Command setShooterRPMForwards(int velocity) {
+    return shooter.setVelocity(RPM.of(velocity));
+  }
+
+  /**
+   * Command that converts the inputed value into RPM and sets the Shooter's velocity in the reverse
+   * direction
+   *
+   * @param velocity
+   * @return A command that runs the Shooter forwards with RPM
+   */
+  public Command setShooterRPMReverse(int velocity) {
+    return shooter.setVelocity(RPM.of(-velocity));
+  }
+
+  /**
+   * Command that runs the TopIntake and BottomIntake in the forwards direction using DutyCycle
+   *
+   * @param topSpeed
+   * @param bottomSpeed
+   * @return A command that runs the TopIntake and BottomIntake forwards with DutyCycle
+   */
+  public Command runIntakeForwards(double topSpeed, double bottomSpeed) {
+    return topIntake.set(topSpeed).alongWith(bottomIntake.set(bottomSpeed));
+  }
+
+  /**
+   * Command that runs the TopIntake and BottomIntake in the reverse direction using DutyCycle
+   *
+   * @param topSpeed
+   * @param bottomSpeed
+   * @return A command that runs the TopIntake and BottomIntake in reverse with DutyCycle
+   */
+  public Command runIntakeReverse(double topSpeed, double bottomSpeed) {
+    return topIntake.set(-topSpeed).alongWith(bottomIntake.set(-bottomSpeed));
+  }
+
+  /**
+   * Command that runs the Input and Spindexer (after a short delay) in the forwards direction using
+   * DutyCycle
+   *
+   * @param speedInput
+   * @param speedSpindexer
+   * @return A command that runs the Input and Spindexer forwards with DutyCycle
+   */
+  public Command runInputAndIdexerForwards(double speedInput, double speedSpindexer) {
+    return input
+        .set(speedInput)
+        .alongWith(new WaitCommand(.25).andThen(spindexer.set(-speedSpindexer)));
+  }
+
+  /**
+   * Command that runs the Input and Spindexer in the reverse direction using DutyCycle
+   *
+   * @param speedInput
+   * @param speedSpindexer
+   * @return A command that runs the Input and Spindexer in reverse with DutyCycle
+   */
+  public Command runInputAndIdexerReverse(double speedInput, double speedSpindexer) {
+    return input.set(-speedInput).alongWith(spindexer.set(speedSpindexer));
+  }
+
+  // TODO add velocity version of forward and reverse and add a auto calculated version using
+  // Gabriellas PID code
+
+  /**
+   * Command that moves the turret to the right using DutyCycle
+   *
+   * @param dutyCycle
+   * @return A command that turns the Turret rigth with DutyCycle
+   */
+  public Command turnTurretRight(double dutyCycle) {
+    return turret.set(-dutyCycle);
+  }
+
+  /**
+   * Command that moves the turret to the left using DutyCycle
+   *
+   * @param dutyCycle
+   * @return A command that turns the Turret left with DutyCycle
+   */
+  public Command turnTurretLeft(double dutyCycle) {
+    return turret.set(dutyCycle);
+  }
+
+  /**
+   * Command that moves the Arm up using DutyCycle
+   *
+   * @param dutyCycle
+   * @return A command that moves the Arm up with DutyCycle
+   */
+  public Command armUp(double dutyCycle) {
+    return intakeArm.set(dutyCycle);
+  }
+
+  /**
+   * Command that moves the Arm down using DutyCycle
+   *
+   * @param dutyCycle
+   * @return A command that moves the Arm down with DutyCycle
+   */
+  public Command armDown(double dutyCycle) {
+    return intakeArm.set(-dutyCycle);
+  }
+
+  /**
+   * Command that moves the Arm up and down to specific setpoints using position control
+   *
+   * @return A command that moves the Arm up and down to specific setpoints using position control
+   */
+  public Command useArmToAgitate() {
+    return intakeArm
+        .runToAngle(Degrees.of(-10), Degrees.of(1))
+        .andThen(intakeArm.runToAngle(Degrees.of(-90), Degrees.of(1)));
+  }
+
+  public Command setIntakeUpAndHold(Angle angle) {
+    return intakeArm.setAngle(angle);
+  }
+
+  public Command setIntakeDownAndHold(Angle angle) {
+    return intakeArm.setAngle(angle);
   }
 
   public Command spindexerCommand(AngularVelocity velocity) {
     return spindexer.setVelocity(velocity);
   }
 
-  public Command shootWithSpin(
-      AngularVelocity shootVelocity, AngularVelocity spinVelocity, AngularVelocity inputVelocity) {
-    return shootCommand(shootVelocity)
-        .alongWith(new WaitCommand(.5))
-        .andThen(inputAndSpindexer(inputVelocity, spinVelocity));
-  }
+  // public Command shootWithSpin(
+  //     AngularVelocity shootVelocity, AngularVelocity spinVelocity, AngularVelocity inputVelocity)
+  // {
+  //   return shootCommand(shootVelocity)
+  //       .alongWith(new WaitCommand(.5))
+  //       .andThen(inputAndSpindexer(inputVelocity, spinVelocity));
+  // }
 
-  public Command pullIntake(Angle angle) {
-    return intakeArm.setAngle(angle);
-  }
-
+  // TODO this should run the runTo command
   public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed) {
     return intakeArm
         .setAngle(angle)
@@ -200,22 +325,10 @@ public class ScoringSystem {
         .alongWith(bottomIntake.set(bottomSpeed));
   }
 
-  public Command inputAndSpindexer(AngularVelocity speedInput, AngularVelocity speedSpindexer) {
-    return input.setVelocity(speedInput).alongWith(spindexer.setVelocity(speedSpindexer));
-  }
-
   public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity) {
     return shooter
         .setVelocity(shooterVelocity)
         .alongWith(new WaitCommand(.5).andThen(input.setVelocity(inputVelocity)));
-  }
-
-  public Command moveTurretLeft(double num) {
-    return turret.set(num);
-  }
-
-  public Command moveTurretRight() {
-    return turret.set(-.2);
   }
 
   public Command setTurretForward() {
