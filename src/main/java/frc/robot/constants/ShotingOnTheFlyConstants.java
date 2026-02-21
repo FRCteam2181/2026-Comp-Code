@@ -14,5 +14,5 @@ public class ShotingOnTheFlyConstants {
           Inches.of(16.945).in(Meters),
           new Rotation3d(0, 0, 180));
 
-  public static final double loopPeriodSecs = 0.02;
+  public static final double loopPeriodSecs = 0.01;
 }

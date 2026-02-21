@@ -6,8 +6,12 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Rotations;
 
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -15,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.BottomIntakeSubsystem;
@@ -25,7 +30,10 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.utils.field.FieldConstants;
+import frc.robot.utils.field.ZoneTrigger;
 import java.util.function.Supplier;
+import lombok.*;
 
 /**
  * Superstructure coordinates the shooter, turret, hood, and intake subsystems for unified control
@@ -62,6 +70,10 @@ public class ScoringSystem {
 
   // Default aim point is red hub
   private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
+
+  private Pose2d climbPose =
+      new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(0))
+          .plus(DrivebaseConstants.climberOffset);
 
   public ScoringSystem(
       ShooterSubsystem shooter,
@@ -204,7 +216,7 @@ public class ScoringSystem {
    * @return A command that runs the TopIntake and BottomIntake forwards with DutyCycle
    */
   public Command runIntakeForwards(double topSpeed, double bottomSpeed) {
-    return topIntake.set(topSpeed).alongWith(bottomIntake.set(bottomSpeed));
+    return topIntake.set(topSpeed).alongWith(bottomIntake.set(0));
   }
 
   /**
@@ -215,7 +227,7 @@ public class ScoringSystem {
    * @return A command that runs the TopIntake and BottomIntake in reverse with DutyCycle
    */
   public Command runIntakeReverse(double topSpeed, double bottomSpeed) {
-    return topIntake.set(-topSpeed).alongWith(bottomIntake.set(-bottomSpeed));
+    return topIntake.set(-topSpeed).alongWith(bottomIntake.set(0));
   }
 
   /**
@@ -245,6 +257,16 @@ public class ScoringSystem {
 
   // TODO add velocity version of forward and reverse and add a auto calculated version using
   // Gabriellas PID code
+
+  public Command runInputAndIdexerAtShooterSpeed() {
+    return input
+        .setVelocity(RPM.of(0.95 * (this.targetShooterSpeed).magnitude()))
+        .alongWith(
+            new WaitCommand(.25)
+                .andThen(
+                    spindexer.setVelocity(
+                        (RPM.of(-9 * 0.8 * (this.targetShooterSpeed).magnitude())))));
+  }
 
   /**
    * Command that moves the turret to the right using DutyCycle
@@ -377,6 +399,15 @@ public class ScoringSystem {
     this.aimPoint = newAimPoint;
   }
 
+  public Pose2d getClimbPose() {
+    return new Pose2d(
+        new Translation2d(climbPose.getX(), climbPose.getY()), Rotation2d.fromDegrees(90));
+  }
+
+  public void setAimPoint(Pose2d newPose2d) {
+    this.climbPose = newPose2d;
+  }
+
   public Rotation3d getAimRotation3d() {
     // See
     // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
@@ -400,5 +431,20 @@ public class ScoringSystem {
         // Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
         // real robot values
         getAimRotation3d());
+  }
+
+  /** A class that holds various triggers for control logic. */
+  public static class CustomTriggers {
+    public static ZoneTrigger bumpZone =
+        new ZoneTrigger(
+            "Bump",
+            Pair.of(new Translation2d(3.75, 1.5), new Translation2d(5.5, 3.5)),
+            Pair.of(new Translation2d(3.75, 4.5), new Translation2d(5.5, 6.5)),
+            Pair.of(new Translation2d(11, 4.5), new Translation2d(12.75, 6.5)),
+            Pair.of(new Translation2d(11, 1.5), new Translation2d(12.75, 3.5)));
+
+    public static ZoneTrigger scoringZone =
+        new ZoneTrigger(
+            "Scoring", Pair.of(new Translation2d(1.5, 0.5), new Translation2d(3.5, 7.5)));
   }
 }

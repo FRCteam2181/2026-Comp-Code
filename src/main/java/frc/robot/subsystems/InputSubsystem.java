@@ -34,11 +34,11 @@ public class InputSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
-          .withClosedLoopController(0, 0, 0)
-          .withSimClosedLoopController(0, 0, 0)
+          .withClosedLoopController(.01, 0, .175)
+          .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0.0, 0.0, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           // Telemetry name and verbosity level
           .withTelemetry("FeederMotor", TelemetryVerbosity.LOW)
           // Gearing from the motor rotor to final shaft.

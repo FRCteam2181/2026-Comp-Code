@@ -34,4 +34,11 @@ public class DrivebaseConstants {
   public static final Transform2d robotOffset =
       new Transform2d(
           Inches.of(17).in(Meters), Inches.of(0).in(Meters), Rotation2d.fromDegrees(180));
+
+  public static final Transform2d climberOffset =
+      new Transform2d(
+          Inches.of(17.25).in(Meters), Inches.of(-1).in(Meters), Rotation2d.fromDegrees(180));
+  // bumpers are 3.75 inches thick
+  // 12.5in from back of robot
+  // 27/2 is 13.5
 }

@@ -299,27 +299,34 @@ public class RobotContainer {
 
     // hood up
     // compBoardOne.CompBoardOneButtonSelect().whileTrue();
+    compBoardOne
+        .CompBoardOneButtonSelect()
+        .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
 
     // hood down
 
     // TEMP SysID for arm
     // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
 
+    // TEMP run spindexer and input at velocity
+    compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
     // intake up
     compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
 
     // intake down
-    compBoardOne.CompBoardOneButtonLeft().whileTrue(scoringSystem.armDown(.85));
+    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.85));
 
     // run intake
     compBoardOne
-        .CompBoardOneButtonRight()
+        .CompBoardOneJoystickAsButtonPosX()
         .whileTrue(
             scoringSystem.runIntakeForwards(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
     // shooter shoot
-    compBoardOne.CompBoardOneButtonDown().whileTrue(scoringSystem.setShooterRPMForwards(6100));
+    compBoardOne
+        .CompBoardOneJoystickAsButtonNegY()
+        .whileTrue(scoringSystem.setShooterRPMForwards(6100));
   }
 
   /**

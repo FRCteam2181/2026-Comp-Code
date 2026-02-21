@@ -40,7 +40,7 @@ public class BottomIntakeSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("BottomIntakeWheel", TelemetryVerbosity.LOW)
+          .withTelemetry("BottomIntakeWheel", TelemetryVerbosity.HIGH)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -69,7 +69,7 @@ public class BottomIntakeSubsystem extends SubsystemBase {
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(1000))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("BottomIntakeMech", TelemetryVerbosity.LOW);
+          .withTelemetry("BottomIntakeMech", TelemetryVerbosity.HIGH);
   // Shooter Mechanism
   private FlyWheel bottomIntakeWheel = new FlyWheel(bottomIntakeConfig);
 

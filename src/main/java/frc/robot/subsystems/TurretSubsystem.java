@@ -182,7 +182,7 @@ public class TurretSubsystem extends SubsystemBase {
       startTimer = true;
     }
 
-    if (startUpTimer.hasElapsed(3)) {
+    if (startUpTimer.hasElapsed(6)) {
       delayForCRTDone = true;
     }
 
@@ -276,7 +276,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.472905))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.624698))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.3), Rotations.of(1.3))
         .withMatchTolerance(Rotations.of(0.05))
