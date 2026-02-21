@@ -10,6 +10,7 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
@@ -28,8 +29,8 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeArmSubsystem extends SubsystemBase {
 
-  private SparkMax spark = new SparkMax(14, MotorType.kBrushless);
-  // private SparkMax sparkFollower = new SparkMax(65, MotorType.kBrushless);
+  private SparkMax armLeader = new SparkMax(14, MotorType.kBrushless);
+  private SparkMax armFollower = new SparkMax(25, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -55,11 +56,12 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Seconds.of(0.25))
-          .withOpenLoopRampRate(Seconds.of(0.25));
+          .withOpenLoopRampRate(Seconds.of(0.25))
+          .withFollowers(Pair.of(armFollower, true));
   // .withFollowers(Pair.of(sparkFollower, true));
 
   private SmartMotorController sparkSmartMotorController =
-      new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+      new SparkWrapper(armLeader, DCMotor.getNEO(1), smcConfig);
 
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
