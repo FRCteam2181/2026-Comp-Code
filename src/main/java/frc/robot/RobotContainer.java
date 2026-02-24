@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.BottomIntakeSubsystem;
+// import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
@@ -70,7 +70,7 @@ public class RobotContainer {
   private final ClimberSubsystem climber = new ClimberSubsystem();
 
   private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
-  private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
+  // private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
@@ -89,7 +89,7 @@ public class RobotContainer {
           drivebase,
           intakeArm,
           topintake,
-          bottomintake,
+          // bottomintake,
           spindexer,
           input); // intakeArm, climber, topintake, spindexer,
 
@@ -153,8 +153,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
-                new ShootOnTheMoveCommandRevised(
-                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint()),
+                new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
                 input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85))))
             .withTimeout(5));
 
@@ -165,7 +164,7 @@ public class RobotContainer {
         "Intake Down",
         topintake
             .set(IntakeConstants.kBottomIntakeDutyCycle)
-            .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
+            // .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
             .withTimeout(5));
 
     NamedCommands.registerCommand("Run Intake", intakeArm.set(-.85).withTimeout(3));
@@ -174,7 +173,8 @@ public class RobotContainer {
         "Intake Down + Start",
         scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(-90, Degrees), 0.5, 0.5));
     NamedCommands.registerCommand(
-        "Intake Up + Stop", scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0));
+        "Intake Up + Stop",
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0).withTimeout(0.5));
     NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
     // Have the autoChooser pull in all PathPlanner autos as options
@@ -219,7 +219,7 @@ public class RobotContainer {
     }
 
     topintake.setDefaultCommand(topintake.set(0));
-    bottomintake.setDefaultCommand(bottomintake.set(0));
+    // bottomintake.setDefaultCommand(bottomintake.set(0));
 
     shooter.setDefaultCommand(shooter.set(0));
 
@@ -257,73 +257,78 @@ public class RobotContainer {
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
 
-    // Joystick Buttons
+    // Buttonboard Buttons
 
-    // Reverse shooter
+    // 1. Reverse shooter
     compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
 
-    // Reverse intake
+    // 2. Reverse intake
     compBoardOne
         .CompBoardOneButtonB()
         .whileTrue(
             scoringSystem.runIntakeReverse(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    // Reverse spindexer and input
+    // 3. Reverse spindexer and input
     compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65, .85));
 
-    // light show
+    // 4. light show
     // compBoardOne.CompBoardOneButtonD().whileTrue();
 
-    // Turret dutycycle left
+    // 5. Turret dutycycle left
     compBoardOne.CompBoardOneButtonL1().whileTrue(scoringSystem.turnTurretLeft(.2));
 
-    // Turret dutycycle right
+    // 6. Turret dutycycle right
     compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
-    // AutoAim
+    // 7. AutoAim
     compBoardOne
         .CompBoardOneButtonL2()
         .toggleOnTrue(
-            new ShootOnTheMoveCommandRevised(
-                    drivebase, scoringSystem, () -> scoringSystem.getAimPoint())
+            new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
                 .withName("OperatorControls.aimCommand"));
 
-    // Run spindexer+input
+    // 8. Run spindexer+input
     compBoardOne
         .CompBoardOneButtonR2()
         .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
 
-    // Run spindexer+input w/ arm agitation
+    // 9. Run spindexer+input w/ arm agitation
     compBoardOne.CompBoardOneButtonStart().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
 
-    // hood up
+    // 10. hood up
     // compBoardOne.CompBoardOneButtonSelect().whileTrue();
+    // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is UNTESTED
+    // on the real robot
     compBoardOne
         .CompBoardOneButtonSelect()
         .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
 
-    // hood down
+    // 11. hood down
 
     // TEMP SysID for arm
     // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
 
     // TEMP run spindexer and input at velocity
+    // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
+    // related to the shooter's speed and is UNTESTED on the real robot
+    // shooter must be running using the autoaim, otherwise will return 0 for both
     compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
-    // intake up
+
+    // 12. intake up
     compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
 
-    // intake down
+    // 13. intake down
     compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.85));
 
-    // run intake
+    // 14. run intake
     compBoardOne
         .CompBoardOneJoystickAsButtonPosX()
         .whileTrue(
             scoringSystem.runIntakeForwards(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    // shooter shoot
+    // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
         .whileTrue(scoringSystem.setShooterRPMForwards(6100));

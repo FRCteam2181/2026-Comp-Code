@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Telemetry;
+import frc.robot.constants.ShotingOnTheFlyConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -19,7 +20,9 @@ import java.util.List;
 import java.util.function.Supplier;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.ExtensionMethod;
 
+@ExtensionMethod({GeomUtil.class})
 /** Zone Helper class to handle flipping n such. */
 public class ZoneTrigger {
   /** The list of rectangle zones. */
@@ -70,7 +73,10 @@ public class ZoneTrigger {
     /// This should be changed on differing projects.
     this.setBothTables(Telemetry.Publishers.Robot.zoneTable);
     this.reloadPublishers(zoneName); // Reloads the publishers with our new tables.
-    this.setPoseSupplier(() -> SwerveSubsystem.SwerveState.CurrentPose);
+    this.setPoseSupplier(
+        () ->
+            SwerveSubsystem.SwerveState.CurrentPose.transformBy(
+                ShotingOnTheFlyConstants.robotToTurret.toTransform2d()));
 
     // Sets the trigger telling when our robot is within the zone.
     this.trigger = new Trigger(() -> containsPose(this.getPoseSupplier()));

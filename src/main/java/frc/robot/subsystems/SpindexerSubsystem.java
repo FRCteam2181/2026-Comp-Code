@@ -16,6 +16,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -24,7 +25,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class SpindexerSubsystem extends SubsystemBase {
@@ -34,13 +34,13 @@ public class SpindexerSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
-          .withClosedLoopController(.01, 0, .175)
+          .withClosedLoopController(.013352, 0, 0)
           .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0.54016, 0.93321, 0.1404))
           .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("SpindexerMotor", TelemetryVerbosity.LOW)
+          .withTelemetry("Spindexer Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -66,8 +66,9 @@ public class SpindexerSubsystem extends SubsystemBase {
           .withMass(Pounds.of(1))
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
+          .withLowerSoftLimit(RPM.of(-6784 * 4))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("SpindexerMech", TelemetryVerbosity.LOW);
+          .withTelemetry("Spindexer", Telemetry.telemetryVerbosity.yamsVerbosity);
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);

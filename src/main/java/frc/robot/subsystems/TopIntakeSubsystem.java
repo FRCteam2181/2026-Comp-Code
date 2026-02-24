@@ -16,6 +16,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.constants.IntakeConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -25,7 +26,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class TopIntakeSubsystem extends SubsystemBase {
@@ -40,7 +40,7 @@ public class TopIntakeSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("TopIntakeMotor", TelemetryVerbosity.HIGH)
+          .withTelemetry("Top Intake Roller Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -68,7 +68,7 @@ public class TopIntakeSubsystem extends SubsystemBase {
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(1000))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("TopIntakeMech", TelemetryVerbosity.HIGH);
+          .withTelemetry("Top Intake Roller", Telemetry.telemetryVerbosity.yamsVerbosity);
 
   private FlyWheel topIntakeWheel = new FlyWheel(topIntakeConfig);
 

@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Twist2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
@@ -26,18 +25,12 @@ import frc.robot.systems.ScoringSystem;
 import frc.robot.utils.field.AllianceFlipUtil;
 import frc.robot.utils.field.FieldConstants;
 import frc.robot.utils.field.GeomUtil;
-import java.util.function.Supplier;
 import lombok.experimental.ExtensionMethod;
 
 @ExtensionMethod({GeomUtil.class})
 public class ShootOnTheMoveCommandRevised extends Command {
   private final SwerveSubsystem drivetrain;
   private final ScoringSystem superstructure;
-
-  private Supplier<Translation3d> aimPointSupplier; // The point to aim at
-  // private AngularVelocity latestShootSpeed;
-  // private Angle latestHoodAngle;
-  // private Angle latestTurretAngle;
 
   private final LinearFilter turretAngleFilter =
       LinearFilter.movingAverage((int) (0.1 / ShotingOnTheFlyConstants.loopPeriodSecs));
@@ -102,13 +95,9 @@ public class ShootOnTheMoveCommandRevised extends Command {
     timeOfFlightMap.put(1.38, 0.90);
   }
 
-  public ShootOnTheMoveCommandRevised(
-      SwerveSubsystem drivetrain,
-      ScoringSystem superstructure,
-      Supplier<Translation3d> aimPointSupplier) {
+  public ShootOnTheMoveCommandRevised(SwerveSubsystem drivetrain, ScoringSystem superstructure) {
     this.drivetrain = drivetrain;
     this.superstructure = superstructure;
-    this.aimPointSupplier = aimPointSupplier;
   }
 
   @Override
@@ -165,6 +154,36 @@ public class ShootOnTheMoveCommandRevised extends Command {
 
     Translation2d target =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+
+    if (ScoringSystem.CustomTriggers.scoringZone.getTrigger().getAsBoolean()) {
+
+      target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    }
+    ;
+
+    if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
+
+      target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    }
+    ;
+
+    if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
+
+      target =
+          AllianceFlipUtil.apply(
+              FieldConstants.LeftBump.nearRightCorner.plus(
+                  new Translation2d(0, Inches.of(36.5).in(Meters))));
+    }
+    ;
+
+    if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
+
+      target =
+          AllianceFlipUtil.apply(
+              FieldConstants.RightBump.nearRightCorner.plus(
+                  new Translation2d(0, Inches.of(36.5).in(Meters))));
+    }
+    ;
 
     // if (inScoringZone(turretPosition).getAsBoolean()) {
     //   target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());

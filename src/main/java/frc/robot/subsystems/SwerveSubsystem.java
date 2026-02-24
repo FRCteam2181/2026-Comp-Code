@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.Telemetry;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
 import frc.robot.utils.field.FieldConstants;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
 import lombok.Setter;
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
@@ -56,13 +58,12 @@ import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
-  private final SwerveDrive swerveDrive;
+  @Getter private final SwerveDrive swerveDrive;
 
-  private PhotonVision vision;
+  @Getter private PhotonVision vision;
 
   /** Enable vision odometry updates while driving. */
   private final boolean visionDriveTest = true;
@@ -106,7 +107,7 @@ public class SwerveSubsystem extends SubsystemBase {
             : FieldConstants.Hub.nearFace.plus(DrivebaseConstants.robotOffset);
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being
     // created.
-    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    SwerveDriveTelemetry.verbosity = Telemetry.telemetryVerbosity.yagslVerbosity;
     try {
       swerveDrive =
           new SwerveParser(directory).createSwerveDrive(DrivebaseConstants.MAX_SPEED, startingPose);

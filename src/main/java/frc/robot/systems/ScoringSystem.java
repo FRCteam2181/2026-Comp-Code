@@ -20,9 +20,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.DrivebaseConstants;
-import frc.robot.constants.GenericConstants;
 // import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.BottomIntakeSubsystem;
+// import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.InputSubsystem;
 import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -49,7 +48,7 @@ public class ScoringSystem {
   // public final ClimberSubsystem climber;
   // public final TopIntakeSubsystem intake;
   public final TopIntakeSubsystem topIntake;
-  public final BottomIntakeSubsystem bottomIntake;
+  // public final BottomIntakeSubsystem bottomIntake;
   public final SpindexerSubsystem spindexer;
   public final InputSubsystem input;
 
@@ -69,7 +68,9 @@ public class ScoringSystem {
   private Angle targetHoodAngle = Degrees.of(0);
 
   // Default aim point is red hub
-  private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
+  // private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
+
+  public Translation2d aimTarget = FieldConstants.Hub.topCenterPoint.toTranslation2d();
 
   private Pose2d climbPose =
       new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(0))
@@ -82,7 +83,7 @@ public class ScoringSystem {
       IntakeArmSubsystem intakeArm,
       // ClimberSubsystem climber,
       TopIntakeSubsystem topIntake,
-      BottomIntakeSubsystem bottomIntake,
+      // BottomIntakeSubsystem bottomIntake,
       SpindexerSubsystem spindexer,
       InputSubsystem
           input) { // HoodSubsystem hood,TopIntakeSubsystem topIntake, BottomIntakeSubsystem
@@ -98,7 +99,7 @@ public class ScoringSystem {
     this.input = input;
     // this.hood = hood;
     this.topIntake = topIntake;
-    this.bottomIntake = bottomIntake;
+    // this.bottomIntake = bottomIntake;
 
     // Create triggers for checking if mechanisms are at their targets
     this.isShooterAtSpeed =
@@ -216,7 +217,7 @@ public class ScoringSystem {
    * @return A command that runs the TopIntake and BottomIntake forwards with DutyCycle
    */
   public Command runIntakeForwards(double topSpeed, double bottomSpeed) {
-    return topIntake.set(topSpeed).alongWith(bottomIntake.set(0));
+    return topIntake.set(topSpeed); // .alongWith(bottomIntake.set(0));
   }
 
   /**
@@ -227,7 +228,7 @@ public class ScoringSystem {
    * @return A command that runs the TopIntake and BottomIntake in reverse with DutyCycle
    */
   public Command runIntakeReverse(double topSpeed, double bottomSpeed) {
-    return topIntake.set(-topSpeed).alongWith(bottomIntake.set(0));
+    return topIntake.set(-topSpeed); // .alongWith(bottomIntake.set(0));
   }
 
   /**
@@ -341,10 +342,8 @@ public class ScoringSystem {
 
   // TODO this should run the runTo command
   public Command intakeSetAndStart(Angle angle, double topSpeed, double bottomSpeed) {
-    return intakeArm
-        .setAngle(angle)
-        .andThen(topIntake.set(topSpeed))
-        .alongWith(bottomIntake.set(bottomSpeed));
+    return intakeArm.setAngle(angle).andThen(topIntake.set(topSpeed));
+    // .alongWith(bottomIntake.set(bottomSpeed));
   }
 
   public Command shooterAndInput(AngularVelocity shooterVelocity, AngularVelocity inputVelocity) {
@@ -391,13 +390,13 @@ public class ScoringSystem {
     return targetHoodAngle;
   }
 
-  public Translation3d getAimPoint() {
-    return aimPoint;
-  }
+  // public Translation3d getAimPoint() {
+  //   return aimPoint;
+  // }
 
-  public void setAimPoint(Translation3d newAimPoint) {
-    this.aimPoint = newAimPoint;
-  }
+  // public void setAimPoint(Translation3d newAimPoint) {
+  //   this.aimPoint = newAimPoint;
+  // }
 
   public Pose2d getClimbPose() {
     return new Pose2d(
@@ -446,5 +445,23 @@ public class ScoringSystem {
     public static ZoneTrigger scoringZone =
         new ZoneTrigger(
             "Scoring", Pair.of(new Translation2d(1.5, 0.5), new Translation2d(3.5, 7.5)));
+
+    public static ZoneTrigger leftNeutralZone =
+        new ZoneTrigger(
+            "Left Neutral",
+            Pair.of(
+                new Translation2d(
+                    FieldConstants.LinesVertical.starting, FieldConstants.LinesHorizontal.center),
+                new Translation2d(
+                    FieldConstants.LinesVertical.oppAllianceZone, FieldConstants.fieldWidth)));
+
+    public static ZoneTrigger rightNeutralZone =
+        new ZoneTrigger(
+            "Right Neutral",
+            Pair.of(
+                new Translation2d(FieldConstants.LinesVertical.starting, 0),
+                new Translation2d(
+                    FieldConstants.LinesVertical.oppAllianceZone,
+                    FieldConstants.LinesHorizontal.center)));
   }
 }

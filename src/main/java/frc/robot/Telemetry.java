@@ -33,31 +33,31 @@ public class Telemetry {
       // Zones
       public static final NetworkTable zoneTable = robotTable.getSubTable("Zones");
       private static final String smartDashboardRobotPath = smartDashboardPath + "RobotTelemetry/";
-      // Input Selection
-      public static final SmartDashboardPublisher inputPublisher =
-          new SmartDashboardPublisher(smartDashboardRobotPath + "Input Selector");
-      public static final StringPublisher inputOverride =
-          robotTable.getSubTable("Input Selector").getStringTopic("selected").publish();
+      // // Input Selection
+      // public static final SmartDashboardPublisher inputPublisher =
+      //     new SmartDashboardPublisher(smartDashboardRobotPath + "Input Selector");
+      // public static final StringPublisher inputOverride =
+      //     robotTable.getSubTable("Input Selector").getStringTopic("selected").publish();
 
-      /// Mech3d Publishers
-      public static class Mech3D {
-        public static final NetworkTable mechTable = robotTable.getSubTable("Mech3DTelemetry");
-        public static final StructPublisher<Pose3d> hoodPose =
-            mechTable.getStructTopic("Hood Pose", Pose3d.struct).publish();
-        public static final StructPublisher<Pose3d> turretPose =
-            mechTable.getStructTopic("Turret Pose", Pose3d.struct).publish();
-      }
+      // /// Mech3d Publishers
+      // public static class Mech3D {
+      //   public static final NetworkTable mechTable = robotTable.getSubTable("Mech3DTelemetry");
+      //   public static final StructPublisher<Pose3d> hoodPose =
+      //       mechTable.getStructTopic("Hood Pose", Pose3d.struct).publish();
+      //   public static final StructPublisher<Pose3d> turretPose =
+      //       mechTable.getStructTopic("Turret Pose", Pose3d.struct).publish();
+      // }
     }
 
-    /// MapleSim Publishers
-    public static class MapleSim {
-      // Table for maple sim publishers.
-      private static final NetworkTable mapleTable =
-          NetworkTableInstance.getDefault().getTable("SmartDashboard/MapleSim");
-      // Generic Game Piece Publisher.
-      public static final StructArrayPublisher<Pose3d> elementPublisher =
-          mapleTable.getStructArrayTopic("Fuel", Pose3d.struct).publish();
-    }
+    // /// MapleSim Publishers
+    // public static class MapleSim {
+    //   // Table for maple sim publishers.
+    //   private static final NetworkTable mapleTable =
+    //       NetworkTableInstance.getDefault().getTable("SmartDashboard/MapleSim");
+    //   // Generic Game Piece Publisher.
+    //   public static final StructArrayPublisher<Pose3d> elementPublisher =
+    //       mapleTable.getStructArrayTopic("Fuel", Pose3d.struct).publish();
+    // }
   }
 
   /// Initializes any need data. Called statically.
@@ -72,13 +72,13 @@ public class Telemetry {
 
   /// Updates all of our custom telemetry
   public static void updateTelemetry() {
-    // Input
-    Publishers.Robot.inputPublisher.update();
+    // // Input
+    // Publishers.Robot.inputPublisher.update();
 
     if (RobotBase.isSimulation()) {
-      // MapleSim
-      Publishers.MapleSim.elementPublisher.accept(
-          SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
+      // // MapleSim
+      // Publishers.MapleSim.elementPublisher.accept(
+      //     SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
   }
 

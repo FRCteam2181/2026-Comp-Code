@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.constants.ShooterConstants;
 import java.util.function.Supplier;
 import yams.gearing.GearBox;
@@ -32,7 +33,6 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 import yams.telemetry.SmartMotorControllerTelemetryConfig;
 import yams.units.EasyCRT;
@@ -96,7 +96,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
             .withIdleMode(MotorMode.BRAKE)
-            .withTelemetry("TurretMotorV2", TelemetryVerbosity.LOW)
+            .withTelemetry("Turret Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
             .withStatorCurrentLimit(Amps.of(40))
             // .withSupplyCurrentLimit(Amps.of(4))
             .withMotorInverted(true)
@@ -118,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
     pivotConfig =
         new PivotConfig(motor)
             .withHardLimit(Rotations.of(-.3), Rotations.of(1.3))
-            .withTelemetry("Turret", TelemetryVerbosity.LOW)
+            .withTelemetry("Turret", Telemetry.telemetryVerbosity.yamsVerbosity)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
             .withMOI(0.2);

@@ -16,6 +16,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -24,13 +25,12 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class IntakeArmSubsystem extends SubsystemBase {
 
   private SparkMax armLeader = new SparkMax(14, MotorType.kBrushless);
-  private SparkMax armFollower = new SparkMax(25, MotorType.kBrushless);
+  private SparkMax armFollower = new SparkMax(13, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -44,7 +44,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withFeedforward(new ArmFeedforward(0, 0, 0))
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
+          .withTelemetry("Arm Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -61,7 +61,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
   // .withFollowers(Pair.of(sparkFollower, true));
 
   private SmartMotorController sparkSmartMotorController =
-      new SparkWrapper(armLeader, DCMotor.getNEO(1), smcConfig);
+      new SparkWrapper(armLeader, DCMotor.getNEO(2), smcConfig);
 
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
@@ -75,7 +75,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withLength(Feet.of(3))
           .withMass(Pounds.of(1))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("Arm", TelemetryVerbosity.HIGH);
+          .withTelemetry("Arm", Telemetry.telemetryVerbosity.yamsVerbosity);
 
   private Arm arm = new Arm(armCfg);
 
