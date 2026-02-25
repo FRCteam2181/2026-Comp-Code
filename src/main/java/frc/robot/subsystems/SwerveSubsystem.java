@@ -36,8 +36,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.Telemetry;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
+import frc.robot.utils.field.FieldConstants;
 import gg.questnav.questnav.*;
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +47,8 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+import lombok.Getter;
+import lombok.Setter;
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -54,11 +58,12 @@ import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
-import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
-  private final SwerveDrive swerveDrive;
+  @Getter private final SwerveDrive swerveDrive;
+
+  @Getter private PhotonVision vision;
 
   /** Enable vision odometry updates while driving. */
   private final boolean visionDriveTest = true;
@@ -72,7 +77,18 @@ public class SwerveSubsystem extends SubsystemBase {
           .getStructTopic("Quest Robot Pose", Pose2d.struct)
           .publish();
 
+  private Timer startUpTimer = new Timer();
+  private boolean startTimer = false;
+  private boolean delayBeforeQuestSeeding = false;
+  private boolean questSeeded = false;
+
   Field2d m_field2d = new Field2d();
+
+  public static class SwerveState {
+    @Setter public static Supplier<SwerveDrive> swerveDrive = () -> null;
+    @Setter public static Pose2d CurrentPose = Pose2d.kZero;
+    @Setter public static ChassisSpeeds CurrentSpeeds = new ChassisSpeeds();
+  }
 
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
@@ -87,11 +103,11 @@ public class SwerveSubsystem extends SubsystemBase {
     boolean blueAlliance = false;
     Pose2d startingPose =
         blueAlliance
-            ? new Pose2d(new Translation2d(Meter.of(1), Meter.of(4)), Rotation2d.fromDegrees(0))
-            : new Pose2d(new Translation2d(Meter.of(16), Meter.of(4)), Rotation2d.fromDegrees(180));
+            ? FieldConstants.Hub.nearFace.plus(DrivebaseConstants.robotOffset)
+            : FieldConstants.Hub.nearFace.plus(DrivebaseConstants.robotOffset);
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being
     // created.
-    SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+    SwerveDriveTelemetry.verbosity = Telemetry.telemetryVerbosity.yagslVerbosity;
     try {
       swerveDrive =
           new SwerveParser(directory).createSwerveDrive(DrivebaseConstants.MAX_SPEED, startingPose);
@@ -116,12 +132,14 @@ public class SwerveSubsystem extends SubsystemBase {
     // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal
     // encoder and push the offsets onto it. Throws warning if not possible
     if (visionDriveTest) {
-
+      setupPhotonVision();
       // Stop the odometry thread if we are using vision that way we can synchronize updates better.
       swerveDrive.stopOdometryThread();
     }
 
     setupPathPlanner();
+
+    SwerveState.setSwerveDrive(this::getSwerveDrive);
   }
 
   /**
@@ -140,6 +158,10 @@ public class SwerveSubsystem extends SubsystemBase {
             new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)), Rotation2d.fromDegrees(0)));
   }
 
+  public void setupPhotonVision() {
+    vision = new PhotonVision(swerveDrive::getPose, swerveDrive.field);
+  }
+
   @Override
   public void periodic() {
     m_field2d.setRobotPose(this.getPose());
@@ -149,56 +171,71 @@ public class SwerveSubsystem extends SubsystemBase {
 
     if (visionDriveTest) {
       // QuestNav
-      // if (questNav.getConnected() && questNav.getTrackingStatus()) {
-      /*var timestamp = questNav.getTimestamp();
-        var robotPose = questNav.getRobotPose();
-        questPublisher.accept(robotPose);
 
+      if (!startTimer) {
+        startUpTimer.reset();
+        startUpTimer.start();
+        startTimer = true;
+      }
 
-        // Make sure we are inside the field
-        if (robotPose.getX() >= 0.0 && robotPose.getX() <= QuestNavConstants.FIELD_LENGTH.in(Meters) && robotPose.getY() >= 0.0
-            && robotPose.getY() <= QuestNavConstants.FIELD_WIDTH.in(Meters)) {
-          // Add the measurement
-          swerveDrive.addVisionMeasurement(robotPose, timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
+      if (startUpTimer.hasElapsed(20)) {
+        delayBeforeQuestSeeding = true;
+      }
+
+      if (delayBeforeQuestSeeding && questNav.isConnected() && questNav.isTracking()) {
+        questNav.setPose(getPose3d().transformBy(QuestNavConstants.ROBOT_TO_QUEST.inverse()));
+        questSeeded = true;
+      }
+
+      if (delayBeforeQuestSeeding && questSeeded) {
+
+        // Get the latest pose data frames from the Quest
+        PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
+
+        // Loop over the pose data frames and send them to the pose estimator
+        for (PoseFrame questFrame : questFrames) {
+          // Make sure the Quest was tracking the pose for this frame
+          if (questNav.isConnected() && questNav.isTracking()) {
+            // Get the pose of the Quest
+            Pose3d questPose = questFrame.questPose3d();
+            // Get timestamp for when the data was sent
+            double timestamp = questFrame.dataTimestamp();
+
+            // Transform by the mount pose to get your robot pose
+            Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
+
+            // You can put some sort of filtering here if you would like!
+
+            // Add the measurement to our estimator
+            swerveDrive.addVisionMeasurement(
+                robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
           }
-        // }
-      */
-
-      // Get the latest pose data frames from the Quest
-      PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
-
-      // Loop over the pose data frames and send them to the pose estimator
-      for (PoseFrame questFrame : questFrames) {
-        // Make sure the Quest was tracking the pose for this frame
-        if (questFrame.isTracking()) {
-          // Get the pose of the Quest
-          Pose3d questPose = questFrame.questPose3d();
-          // Get timestamp for when the data was sent
-          double timestamp = questFrame.dataTimestamp();
-
-          // Transform by the mount pose to get your robot pose
-          Pose3d robotPose = questPose.transformBy(QuestNavConstants.ROBOT_TO_QUEST);
-
-          // You can put some sort of filtering here if you would like!
-
-          // Add the measurement to our estimator
-          swerveDrive.addVisionMeasurement(
-              robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
         }
       }
-      SmartDashboard.putBoolean("Is Quest Connected", questNav.isConnected());
-      SmartDashboard.putBoolean("Is Tracking", questNav.isTracking());
-      /*SmartDashboard.putNumber("Quest X Value", robotPose.toPose2d());
-      SmartDashboard.putNumber("Quest Y Value", questNav.getRobotPose().getY());*/
+
+      if (!delayBeforeQuestSeeding) {
+
+        vision.updatePoseEstimation(swerveDrive);
+      }
+
       swerveDrive.updateOdometry();
     }
 
     // System.out.print(questNav.getConnected());
-
+    SwerveState.setCurrentPose(swerveDrive.getPose());
   }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    /*for (Fuel fuel : turretVisualizer.fuels){
+      if (turretVisualizer.canIntake() && FuelSim.shouldIntake(null, swerveDrive.getPose(), () -> true, 3)) {
+        turretVisualizer.intakeFuel();
+        System.out.println(turretVisualizer.fuelStored);
+      }
+    }*/
+    // ts flipping pmo bro wtf
+
+  }
 
   /** Setup AutoBuilder for PathPlanner. */
   public void setupPathPlanner() {
@@ -296,6 +333,10 @@ public class SwerveSubsystem extends SubsystemBase {
         constraints,
         edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
         );
+  }
+
+  public void resetAutoBuilderOdometry() {
+    AutoBuilder.resetOdom(swerveDrive.getPose());
   }
 
   /**
@@ -547,6 +588,16 @@ public class SwerveSubsystem extends SubsystemBase {
    */
   public SwerveDriveKinematics getKinematics() {
     return swerveDrive.kinematics;
+  }
+
+  /**
+   * Gets the current 3d pose (position and rotation) of the robot, as reported by odometry.
+   * Transforms into a 3d pose assuming on the XY plane.
+   *
+   * @return
+   */
+  public Pose3d getPose3d() {
+    return new Pose3d(swerveDrive.getPose());
   }
 
   /**

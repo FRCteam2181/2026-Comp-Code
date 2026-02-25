@@ -5,7 +5,6 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -15,27 +14,34 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.BottomIntakeSubsystem;
+// import frc.robot.subsystems.BottomIntakeSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.InputSubsystem;
+import frc.robot.subsystems.IntakeArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.systems.GameData;
+import frc.robot.systems.ScoringSystem;
+import frc.robot.utils.controllerUtils.compBoardOne.CompBoardOne;
 import java.io.File;
 import swervelib.SwerveInputStream;
 
@@ -49,7 +55,9 @@ public class RobotContainer {
 
   // Controllers and Button Board
   final CommandXboxController driverXbox = new CommandXboxController(0);
-  final CommandXboxController operatorControler = new CommandXboxController(1);
+  // final CommandXboxController operatorControler = new CommandXboxController(1);
+  final CompBoardOne compBoardOne;
+  final Joystick buttonBoard = new Joystick(1);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
@@ -62,16 +70,30 @@ public class RobotContainer {
   private final ClimberSubsystem climber = new ClimberSubsystem();
 
   private final TopIntakeSubsystem topintake = new TopIntakeSubsystem();
-  private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
+  // private final BottomIntakeSubsystem bottomintake = new BottomIntakeSubsystem();
 
   private final ShooterSubsystem shooter = new ShooterSubsystem();
   private final TurretSubsystem turret = new TurretSubsystem();
-
+  private final IntakeArmSubsystem intakeArm = new IntakeArmSubsystem();
   private final SpindexerSubsystem spindexer = new SpindexerSubsystem();
-  private final FeederSubsystem feeder = new FeederSubsystem();
+
+  private final GameData gameData = new GameData(drivebase);
+
+  // private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
 
-  private final ArmSubsystem arm = new ArmSubsystem();
+  final ScoringSystem scoringSystem =
+      new ScoringSystem(
+          shooter,
+          turret,
+          drivebase,
+          intakeArm,
+          topintake,
+          // bottomintake,
+          spindexer,
+          input); // intakeArm, climber, topintake, spindexer,
+
+  // private final ArmSubsystem arm = new ArmSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular
@@ -121,11 +143,39 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
+    this.compBoardOne = CompBoardOne.getInstance();
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
 
     // Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+
+    NamedCommands.registerCommand(
+        "Auto Target Then Shoot",
+        new ParallelCommandGroup(
+                new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
+                input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85))))
+            .withTimeout(5));
+
+    NamedCommands.registerCommand(
+        "Localize", Commands.runOnce(() -> drivebase.resetAutoBuilderOdometry(), drivebase));
+
+    NamedCommands.registerCommand(
+        "Intake Down",
+        topintake
+            .set(IntakeConstants.kBottomIntakeDutyCycle)
+            // .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
+            .withTimeout(5));
+
+    NamedCommands.registerCommand("Run Intake", intakeArm.set(-.85).withTimeout(3));
+
+    NamedCommands.registerCommand(
+        "Intake Down + Start",
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(-90, Degrees), 0.5, 0.5));
+    NamedCommands.registerCommand(
+        "Intake Up + Stop",
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0).withTimeout(0.5));
+    NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -138,6 +188,7 @@ public class RobotContainer {
 
     // Put the autoChooser on the SmartDashboard
     SmartDashboard.putData("Auto Chooser", autoChooser);
+    SmartDashboard.putNumber("ShootSpeed", 100);
   }
 
   /**
@@ -168,18 +219,18 @@ public class RobotContainer {
     }
 
     topintake.setDefaultCommand(topintake.set(0));
-    bottomintake.setDefaultCommand(bottomintake.set(0));
+    // bottomintake.setDefaultCommand(bottomintake.set(0));
 
     shooter.setDefaultCommand(shooter.set(0));
 
     spindexer.setDefaultCommand(spindexer.set(0));
 
-    feeder.setDefaultCommand(feeder.set(0));
+    // feeder.setDefaultCommand(feeder.set(0));
     input.setDefaultCommand(input.set(0));
 
     turret.setDefaultCommand(turret.set(0));
 
-    arm.setDefaultCommand(arm.setAngle(Degrees.of(0)));
+    intakeArm.setDefaultCommand(intakeArm.set(0));
 
     if (Robot.isSimulation()) {
       Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
@@ -193,13 +244,6 @@ public class RobotContainer {
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
-      driverXbox.button(1).whileTrue(drivebase.sysIdDriveMotorCommand());
-      driverXbox
-          .button(2)
-          .whileTrue(
-              Commands.runEnd(
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(true),
-                  () -> driveDirectAngleKeyboard.driveToPoseEnabled(false)));
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -211,35 +255,83 @@ public class RobotContainer {
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
-    driverXbox.rightTrigger().whileTrue(climber.c_climbReverse());
+    driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
 
-    operatorControler
-        .a()
+    // Buttonboard Buttons
+
+    // 1. Reverse shooter
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
+
+    // 2. Reverse intake
+    compBoardOne
+        .CompBoardOneButtonB()
         .whileTrue(
-            topintake
-                .set(IntakeConstants.kBottomIntakeDutyCycle)
-                .alongWith(bottomintake.set(-IntakeConstants.kTopIntakeDutyCycle)));
+            scoringSystem.runIntakeReverse(
+                IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    operatorControler.y().whileTrue(shooter.setVelocity(RPM.of(6250)));
+    // 3. Reverse spindexer and input
+    compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65, .85));
 
-    operatorControler
-        .b()
-        .whileTrue(spindexer.set(-.85).alongWith(feeder.set(-0.25).alongWith(input.set(.35))));
+    // 4. light show
+    // compBoardOne.CompBoardOneButtonD().whileTrue();
 
-    operatorControler.rightTrigger().whileTrue(turret.set(.3));
+    // 5. Turret dutycycle left
+    compBoardOne.CompBoardOneButtonL1().whileTrue(scoringSystem.turnTurretLeft(.2));
 
-    operatorControler.leftTrigger().whileTrue(turret.set(-.3));
+    // 6. Turret dutycycle right
+    compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
-    // Schedule `setAngle` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    driverXbox.x().whileTrue(arm.setAngle(Degrees.of(90)));
-    driverXbox.b().whileTrue(arm.setAngle(Degrees.of(0)));
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    // driverXbox.x().whileTrue(arm.set(0.3));
-    // driverXbox.y().whileTrue(arm.set(-0.3));
+    // 7. AutoAim
+    compBoardOne
+        .CompBoardOneButtonL2()
+        .toggleOnTrue(
+            new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
+                .withName("OperatorControls.aimCommand"));
 
-    // operatorControler.leftBumper().whileTrue(turret.sysId());
+    // 8. Run spindexer+input
+    compBoardOne
+        .CompBoardOneButtonR2()
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
+
+    // 9. Run spindexer+input w/ arm agitation
+    compBoardOne.CompBoardOneButtonStart().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
+
+    // 10. hood up
+    // compBoardOne.CompBoardOneButtonSelect().whileTrue();
+    // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is UNTESTED
+    // on the real robot
+    compBoardOne
+        .CompBoardOneButtonSelect()
+        .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
+
+    // 11. hood down
+
+    // TEMP SysID for arm
+    // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
+
+    // TEMP run spindexer and input at velocity
+    // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
+    // related to the shooter's speed and is UNTESTED on the real robot
+    // shooter must be running using the autoaim, otherwise will return 0 for both
+    compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
+
+    // 12. intake up
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
+
+    // 13. intake down
+    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.85));
+
+    // 14. run intake
+    compBoardOne
+        .CompBoardOneJoystickAsButtonPosX()
+        .whileTrue(
+            scoringSystem.runIntakeForwards(
+                IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
+
+    // 15. shooter shoot
+    compBoardOne
+        .CompBoardOneJoystickAsButtonNegY()
+        .whileTrue(scoringSystem.setShooterRPMForwards(6100));
   }
 
   /**

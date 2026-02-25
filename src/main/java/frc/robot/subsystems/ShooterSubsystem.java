@@ -9,15 +9,17 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
 
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Telemetry;
 import frc.robot.constants.ShooterConstants;
+import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.FlyWheelConfig;
@@ -26,15 +28,14 @@ import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
-import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  private SparkFlex shooterLeader =
-      new SparkFlex(ShooterConstants.kShooterLeader_ID, MotorType.kBrushless);
-  private SparkFlex shooterFollower =
-      new SparkFlex(ShooterConstants.kShooterFollower_ID, MotorType.kBrushless);
+  private SparkMax shooterLeader =
+      new SparkMax(ShooterConstants.kShooterLeader_ID, MotorType.kBrushless);
+  private SparkMax shooterFollower =
+      new SparkMax(ShooterConstants.kShooterFollower_ID, MotorType.kBrushless);
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -46,7 +47,7 @@ public class ShooterSubsystem extends SubsystemBase {
           .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           // Telemetry name and verbosity level
-          .withTelemetry("Shooter Leader Motor", TelemetryVerbosity.HIGH)
+          .withTelemetry("Shooter Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.
           // In this example GearBox.fromReductionStages(3,4) is the same as
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
@@ -74,7 +75,7 @@ public class ShooterSubsystem extends SubsystemBase {
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
           // Telemetry name and verbosity for the arm.
-          .withTelemetry("Shooter Mech", TelemetryVerbosity.HIGH);
+          .withTelemetry("Shooter", Telemetry.telemetryVerbosity.yamsVerbosity);
 
   // Shooter Mechanism
   private FlyWheel shooter = new FlyWheel(shooterConfig);
@@ -96,6 +97,14 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command setVelocity(AngularVelocity speed) {
     return shooter.setSpeed(speed);
+  }
+
+  public Command setVelocityDynamic(Supplier<AngularVelocity> speed) {
+    return shooter.setSpeed(speed);
+  }
+
+  public AngularVelocity getSpeed() {
+    return shooter.getSpeed();
   }
 
   /**
