@@ -259,8 +259,8 @@ public class RobotContainer {
 
     // Buttonboard Buttons
 
-    // // 1. Reverse shooter
-    // compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
+    // 1. Reverse shooter
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
 
     // 2. Reverse intake
     compBoardOne
@@ -269,18 +269,18 @@ public class RobotContainer {
             scoringSystem.runIntakeReverse(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    // // 3. Reverse spindexer and input
-    // compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65,
-    // .85));
+    // 3. Reverse spindexer and input
+    compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65,
+    .85));
 
     // // 4. light show
     // // // compBoardOne.CompBoardOneButtonD().whileTrue();
 
-    // // 5. Turret dutycycle left
-    // compBoardOne.CompBoardOneButtonL1().whileTrue(scoringSystem.turnTurretLeft(.2));
+    // 5. Turret dutycycle left
+    compBoardOne.CompBoardOneButtonL1().whileTrue(scoringSystem.turnTurretLeft(.2));
 
-    // // 6. Turret dutycycle right
-    // compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
+    // 6. Turret dutycycle right
+    compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
     // // 7. AutoAim
     // compBoardOne
@@ -290,32 +290,32 @@ public class RobotContainer {
     //             .withName("OperatorControls.aimCommand"));
 
     // // 8. Run spindexer+input
-    // compBoardOne
-    //     .CompBoardOneButtonR2()
-    //     .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
+    compBoardOne
+        .CompBoardOneButtonR2()
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
 
     // // 9. Run spindexer+input w/ arm agitation
-    // compBoardOne.CompBoardOneButtonStart().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
+    compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
 
-    // // 10. hood up
-    // // compBoardOne.CompBoardOneButtonSelect().whileTrue();
-    // // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
+    // 10. hood up
+    // compBoardOne.CompBoardOneButtonStart().whileTrue();
+    // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
     // UNTESTED
     // // on the real robot
     // compBoardOne
     //     .CompBoardOneButtonSelect()
     //     .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
 
-    // // 11. hood down
+    // 11. hood down
 
-    // // TEMP SysID for arm
-    // // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
+    // TEMP SysID for arm
+    // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
 
-    // // TEMP run spindexer and input at velocity
-    // // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
-    // // related to the shooter's speed and is UNTESTED on the real robot
-    // // shooter must be running using the autoaim, otherwise will return 0 for both
-    // compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
+    // TEMP run spindexer and input at velocity
+    // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
+    // related to the shooter's speed and is UNTESTED on the real robot
+    // shooter must be running using the autoaim, otherwise will return 0 for both
+    compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
     compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
@@ -330,10 +330,10 @@ public class RobotContainer {
             scoringSystem.runIntakeForwards(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
-    // // 15. shooter shoot
-    // compBoardOne
-    //     .CompBoardOneJoystickAsButtonNegY()
-    //     .whileTrue(scoringSystem.setShooterRPMForwards(6100));
+    // 15. shooter shoot
+    compBoardOne
+        .CompBoardOneJoystickAsButtonNegY()
+        .whileTrue(scoringSystem.setShooterRPMForwards(6100));
   }
 
   /**

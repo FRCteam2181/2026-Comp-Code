@@ -242,7 +242,7 @@ public class ScoringSystem {
   public Command runInputAndIdexerForwards(double speedInput, double speedSpindexer) {
     return input
         .set(speedInput)
-        .alongWith(new WaitCommand(.25).andThen(spindexer.set(-speedSpindexer)));
+        .alongWith(new WaitCommand(.25).andThen(spindexer.set(speedSpindexer)));
   }
 
   /**
@@ -253,7 +253,7 @@ public class ScoringSystem {
    * @return A command that runs the Input and Spindexer in reverse with DutyCycle
    */
   public Command runInputAndIdexerReverse(double speedInput, double speedSpindexer) {
-    return input.set(-speedInput).alongWith(spindexer.set(speedSpindexer));
+    return input.set(-speedInput).alongWith(spindexer.set(-speedSpindexer));
   }
 
   // TODO add velocity version of forward and reverse and add a auto calculated version using
@@ -266,7 +266,7 @@ public class ScoringSystem {
             new WaitCommand(.25)
                 .andThen(
                     spindexer.setVelocity(
-                        (RPM.of(-9 * 0.8 * (this.targetShooterSpeed).magnitude())))));
+                        (RPM.of(9 * 0.8 * (this.targetShooterSpeed).magnitude())))));
   }
 
   /**

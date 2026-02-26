@@ -39,7 +39,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withClosedLoopController(
               1, 0, 0) // , DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45))
           .withSimClosedLoopController(
-              35, 0, 0) // , DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+              50, 0, 0) // , DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
           // Feedforward Constants
           .withFeedforward(new ArmFeedforward(0, 0, 0))
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
@@ -52,12 +52,12 @@ public class IntakeArmSubsystem extends SubsystemBase {
           // You could also use .withGearing(12) which does the same thing.
           .withGearing(new MechanismGearing(GearBox.fromReductionStages(45)))
           // Motor properties to prevent over currenting.
-          .withMotorInverted(true)
+          .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
-          .withFollowers(Pair.of(armFollower, true));
+          .withFollowers(Pair.of(armFollower, false));
   // .withFollowers(Pair.of(sparkFollower, true));
 
   private SmartMotorController sparkSmartMotorController =
