@@ -171,7 +171,9 @@ public class Vision extends SubsystemBase{
           SmartDashboard.putBoolean("hasTargets", targets.get(targets.size() - 1).hasTargets());
           // System.out.println("getBestTarget() = " + targets.get(targets.size() - 1).getBestTarget());
           // getDistanceToTarget();
-          getBestCameraToTarget();
+          SmartDashboard.putNumber("Target X", getBestObjectPose().getX());
+          SmartDashboard.putNumber("Target Y", getBestObjectPose().getY());
+          SmartDashboard.putNumber("Target Z", getBestObjectPose().getZ());
         }
       } catch(IndexOutOfBoundsException a) {
         System.out.println("ts code tweaking");
@@ -236,6 +238,12 @@ public class Vision extends SubsystemBase{
     }
 
     return 0;
+  }
+
+  public Pose3d getBestTargetPose() {
+    // double distance = getDistanceToTarget()
+    Pose3d position = new Pose3d(new Translation3d(currentPose.get().getTranslation()).plus(getBestCameraToTarget().rotateBy(new Rotation3d(currentPose.get().getRotation()))), new Rotation3d(currentPose.get().getRotation()));
+    return position;
   }
 
   public Translation3d getBestCameraToTarget(){
