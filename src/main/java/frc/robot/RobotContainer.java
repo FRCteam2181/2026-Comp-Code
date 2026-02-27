@@ -270,8 +270,7 @@ public class RobotContainer {
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
     // 3. Reverse spindexer and input
-    compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65,
-    .85));
+    compBoardOne.CompBoardOneButtonC().whileTrue(scoringSystem.runInputAndIdexerReverse(.65, .85));
 
     // // 4. light show
     // // // compBoardOne.CompBoardOneButtonD().whileTrue();
@@ -282,12 +281,12 @@ public class RobotContainer {
     // 6. Turret dutycycle right
     compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
-    // // 7. AutoAim
-    // compBoardOne
-    //     .CompBoardOneButtonL2()
-    //     .toggleOnTrue(
-    //         new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
-    //             .withName("OperatorControls.aimCommand"));
+    // 7. AutoAim
+    compBoardOne
+        .CompBoardOneButtonL2()
+        .toggleOnTrue(
+            new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
+                .withName("OperatorControls.aimCommand"));
 
     // // 8. Run spindexer+input
     compBoardOne
@@ -315,13 +314,13 @@ public class RobotContainer {
     // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
     // related to the shooter's speed and is UNTESTED on the real robot
     // shooter must be running using the autoaim, otherwise will return 0 for both
-    compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
+    // compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
-    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.25));
 
     // 13. intake down
-    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.85));
+    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.35));
 
     // 14. run intake
     compBoardOne
