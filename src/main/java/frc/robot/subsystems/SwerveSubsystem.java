@@ -4,7 +4,13 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
@@ -28,6 +34,9 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -59,6 +68,8 @@ import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
+// import com.ctre.phoenix6.controls.MusicTone;
+
 public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
   @Getter private final SwerveDrive swerveDrive;
@@ -67,6 +78,8 @@ public class SwerveSubsystem extends SubsystemBase {
 
   /** Enable vision odometry updates while driving. */
   private final boolean visionDriveTest = true;
+
+  TurretVisualizer turretVisualizer;
 
   /** QuestNav class to keep accurate odometry. */
   QuestNav questNav = new QuestNav();
@@ -138,6 +151,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     setupPathPlanner();
+
+    turretVisualizer =
+        new TurretVisualizer(
+            () -> new Pose3d(swerveDrive.getPose()), swerveDrive::getFieldVelocity);
 
     SwerveState.setSwerveDrive(this::getSwerveDrive);
   }
@@ -213,7 +230,7 @@ public class SwerveSubsystem extends SubsystemBase {
         }
       }
 
-      if (!delayBeforeQuestSeeding) {
+      if (!questSeeded) {
 
         vision.updatePoseEstimation(swerveDrive);
       }
@@ -223,6 +240,91 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // System.out.print(questNav.getConnected());
     SwerveState.setCurrentPose(swerveDrive.getPose());
+  }
+
+  public void intakeFuel() {
+
+    // System.out.println("before intakeFuel = " + RobotContainer.timerThing.get());
+    turretVisualizer.intakeFuel();
+    // System.out.println("after intakeFuel = " + RobotContainer.timerThing.get());
+
+    // RobotContainer.timerThing.reset();
+  }
+
+  public void launchFuel(AngularVelocity velocity, Angle angle) {
+    // var vel = shooterAimer.getVelocity();
+
+    // shooterAimer.updateSim(getPose(), getFieldVelocity());
+    // Distance FIELD_LENGTH = Inches.of(650.12);
+    // Distance FIELD_WIDTH = Inches.of(316.64);
+    // ShotData calculatedShot =
+    //     shooterAimer.iterativeMovingShotFromFunnelClearance(
+    //         swerveDrive.getPose(),
+    //         swerveDrive.getFieldVelocity(),
+    //         new Translation3d(
+    //             Inches.of(650.12).minus(Inches.of(181.56)),
+    //             Inches.of(316.64).div(2),
+    //             Inches.of(56.4)),
+    //         3);
+    // Angle azimuthAngle =
+    //     shooterAimer.calculateAzimuthAngle(swerveDrive.getPose(), calculatedShot.target());
+    // AngularVelocity azimuthVelocity =
+    //     RadiansPerSecond.of(-swerveDrive.getFieldVelocity().omegaRadiansPerSecond);
+    // System.out.println(
+    //     "ShotData = "
+    //         + calculatedShot
+    //         + "\n"
+    //         + "azimuthAngle = "
+    //         + azimuthAngle
+    //         + "\n"
+    //         + "azimuthVelocity = "
+    //         + azimuthVelocity);
+    // System.out.println("shooterAimer.getVelocity() = " + shooterAimer.getVelocity());
+    // System.out.println(
+    //     "shooterAimer.getTurretPitchAngle() = "
+    //         + Units.radiansToDegrees(shooterAimer.getTurretPitchAngle()));
+    // System.out.println("shooterAimer.getTurretAngle() = " + shooterAimer.getTurretAngle());
+
+    // System.out.println(
+    //     "LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond) = "
+    //         + LinearVelocity.ofBaseUnits(shooterAimer.getVelocity(), InchesPerSecond));
+    // System.out.println(
+    //     "Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians) = "
+    //         + Angle.ofBaseUnits(shooterAimer.getTurretPitchAngle(), Radians));
+    // System.out.println(
+    //     "Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians) = "
+    //         + Angle.ofBaseUnits(shooterAimer.getTurretAngle(), Radians));
+
+    // Shot shot = ShooterAimer.getShotData(getPose(), getFieldVelocity(), 0);
+
+    // System.out.println("before launchFuel = " + RobotContainer.timerThing.get());
+    LinearVelocity vel =
+        MetersPerSecond.of(velocity.in(RadiansPerSecond) * Inches.of(2).in(Meters) / 5);
+    turretVisualizer.launchFuel(vel, Degrees.of(47), angle);
+
+    System.out.println(
+        "Angular Velocity = "
+            + velocity.in(RadiansPerSecond)
+            + ", Linear Velocity = "
+            + vel.in(MetersPerSecond));
+    System.out.println(
+        "Angular Velocity 2000 = "
+            + AngularVelocity.ofBaseUnits(2000, RPM)
+            + ", Linear Velocity 2000 = "
+            + LinearVelocity.ofBaseUnits(
+                AngularVelocity.ofBaseUnits(2000, RPM)
+                    .times(Units.inchesToMeters(2) * Math.PI * 2 / 60.0)
+                    .baseUnitMagnitude(),
+                MetersPerSecond));
+    // System.out.println("after launchFuel = " + RobotContainer.timerThing.get());
+
+    // turretVisualizer.updateFuelDrag(
+    //     LinearVelocity.ofBaseUnits(
+    //         velocity.times(Units.inchesToMeters(2)).baseUnitMagnitude(), MetersPerSecond),
+    //     Angle.ofBaseUnits(-43, Degrees),
+    //     angle);
+    // System.out.println("after updateFuel = " + RobotContainer.timerThing.get());
+    // RobotContainer.timerThing.reset();
   }
 
   @Override

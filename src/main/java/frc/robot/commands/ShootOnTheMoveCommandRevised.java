@@ -16,6 +16,7 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -43,7 +44,7 @@ public class ShootOnTheMoveCommandRevised extends Command {
   private double hoodAngle = Double.NaN;
   private double turretVelocity;
   private double hoodVelocity;
-  private AngularVelocity lastShootSpeed;
+  public AngularVelocity lastShootSpeed;
 
   public record LaunchingParameters(
       boolean isValid,
@@ -236,7 +237,11 @@ public class ShootOnTheMoveCommandRevised extends Command {
 
     // Calculate parameters accounted for imparted velocity
     turretAngle =
-        target.minus(lookaheadPose.getTranslation()).getAngle().minus(estimatedPose.getRotation());
+        target
+            .minus(lookaheadPose.getTranslation())
+            .getAngle()
+            .minus(
+                estimatedPose.getRotation().plus(new Rotation2d(Angle.ofBaseUnits(.5, Rotations))));
     hoodAngle = launchHoodAngleMap.get(lookaheadTurretToTargetDistance).getRadians();
     if (lastTurretAngle == null) lastTurretAngle = turretAngle;
     if (Double.isNaN(lastHoodAngle)) lastHoodAngle = hoodAngle;
@@ -260,6 +265,16 @@ public class ShootOnTheMoveCommandRevised extends Command {
             launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
 
     lastShootSpeed = RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
+
+    System.out.println(
+        "lastTurretAngle = "
+            + turretAngle.getMeasure()
+            + ", lastShootSpeed = "
+            + RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)));
+
+    superstructure.setTurretVelocitySim(
+        RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)));
+    superstructure.setTurretAngleSim(turretAngle.getMeasure());
 
     superstructure.setShooterSetpoints(
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
@@ -308,5 +323,15 @@ public class ShootOnTheMoveCommandRevised extends Command {
                             FieldConstants.LinesVertical.oppAllianceZone,
                             FieldConstants.fieldWidth)))
                 .contains(turretPose.getTranslation()));
+  }
+
+  public Angle getAngle() {
+    System.out.println(lastTurretAngle.getMeasure());
+    return lastTurretAngle.getMeasure();
+  }
+
+  public AngularVelocity getSpeed() {
+    System.out.println(lastShootSpeed);
+    return lastShootSpeed;
   }
 }

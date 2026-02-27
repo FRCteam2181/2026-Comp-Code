@@ -12,7 +12,7 @@ public class ShotingOnTheFlyConstants {
           Inches.of(-5.25).in(Meters),
           Inches.of(5.25).in(Meters),
           Inches.of(16.945).in(Meters),
-          new Rotation3d(0, 0, 180));
+          new Rotation3d(0, 0, 0));
 
   public static final double loopPeriodSecs = 0.01;
 }

@@ -5,16 +5,19 @@
 package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -39,8 +43,10 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.subsystems.TurretVisualizer;
 import frc.robot.systems.GameData;
 import frc.robot.systems.ScoringSystem;
+import frc.robot.utils.FuelSim;
 import frc.robot.utils.controllerUtils.compBoardOne.CompBoardOne;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -81,6 +87,9 @@ public class RobotContainer {
 
   // private final FeederSubsystem feeder = new FeederSubsystem();
   private final InputSubsystem input = new InputSubsystem();
+  private TurretVisualizer turretVisualizer =
+      new TurretVisualizer(
+          () -> new Pose3d(drivebase.getPose()), () -> drivebase.getFieldVelocity());
 
   final ScoringSystem scoringSystem =
       new ScoringSystem(
@@ -92,6 +101,8 @@ public class RobotContainer {
           // bottomintake,
           spindexer,
           input); // intakeArm, climber, topintake, spindexer,
+
+  Command SOTM = new ShootOnTheMoveCommandRevised(drivebase, scoringSystem);
 
   // private final ArmSubsystem arm = new ArmSubsystem();
 
@@ -244,6 +255,8 @@ public class RobotContainer {
           .start()
           .onTrue(
               Commands.runOnce(() -> drivebase.resetOdometry(new Pose2d(3, 3, new Rotation2d()))));
+
+      configureFuelSim();
     }
     if (DriverStation.isTest()) {
       drivebase.setDefaultCommand(
@@ -251,11 +264,61 @@ public class RobotContainer {
 
       driverXbox.rightBumper().onTrue(Commands.none());
     } else {
-      driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
+      //   driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
       driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
+
+    driverXbox
+        .a()
+        .whileTrue(
+            Commands.runOnce(
+                    () -> new ShootOnTheMoveCommandRevised(drivebase, scoringSystem).execute(),
+                    drivebase)
+                .andThen(
+                    new RunCommand(
+                        () ->
+                            drivebase.launchFuel(
+                                scoringSystem.getTurretVelocitySim(),
+                                scoringSystem.getTurretAngleSim()),
+                        drivebase)));
+    SOTM.execute();
+    driverXbox
+        .y()
+        .whileTrue(new RunCommand(() -> System.out.println(SOTM.getSubsystem()), drivebase));
+
+    // driverXbox.y().whileTrue(SOTM.andThen(new RunCommand(
+    //             () ->
+    //                 System.out.println(
+    //                     "Speed = "
+    //                         + SOTM.getSpeed()
+    //                         + ", Angle = "
+    //                         + new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
+    //                             .getAngle()),
+    //             drivebase)));
+    // driverXbox
+    //     .y()
+    //     .whileTrue(
+    //         new RunCommand(
+    //             () ->
+    //                 System.out.println(
+    //                     "Speed = "
+    //                         + new ShootOnTheMoveCommandRevised(drivebase,
+    // scoringSystem).getSpeed()
+    //                         + ", Angle = "
+    //                         + new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
+    //                             .getAngle()),
+    //             drivebase));
+    driverXbox
+        .x()
+        .whileTrue(
+            new RunCommand(
+                () ->
+                    drivebase.launchFuel(
+                        AngularVelocity.ofBaseUnits(2000, RPM), Angle.ofBaseUnits(0, Degrees)),
+                drivebase));
+    driverXbox.b().whileTrue(new RunCommand(() -> drivebase.intakeFuel(), drivebase));
 
     // Buttonboard Buttons
 
@@ -332,6 +395,35 @@ public class RobotContainer {
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
         .whileTrue(scoringSystem.setShooterRPMForwards(6100));
+  }
+
+  private void configureFuelSim() {
+    FuelSim instance = FuelSim.getInstance();
+    instance.spawnStartingFuel();
+    instance.registerRobot(
+        Units.inchesToMeters(30), // Dimensions.FULL_WIDTH.in(Meters)
+        Units.inchesToMeters(30), // Dimensions.FULL_LENGTH.in(Meters)
+        Units.inchesToMeters(4), // Dimensions.BUMPER_HEIGHT.in(Meters)
+        drivebase::getPose,
+        drivebase::getFieldVelocity);
+    instance.registerIntake(
+        -Units.inchesToMeters(15), // -Dimensions.FULL_LENGTH.div(2).in(Meters),
+        Units.inchesToMeters(15), // Dimensions.FULL_LENGTH.div(2).in(Meters),
+        -Units.inchesToMeters(
+            15 + 7), // -Dimensions.FULL_WIDTH.div(2).plus(Inches.of(7)).in(Meters),
+        -Units.inchesToMeters(15), // -Dimensions.FULL_WIDTH.div(2).in(Meters),
+        () -> true,
+        () -> turretVisualizer.intakeFuel());
+
+    instance.start();
+    SmartDashboard.putData(
+        Commands.runOnce(
+                () -> {
+                  FuelSim.getInstance().clearFuel();
+                  FuelSim.getInstance().spawnStartingFuel();
+                })
+            .withName("Reset Fuel")
+            .ignoringDisable(true));
   }
 
   /**

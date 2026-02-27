@@ -52,6 +52,9 @@ public class ScoringSystem {
   public final SpindexerSubsystem spindexer;
   public final InputSubsystem input;
 
+  public AngularVelocity turretVelocitySim;
+  public Angle turretAngleSim;
+
   // Tolerance for "at setpoint" checks
   private static final AngularVelocity SHOOTER_TOLERANCE = RPM.of(100);
   private static final Angle TURRET_TOLERANCE = Degrees.of(1);
@@ -185,6 +188,22 @@ public class ScoringSystem {
     return aimDynamicCommand(() -> shooterSpeed, () -> turretAngle, () -> hoodAngle)
         .andThen(waitUntilReadyCommand())
         .withName("Superstructure.aimAndWait");
+  }
+
+  public void setTurretVelocitySim(AngularVelocity velocity) {
+    turretVelocitySim = velocity;
+  }
+
+  public AngularVelocity getTurretVelocitySim() {
+    return turretVelocitySim;
+  }
+
+  public void setTurretAngleSim(Angle angle) {
+    turretAngleSim = angle;
+  }
+
+  public Angle getTurretAngleSim() {
+    return turretAngleSim;
   }
 
   /**

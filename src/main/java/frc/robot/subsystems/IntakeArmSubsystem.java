@@ -4,10 +4,12 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.Pair;
@@ -31,6 +33,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
   private SparkMax armLeader = new SparkMax(14, MotorType.kBrushless);
   private SparkMax armFollower = new SparkMax(13, MotorType.kBrushless);
+
+  private AbsoluteEncoder armEncoder = armLeader.getAbsoluteEncoder();
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -99,6 +103,11 @@ public class IntakeArmSubsystem extends SubsystemBase {
    */
   public Command runToAngle(Angle angle, Angle tolerance) {
     return arm.runTo(angle, tolerance);
+  }
+
+  public void seedArmPosition() {
+    sparkSmartMotorController.setEncoderPosition(Rotations.of(armEncoder.getPosition()).times(45));
+    ;
   }
 
   /**

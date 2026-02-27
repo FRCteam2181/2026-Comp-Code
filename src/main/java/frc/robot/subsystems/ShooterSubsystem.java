@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.RPM;
+import static edu.wpi.first.units.Units.Seconds;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -15,8 +16,10 @@ import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Telemetry;
 import frc.robot.constants.ShooterConstants;
 import java.util.function.Supplier;
@@ -105,6 +108,21 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public AngularVelocity getSpeed() {
     return shooter.getSpeed();
+  }
+
+  public Command vibrate(Frequency frequency) {
+    return this.runEnd(
+        () ->
+            shooter
+                .setSpeed(RPM.of(0.01))
+                .andThen(
+                    new WaitCommand(Seconds.of(1 / (frequency.magnitude())))
+                        .andThen(
+                            shooter
+                                .setSpeed(RPM.of(-0.01))
+                                .andThen(
+                                    new WaitCommand(Seconds.of(1 / (frequency.magnitude())))))),
+        () -> shooter.setSpeed(RPM.of(0)));
   }
 
   /**
