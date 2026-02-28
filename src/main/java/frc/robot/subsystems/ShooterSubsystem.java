@@ -45,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
           .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
           .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withSimFeedforward(new SimpleMotorFeedforward(0.02, 0.011858, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Shooter Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.

@@ -82,6 +82,10 @@ public class ShootOnTheMoveCommandRevised extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
+    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8250.0);
+    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0);
+    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0);
+    launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7600.0);
     launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7500.0);
     launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 7000.0);
     launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6800.0);
@@ -116,11 +120,11 @@ public class ShootOnTheMoveCommandRevised extends Command {
               return this.lastShootSpeed;
             },
             () -> {
-              if (this.lastTurretAngle.getRotations() < 0) {
-                return Rotations.of(this.lastTurretAngle.getRotations() + 1);
-              } else {
-                return Rotations.of(this.lastTurretAngle.getRotations());
-              }
+              // if (this.lastTurretAngle.getRotations() < 0) {
+              //  return Rotations.of(this.lastTurretAngle.getRotations() + 1);
+              // } else {
+              return Rotations.of(this.lastTurretAngle.getRotations());
+              // }
             },
             () -> {
               return Rotations.of(this.lastHoodAngle);
@@ -260,7 +264,7 @@ public class ShootOnTheMoveCommandRevised extends Command {
             launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
 
     lastShootSpeed = RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
-
+    // SmartDashboard.putNumber("distance to turret", lookaheadTurretToTargetDistance);
     superstructure.setShooterSetpoints(
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
         Rotations.of(turretAngle.getRotations()),

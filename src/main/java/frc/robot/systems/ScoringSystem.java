@@ -73,7 +73,7 @@ public class ScoringSystem {
   public Translation2d aimTarget = FieldConstants.Hub.topCenterPoint.toTranslation2d();
 
   private Pose2d climbPose =
-      new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(0))
+      new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(180))
           .plus(DrivebaseConstants.climberOffset);
 
   public ScoringSystem(
@@ -400,7 +400,7 @@ public class ScoringSystem {
 
   public Pose2d getClimbPose() {
     return new Pose2d(
-        new Translation2d(climbPose.getX(), climbPose.getY()), Rotation2d.fromDegrees(90));
+        new Translation2d(climbPose.getX(), climbPose.getY()), Rotation2d.fromDegrees(-90));
   }
 
   public void setAimPoint(Pose2d newPose2d) {
@@ -413,7 +413,7 @@ public class ScoringSystem {
     return new Rotation3d(
         Degrees.of(0), // no roll 🤞
         Degrees.of(0), // hood.getAngle().unaryMinus(), // pitch is negative hood angle
-        turret.getRawAngle());
+        turret.getRawAngle()); // TODO maybe 180
   }
 
   // public Command useRequirement() {
@@ -426,7 +426,7 @@ public class ScoringSystem {
     // element is based on hood and turret angles
     return new Pose3d(
         new Translation3d(
-            Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
+            Inches.of(5.25).in(Meters), -Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
         // Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
         // real robot values
         getAimRotation3d());

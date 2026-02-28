@@ -291,6 +291,7 @@ public class RobotContainer {
     // // 8. Run spindexer+input
     compBoardOne
         .CompBoardOneButtonR2()
+        // .whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
         .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
 
     // // 9. Run spindexer+input w/ arm agitation
@@ -301,9 +302,9 @@ public class RobotContainer {
     // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
     // UNTESTED
     // // on the real robot
-    // compBoardOne
-    //     .CompBoardOneButtonSelect()
-    //     .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
+    compBoardOne
+        .CompBoardOneButtonStart()
+        .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
 
     // 11. hood down
 
@@ -332,7 +333,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(6100));
+        .whileTrue(scoringSystem.setShooterRPMForwards(7800));
   }
 
   /**

@@ -243,7 +243,7 @@ public class TurretSubsystem extends SubsystemBase {
       return;
     }
 
-    Angle turretRotations = solvedAngle.get().plus(Angle.ofBaseUnits(Math.PI, Rotations));
+    Angle turretRotations = solvedAngle.get(); // .plus(Angle.ofBaseUnits(Math.PI, Rotations));
     motor.setEncoderPosition(turretRotations);
     rotorSeededFromAbs = true;
     lastSeededTurretDeg = turretRotations.in(Degrees);

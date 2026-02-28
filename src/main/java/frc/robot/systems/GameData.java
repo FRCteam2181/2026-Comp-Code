@@ -133,7 +133,7 @@ public class GameData extends SubsystemBase {
     } else {
       // Code for no data received yet
       canShootBool = true;
-      System.out.print("IHATEMYLFIE");
+      // System.out.print("IHATEMYLFIE");
     }
     return canShootBool;
   }
