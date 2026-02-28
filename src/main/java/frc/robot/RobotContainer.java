@@ -154,7 +154,7 @@ public class RobotContainer {
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
                 new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
-                input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(-.85))))
+                input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85))))
             .withTimeout(5));
 
     NamedCommands.registerCommand(
@@ -256,6 +256,7 @@ public class RobotContainer {
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
+    driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
 
     // Buttonboard Buttons
 
@@ -302,14 +303,15 @@ public class RobotContainer {
     // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
     // UNTESTED
     // // on the real robot
-    compBoardOne
-        .CompBoardOneButtonStart()
-        .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
+    // compBoardOne
+    //     .CompBoardOneButtonStart()
+    //     .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
+    compBoardOne.CompBoardOneButtonStart().whileTrue(intakeArm.setAngle(Degrees.of(-100)));
 
     // 11. hood down
 
     // TEMP SysID for arm
-    // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.sysId());
+    compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
 
     // TEMP run spindexer and input at velocity
     // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
@@ -318,7 +320,7 @@ public class RobotContainer {
     // compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
-    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.25));
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.35));
 
     // 13. intake down
     compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.35));
@@ -333,7 +335,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(7800));
+        .whileTrue(scoringSystem.setShooterRPMForwards(6500));
   }
 
   /**

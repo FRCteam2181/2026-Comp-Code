@@ -151,6 +151,11 @@ public class TurretSubsystem extends SubsystemBase {
     return turret.setAngle(angle);
   }
 
+  public Command setTurretSetpoint(Angle angle){
+
+    return turret.setMechanismPositionSetpoint(angle);
+  }
+
   public Command setAngleDynamic(Supplier<Angle> angle) {
     return turret.setAngle(angle);
   }
@@ -276,9 +281,9 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.556454))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.519223))
         .withAbsoluteEncoderInversions(false, false)
-        .withMechanismRange(Rotations.of(-0.3), Rotations.of(1.3))
+        .withMechanismRange(Rotations.of(-0.3), Rotations.of(.3))
         .withMatchTolerance(Rotations.of(0.05))
         .withCrtGearRecommendationConstraints(1.2, 15, 60, 40);
   }

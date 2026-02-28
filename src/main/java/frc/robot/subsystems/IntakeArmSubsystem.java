@@ -37,11 +37,11 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
           .withClosedLoopController(
-              1, 0, 0) // , DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45))
+              2.5, 0, 0) // , DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45))
           .withSimClosedLoopController(
               50, 0, 0) // , DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
           // Feedforward Constants
-          .withFeedforward(new ArmFeedforward(0, 0, 0))
+          .withFeedforward(new ArmFeedforward(.15, 0, 0))
           .withSimFeedforward(new ArmFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Arm Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
@@ -57,7 +57,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
-          .withFollowers(Pair.of(armFollower, false));
+          .withFollowers(Pair.of(armFollower, false))
+          .withResetPreviousConfig(false);
   // .withFollowers(Pair.of(sparkFollower, true));
 
   private SmartMotorController sparkSmartMotorController =
@@ -68,7 +69,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           // Soft limit is applied to the SmartMotorControllers PID
           .withSoftLimits(Degrees.of(-100), Degrees.of(0))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-110), Degrees.of(10))
+          .withHardLimit(Degrees.of(-110), Degrees.of(20))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
@@ -112,7 +113,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
   /** Run sysId on the {@link Arm} */
   public Command sysId() {
-    return arm.sysId(Volts.of(5), Volts.of(1).per(Second), Seconds.of(8));
+    return arm.sysId(Volts.of(5), Volts.of(3).per(Second), Seconds.of(8));
   }
 
   public IntakeArmSubsystem() {}

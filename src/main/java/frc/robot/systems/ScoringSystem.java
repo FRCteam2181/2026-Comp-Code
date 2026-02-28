@@ -156,6 +156,13 @@ public class ScoringSystem {
     targetHoodAngle = hoodAngle;
   }
 
+
+    public void setShooterSetpointsRevised(AngularVelocity shooterSpeed, Angle turretAngle, Angle hoodAngle){
+      turret.setAngleSetpoint(turretAngle);
+      shooter.setVelocitySetpoint(shooterSpeed);
+
+  }
+
   /**
    * Aims the superstructure using suppliers - useful for dynamic targeting.
    *
@@ -196,6 +203,10 @@ public class ScoringSystem {
    */
   public Command setShooterRPMForwards(int velocity) {
     return shooter.setVelocity(RPM.of(velocity));
+  }
+
+  public Command setShooterDutyCycle(double dutyCycle) {
+    return shooter.set(dutyCycle);
   }
 
   /**
@@ -316,8 +327,8 @@ public class ScoringSystem {
    */
   public Command useArmToAgitate() {
     return intakeArm
-        .runToAngle(Degrees.of(-10), Degrees.of(1))
-        .andThen(intakeArm.runToAngle(Degrees.of(-90), Degrees.of(1)));
+        .runToAngle(Degrees.of(-40), Degrees.of(3))
+        .andThen(intakeArm.runToAngle(Degrees.of(-90), Degrees.of(3)));
   }
 
   public Command setIntakeUpAndHold(Angle angle) {

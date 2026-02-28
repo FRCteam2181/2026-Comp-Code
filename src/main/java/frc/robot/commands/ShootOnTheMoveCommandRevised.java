@@ -313,4 +313,9 @@ public class ShootOnTheMoveCommandRevised extends Command {
                             FieldConstants.fieldWidth)))
                 .contains(turretPose.getTranslation()));
   }
+
+  //   @Override
+  //   public void end(boolean interupted) {
+  //     superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
+  //   }
 }
