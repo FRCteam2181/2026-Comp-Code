@@ -91,7 +91,7 @@ public class TurretSubsystem extends SubsystemBase {
             // .withClosedLoopController(.2, 0, 0)
             .withClosedLoopController(29.68, 0, 2.6489)
             .withSimClosedLoopController(2.596, 0, 0)
-            .withSoftLimit(Rotations.of(-.25), Rotations.of(1.25))
+            .withSoftLimit(Rotations.of(-.25), Rotations.of(.25))
             .withFeedforward(new SimpleMotorFeedforward(0.30397, 4.1323, 0.2806))
             .withSimFeedforward(new SimpleMotorFeedforward(0.45746, 2.1323, 2.2316))
             .withGearing(new MechanismGearing(GearBox.fromStages("4:1", "10:1")))
@@ -117,7 +117,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     pivotConfig =
         new PivotConfig(motor)
-            .withHardLimit(Rotations.of(-.3), Rotations.of(1.3))
+            .withHardLimit(Rotations.of(-.3), Rotations.of(.3))
             .withTelemetry("Turret", Telemetry.telemetryVerbosity.yamsVerbosity)
             .withStartingPosition(Degrees.of(0))
             .withMechanismPositionConfig(robotToMechanism)
@@ -243,7 +243,7 @@ public class TurretSubsystem extends SubsystemBase {
       return;
     }
 
-    Angle turretRotations = solvedAngle.get();
+    Angle turretRotations = solvedAngle.get().plus(Angle.ofBaseUnits(Math.PI, Rotations));
     motor.setEncoderPosition(turretRotations);
     rotorSeededFromAbs = true;
     lastSeededTurretDeg = turretRotations.in(Degrees);
@@ -276,7 +276,7 @@ public class TurretSubsystem extends SubsystemBase {
             () -> Rotations.of(getAbsoluteEncoderWithOffset()),
             () -> Rotations.of(cancoderB.getPosition()))
         .withCommonDriveGear(1, 200, 19, 21)
-        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.624698))
+        .withAbsoluteEncoderOffsets(Rotations.of(0), Rotations.of(-0.556454))
         .withAbsoluteEncoderInversions(false, false)
         .withMechanismRange(Rotations.of(-0.3), Rotations.of(1.3))
         .withMatchTolerance(Rotations.of(0.05))

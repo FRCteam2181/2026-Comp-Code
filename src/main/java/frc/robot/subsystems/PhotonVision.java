@@ -324,11 +324,11 @@ public class PhotonVision {
     /** Right Camera */
     RIGHT_CAM(
         "RIGHT_CAM",
-        new Rotation3d(Math.toRadians(38), Math.toRadians(0), -Math.toRadians(180)),
+        new Rotation3d(Math.toRadians(0), Math.toRadians(0), -Math.toRadians(180)),
         new Translation3d(
-            -Units.inchesToMeters(4.714),
-            -Units.inchesToMeters(8.237),
-            Units.inchesToMeters(8.714)),
+            -Units.inchesToMeters(3.877),
+            -Units.inchesToMeters(7.7375),
+            Units.inchesToMeters(19.0035)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
 
