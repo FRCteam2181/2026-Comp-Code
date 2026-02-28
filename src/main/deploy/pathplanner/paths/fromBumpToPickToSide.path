@@ -1,0 +1,98 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.689,
+        "y": 2.477
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 8.781641025641028,
+        "y": 3.174512820512821
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.781589743589745,
+        "y": 6.035051282051281
+      },
+      "prevControl": {
+        "x": 7.306431051228448,
+        "y": 4.752105863378894
+      },
+      "nextControl": {
+        "x": 6.676935897435898,
+        "y": 6.290871794871795
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.3047564102622244,
+        "y": 5.511782051282052
+      },
+      "prevControl": {
+        "x": 3.5429231071338334,
+        "y": 5.435777942832131
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.1,
+      "rotationDegrees": 45.0
+    },
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 180.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake Down",
+      "waypointRelativePos": 0.04205607476635566,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Run Intake",
+      "waypointRelativePos": 0.17289719626167857,
+      "endWaypointRelativePos": 1.038940809968848,
+      "command": null
+    },
+    {
+      "name": "Localize",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 5.331370317,
+    "maxAcceleration": 2.331370317,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.5,
+    "rotation": 176.3477772196936
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 1.5,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

@@ -88,7 +88,20 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Localize",
+      "waypointRelativePos": 0.4080996884735209,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Localize",
+      "waypointRelativePos": 4.0,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 5.331370317,
     "maxAcceleration": 2.331370317,

@@ -316,10 +316,10 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
-    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.5));
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.35));
 
     // 13. intake down
-    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.85));
+    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.35));
 
     // 14. run intake
     compBoardOne
