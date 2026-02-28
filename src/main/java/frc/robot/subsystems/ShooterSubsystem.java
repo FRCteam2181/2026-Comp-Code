@@ -107,6 +107,11 @@ public class ShooterSubsystem extends SubsystemBase {
     return shooter.getSpeed();
   }
 
+  public void setVelocitySetpoint(AngularVelocity velocity) {
+
+    shooter.setMechanismVelocitySetpoint(velocity);
+  }
+
   /**
    * Set the dutycycle of the shooter.
    *

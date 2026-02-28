@@ -156,11 +156,10 @@ public class ScoringSystem {
     targetHoodAngle = hoodAngle;
   }
 
-
-    public void setShooterSetpointsRevised(AngularVelocity shooterSpeed, Angle turretAngle, Angle hoodAngle){
-      turret.setAngleSetpoint(turretAngle);
-      shooter.setVelocitySetpoint(shooterSpeed);
-
+  public void setShooterSetpointsRevised(
+      AngularVelocity shooterSpeed, Angle turretAngle, Angle hoodAngle) {
+    turret.setTurretSetpoint(turretAngle);
+    shooter.setVelocitySetpoint(shooterSpeed);
   }
 
   /**

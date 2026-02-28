@@ -151,9 +151,14 @@ public class TurretSubsystem extends SubsystemBase {
     return turret.setAngle(angle);
   }
 
-  public Command setTurretSetpoint(Angle angle){
+  public void setTurretSetpoint(Angle angle) {
 
-    return turret.setMechanismPositionSetpoint(angle);
+    turret.setMechanismPositionSetpoint(angle);
+  }
+
+  public void rezeroTurretPosition() {
+
+    motor.setEncoderPosition(Rotations.of(0));
   }
 
   public Command setAngleDynamic(Supplier<Angle> angle) {

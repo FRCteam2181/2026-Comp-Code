@@ -112,8 +112,6 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     lastHoodAngle = superstructure.getHoodAngle().in(Units.Degrees);
     lastTurretAngle = Rotation2d.fromRotations(superstructure.getTurretAngle().in(Units.Degrees));
     lastShootSpeed = superstructure.getShooterSpeed();
-
-
   }
 
   @Override
@@ -253,11 +251,6 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
         Rotations.of(turretAngle.getRotations()),
         Rotations.of(hoodAngle));
-
-  }
-
-  public void clearLaunchingParameters() {
-    latestParameters = null;
   }
 
   public Trigger inScoringZone(Pose2d turretPose) {
@@ -299,8 +292,8 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
                 .contains(turretPose.getTranslation()));
   }
 
-    @Override
-    public void end(boolean interupted) {
-      superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
-    }
+  @Override
+  public void end(boolean interupted) {
+    superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
+  }
 }

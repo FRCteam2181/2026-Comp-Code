@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.ShootOnTheMoveCommandRevised;
+import frc.robot.commands.ShootOnTheMoveCommandRevisedAdjusted;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
 // import frc.robot.subsystems.BottomIntakeSubsystem;
@@ -153,7 +153,7 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
-                new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
+                new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem),
                 input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85))))
             .withTimeout(5));
 
@@ -256,7 +256,9 @@ public class RobotContainer {
     }
     driverXbox.rightBumper().whileTrue(climber.c_climb());
     driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
-    driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    // driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+
+    // driverXbox.leftTrigger().whileTrue(Commands.runOnce(() -> turret.rezeroTurretPosition()));
 
     // Buttonboard Buttons
 
@@ -286,7 +288,7 @@ public class RobotContainer {
     compBoardOne
         .CompBoardOneButtonL2()
         .toggleOnTrue(
-            new ShootOnTheMoveCommandRevised(drivebase, scoringSystem)
+            new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem)
                 .withName("OperatorControls.aimCommand"));
 
     // // 8. Run spindexer+input
