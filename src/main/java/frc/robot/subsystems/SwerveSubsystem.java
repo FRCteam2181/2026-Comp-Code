@@ -26,8 +26,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -68,15 +66,16 @@ public class SwerveSubsystem extends SubsystemBase {
   private final boolean visionDriveTest = true;
 
   /** QuestNav class to keep accurate odometry. */
-  QuestNav questNav = new QuestNav();
+  // QuestNav questNav = new QuestNav();
 
-  private final StructPublisher<Pose2d> questPublisher =
-      NetworkTableInstance.getDefault()
-          .getTable("Drive")
-          .getStructTopic("Quest Robot Pose", Pose2d.struct)
-          .publish();
+  // private final StructPublisher<Pose2d> questPublisher =
+  //     NetworkTableInstance.getDefault()
+  //         .getTable("Drive")
+  //         .getStructTopic("Quest Robot Pose", Pose2d.struct)
+  //         .publish();
 
   private Timer startUpTimer = new Timer();
+
   private boolean startTimer = false;
   private boolean delayBeforeQuestSeeding = false;
   private boolean questSeeded = false;
@@ -98,7 +97,7 @@ public class SwerveSubsystem extends SubsystemBase {
   public SwerveSubsystem(File directory) {
     SmartDashboard.putData("RealField", m_field2d);
     Pose3d initialPose = new Pose3d();
-    questNav.setPose(initialPose);
+    // questNav.setPose(initialPose);
 
     boolean blueAlliance = false;
     Pose2d startingPose =

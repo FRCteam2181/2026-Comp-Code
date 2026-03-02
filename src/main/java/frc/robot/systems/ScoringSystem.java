@@ -29,6 +29,7 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.utils.field.AllianceFlipUtil;
 import frc.robot.utils.field.FieldConstants;
 import frc.robot.utils.field.ZoneTrigger;
 import java.util.function.Supplier;
@@ -72,8 +73,12 @@ public class ScoringSystem {
 
   public Translation2d aimTarget = FieldConstants.Hub.topCenterPoint.toTranslation2d();
 
-  private Pose2d climbPose =
-      new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(180))
+  private Pose2d climbPoseLeft =
+      new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(0))
+          .plus(DrivebaseConstants.climberOffset);
+
+  private Pose2d climbPoseRight =
+      new Pose2d(FieldConstants.Tower.rightUpright, Rotation2d.fromDegrees(0))
           .plus(DrivebaseConstants.climberOffset);
 
   public ScoringSystem(
@@ -408,14 +413,23 @@ public class ScoringSystem {
   //   this.aimPoint = newAimPoint;
   // }
 
-  public Pose2d getClimbPose() {
-    return new Pose2d(
-        new Translation2d(climbPose.getX(), climbPose.getY()), Rotation2d.fromDegrees(-90));
+  public Pose2d getClimbPoseRight() {
+    return AllianceFlipUtil.apply(
+        new Pose2d(
+            new Translation2d(climbPoseRight.getX(), climbPoseRight.getY()),
+            Rotation2d.fromDegrees(90)));
   }
 
-  public void setAimPoint(Pose2d newPose2d) {
-    this.climbPose = newPose2d;
+  public Pose2d getClimbPoseLeft() {
+    return AllianceFlipUtil.apply(
+        new Pose2d(
+            new Translation2d(climbPoseLeft.getX(), climbPoseLeft.getY()),
+            Rotation2d.fromDegrees(90)));
   }
+
+  // public void setAimPoint(Pose2d newPose2d) {
+  //   this.climbPose = newPose2d;
+  // }
 
   public Rotation3d getAimRotation3d() {
     // See

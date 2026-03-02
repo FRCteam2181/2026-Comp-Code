@@ -1,9 +1,11 @@
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimberConstants;
@@ -12,10 +14,12 @@ import frc.robot.constants.Configs.climberConfigs;
 public class ClimberSubsystem extends SubsystemBase {
 
   SparkMax m_LeftClimber;
-  SparkMax m_RightClimber;
+  RelativeEncoder climberRelative;
 
   public ClimberSubsystem() {
     m_LeftClimber = new SparkMax(ClimberConstants.kLeftClimber_ID, MotorType.kBrushless);
+    climberRelative = m_LeftClimber.getEncoder();
+
     // m_climberR = new SparkMax(33, MotorType.kBrushless);
 
     m_LeftClimber.configure(
@@ -45,5 +49,12 @@ public class ClimberSubsystem extends SubsystemBase {
         () -> {
           m_LeftClimber.set(0);
         });
+  }
+
+  @Override
+  public void periodic() {
+    // This method will be called once per scheduler run
+
+    SmartDashboard.putNumber("Climber Position", climberRelative.getPosition());
   }
 }

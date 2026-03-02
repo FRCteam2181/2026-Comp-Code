@@ -4,19 +4,25 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
+import frc.robot.constants.ArmConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -31,6 +37,13 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
   private SparkMax armLeader = new SparkMax(14, MotorType.kBrushless);
   private SparkMax armFollower = new SparkMax(13, MotorType.kBrushless);
+
+  private final AbsoluteEncoder armEncoder = armLeader.getAbsoluteEncoder();
+
+  private Timer startUpTimer = new Timer();
+  private boolean startTimer = false;
+  private boolean delayForArmSeed = false;
+  private boolean armSeeded = false;
 
   private SmartMotorControllerConfig smcConfig =
       new SmartMotorControllerConfig(this)
@@ -58,7 +71,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
           .withFollowers(Pair.of(armFollower, false))
-          .withResetPreviousConfig(false);
+          .withResetPreviousConfig(false)
+          .withExternalEncoderInverted(false);
+
   // .withFollowers(Pair.of(sparkFollower, true));
 
   private SmartMotorController sparkSmartMotorController =
@@ -145,12 +160,40 @@ public class IntakeArmSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    if (!startTimer) {
+      startUpTimer.reset();
+      startUpTimer.start();
+      startTimer = true;
+    }
+
+    if (startUpTimer.hasElapsed(15)) {
+      delayForArmSeed = true;
+    }
+
+    // if (!armSeeded && delayForArmSeed) {
+    //   seedArmPosition();
+    //   armSeeded = true;
+    // }
+
     arm.updateTelemetry();
+
+    SmartDashboard.putNumber("Arm Encoder Raw", armEncoder.getPosition());
+    SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
   }
 
   @Override
   public void simulationPeriodic() {
     // This method will be called once per scheduler run during simulation
     arm.simIterate();
+  }
+
+  public void seedArmPosition() {
+
+    sparkSmartMotorController.setEncoderPosition(Rotations.of(getAbsoluteEncoderWithOffset() * 45));
+  }
+
+  private Double getAbsoluteEncoderWithOffset() {
+    return MathUtil.inputModulus(armEncoder.getPosition() - ArmConstants.EncoderOffset, 0, 1);
   }
 }
