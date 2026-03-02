@@ -506,7 +506,7 @@ public class ShooterAimer extends SubsystemBase {
             new Rotation3d());
     // 1. LATENCY COMP
     System.out.println("shooterAimer time = " + RobotContainer.timerThing.get());
-    double latency = 0.36; // Tuned constant
+    double latency = 0.45; // Tuned constant
     Pose2d robotPose =
         new Pose2d(
             oldRobotPose
@@ -540,6 +540,7 @@ public class ShooterAimer extends SubsystemBase {
     for (int i = 0; i < iterations; i++) {
       newGoalLocation = getNewGoalLocation(robotPose, chassisSpeeds, timeOfFlight);
       newRobotPose = getNewRobotPose(robotPose, chassisSpeeds, timeOfFlight);
+      initialCalcShot = findIdealVelocityAndAngle(newRobotPose, chassisSpeeds);
 
       targetVec = getTargetVector(robotPose);
       timeOfFlight =

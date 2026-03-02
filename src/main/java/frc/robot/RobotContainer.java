@@ -179,7 +179,7 @@ public class RobotContainer {
 
     if (Robot.isSimulation()) {
       // Pose2d target = new Pose2d(new Translation2d(1, 4), Rotation2d.fromDegrees(90));
-      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
+      drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
       // drivebase.getSwerveDrive().field.getObject("targetPose").setPose(target);
       /*driveDirectAngleKeyboard.driveToPose(
       () -> target,
