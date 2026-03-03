@@ -289,11 +289,14 @@ public class RobotContainer {
     // // 8. Run spindexer+input
     compBoardOne
         .CompBoardOneButtonR2()
-        // .whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
+        // .toggleOnTrue(new RunCommand(() -> scoringSystem.runInputAndIdexerAtShooterSpeed()))
+        // .onFalse(scoringSystem.runInputAndIdexerForwards(0, 0));
         .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
 
     // // 9. Run spindexer+input w/ arm agitation
-    compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
+    // compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
+
+    compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
     // compBoardOne.CompBoardOneButtonStart().whileTrue();
@@ -303,12 +306,12 @@ public class RobotContainer {
     // compBoardOne
     //     .CompBoardOneButtonStart()
     //     .whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPose()));
-    compBoardOne.CompBoardOneButtonStart().whileTrue(intakeArm.setAngle(Degrees.of(-100)));
+    // compBoardOne.CompBoardOneButtonStart().whileTrue(intakeArm.setAngle(Degrees.of(-100)));
 
     // 11. hood down
 
     // TEMP SysID for arm
-    compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
+    // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
 
     // TEMP run spindexer and input at velocity
     // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
@@ -317,7 +320,7 @@ public class RobotContainer {
     // compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
-    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.35));
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.45));
 
     // 13. intake down
     compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.35));

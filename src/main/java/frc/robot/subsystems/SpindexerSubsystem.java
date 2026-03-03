@@ -82,6 +82,11 @@ public class SpindexerSubsystem extends SubsystemBase {
     return shooter.getSpeed();
   }
 
+  public void setVelocitySetpoint(AngularVelocity velocity) {
+
+    shooter.setMechanismVelocitySetpoint(velocity);
+  }
+
   /**
    * Set the shooter velocity.
    *

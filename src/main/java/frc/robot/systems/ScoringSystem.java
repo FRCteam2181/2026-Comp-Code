@@ -68,6 +68,8 @@ public class ScoringSystem {
   private Angle targetTurretAngle = Degrees.of(0);
   private Angle targetHoodAngle = Degrees.of(0);
 
+  public Boolean matchShooterVelocity = false;
+
   // Default aim point is red hub
   // private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
 
@@ -274,14 +276,26 @@ public class ScoringSystem {
   // TODO add velocity version of forward and reverse and add a auto calculated version using
   // Gabriellas PID code
 
-  public Command runInputAndIdexerAtShooterSpeed() {
-    return input
-        .setVelocity(RPM.of(0.95 * (this.targetShooterSpeed).magnitude()))
-        .alongWith(
-            new WaitCommand(.25)
-                .andThen(
-                    spindexer.setVelocity(
-                        (RPM.of(9 * 0.8 * (this.targetShooterSpeed).magnitude())))));
+  public void runInputAndIdexerAtShooterSpeed() {
+    // if (matchShooterVelocity) {
+    input.setVelocitySetpoint(
+        RPM.of(0.95 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
+
+    spindexer.setVelocitySetpoint(
+        (RPM.of(9 * 0.8 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude()))));
+    // } else {
+    // return input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85)));
+    // }
+  }
+
+  public void setMatchShooterVelocity() {
+
+    matchShooterVelocity = true;
+  }
+
+  public void disableMatchShooterVelocity() {
+
+    matchShooterVelocity = false;
   }
 
   /**

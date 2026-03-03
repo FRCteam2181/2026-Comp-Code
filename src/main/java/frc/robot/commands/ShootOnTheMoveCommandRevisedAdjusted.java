@@ -82,15 +82,25 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8250.0);
-    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0);
-    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0);
-    launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7600.0);
-    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7500.0);
-    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 7000.0);
-    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6800.0);
-    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6600.0);
+    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8150.0);
+    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7800.0);
+    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7700.0);
+    launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
+    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7400.0);
+    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6900.0);
+    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6700.0);
+    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6500.0);
     launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
+
+    // launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8250.0);
+    // launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0);
+    // launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0);
+    // launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7600.0);
+    // launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7500.0);
+    // launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 7000.0);
+    // launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6800.0);
+    // launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6600.0);
+    // launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);

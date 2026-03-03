@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.ShooterConstants;
+import java.util.Optional;
 import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -110,6 +111,10 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setVelocitySetpoint(AngularVelocity velocity) {
 
     shooter.setMechanismVelocitySetpoint(velocity);
+  }
+
+  public Optional<AngularVelocity> getVelocitySetpoint() {
+    return shooter.getMechanismSetpointVelocity();
   }
 
   /**
