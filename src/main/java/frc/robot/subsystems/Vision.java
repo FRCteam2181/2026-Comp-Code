@@ -159,14 +159,14 @@ public class Vision extends SubsystemBase{
       try{
         if(targets.get(targets.size() - 1).hasTargets()){
           // SmartDashboard.putNumber("PhotonCamera distance from target", PhotonUtils.calculateDistanceToTargetMeters(VisionConstants.ROBOT_TO_CAMERA.getZ(), 0.13208, 0, 0));
-          SmartDashboard.putNumber("PhotonCamera distance from target", getDistanceToTarget());
+          SmartDashboard.putNumber("PhotonCamera distance from target", getDistanceToTarget(targets.get(targets.size() - 1).getBestTarget()));
           SmartDashboard.putNumber("PhotonVisionYaw", getBestTargetYaw());
           // SmartDashboard.putNumber("DetectedObjectRelativeX", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getX());
           // SmartDashboard.putNumber("DetectedObjectRelativeY", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getY());
           // SmartDashboard.putNumber("DetectedObjectRelativeZ", targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget().getZ());
-          SmartDashboard.putNumber("DetectedObjectRelativeX", getBestCameraToTarget().getX());
-          SmartDashboard.putNumber("DetectedObjectRelativeY", getBestCameraToTarget().getY());
-          SmartDashboard.putNumber("DetectedObjectRelativeZ", getBestCameraToTarget().getZ());
+          SmartDashboard.putNumber("DetectedObjectRelativeX", getBestCameraToTarget(targets.get(targets.size() - 1).getBestTarget()).getX());
+          SmartDashboard.putNumber("DetectedObjectRelativeY", getBestCameraToTarget(targets.get(targets.size() - 1).getBestTarget()).getY());
+          SmartDashboard.putNumber("DetectedObjectRelativeZ", getBestCameraToTarget(targets.get(targets.size() - 1).getBestTarget()).getZ());
           SmartDashboard.putNumber("DetectedObjectPoseAmbiguity", targets.get(targets.size() - 1).getBestTarget().getPoseAmbiguity());
           SmartDashboard.putBoolean("hasTargets", targets.get(targets.size() - 1).hasTargets());
           // System.out.println("getBestTarget() = " + targets.get(targets.size() - 1).getBestTarget());
@@ -221,11 +221,11 @@ public class Vision extends SubsystemBase{
 
   }
 
-  public double getDistanceToTarget(){
+  public double getDistanceToTarget(PhotonTrackedTarget target){
     if(!targets.isEmpty()){
       try{
         if(targets.get(targets.size() - 1).hasTargets()){
-          double pixelRatio = Math.sqrt(targets.get(targets.size() - 1).getBestTarget().getArea())/(Math.pow(5.9,2));
+          double pixelRatio = Math.sqrt(target.getArea())/(Math.pow(5.9,2));
           double base = 24*(Math.sqrt(7.23)/(Math.pow(5.9,2)));
           double dist = base/pixelRatio;
           System.out.println("distance = " + dist + ", area = " + Math.sqrt(targets.get(targets.size() - 1).getBestTarget().getArea()));
@@ -240,19 +240,19 @@ public class Vision extends SubsystemBase{
     return 0;
   }
 
-  public Pose3d getBestTargetPose() {
-    // double distance = getDistanceToTarget()
-    Pose3d position = new Pose3d(new Translation3d(currentPose.get().getTranslation()).plus(getBestCameraToTarget().rotateBy(new Rotation3d(currentPose.get().getRotation()))), new Rotation3d(currentPose.get().getRotation()));
-    return position;
-  }
+  // public Pose3d getBestTargetPose() {
+  //   double distance = getDistanceToTarget();
+  //   Pose3d position = new Pose3d(new Translation3d(currentPose.get().getTranslation()).plus(getBestCameraToTarget().rotateBy(new Rotation3d(currentPose.get().getRotation()))), new Rotation3d(currentPose.get().getRotation()));
+  //   return position;
+  // }
 
-  public Translation3d getBestCameraToTarget(){
+  public Translation3d getBestCameraToTarget(PhotonTrackedTarget target){
     if(!targets.isEmpty()){
       try{
         if(targets.get(targets.size() - 1).hasTargets()){
-          double dist = getDistanceToTarget();
-          double yaw = targets.get(targets.size() - 1).getBestTarget().getYaw();
-          double pitch = targets.get(targets.size() - 1).getBestTarget().getPitch();
+          double dist = getDistanceToTarget(target);
+          double yaw = target.getYaw();
+          double pitch = target.getPitch();
           double x_dist = dist*Math.cos(Units.degreesToRadians(yaw));
           double y_dist = dist*Math.sin(Units.degreesToRadians(yaw));
           double z_dist = dist*Math.sin(Units.degreesToRadians(pitch));
@@ -282,6 +282,23 @@ public class Vision extends SubsystemBase{
     if (!targets.isEmpty() && targets.get(targets.size() - 1).hasTargets())
     {
       return new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(targets.get(targets.size() - 1).getBestTarget().getBestCameraToTarget());
+    } else
+    {
+      throw new RuntimeException("Cannot get Best Object");
+    }
+
+  }
+
+  public List<Pose3d> getObjectPoses()
+  {
+    //Optional<Pose3d> objectPose3d = fieldLayout.getTagPose(aprilTag);
+    if (!targets.isEmpty() && targets.get(targets.size() - 1).hasTargets())
+    {
+      List<Pose3d> a = new ArrayList<Pose3d>();
+      for(int i = 0; i < targets.size(); i++){
+        a.add(new Pose3d(currentPose.get()).transformBy(VisionConstants.ROBOT_TO_CAMERA).transformBy(new Transform3d(getBestCameraToTarget(targets.get(i).getBestTarget()), new Rotation3d(currentPose.get().getRotation()))));
+      }
+      return a;
     } else
     {
       throw new RuntimeException("Cannot get Best Object");
