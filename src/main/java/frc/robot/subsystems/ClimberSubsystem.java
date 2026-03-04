@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.ClimberConstants;
 import frc.robot.constants.Configs.climberConfigs;
+import java.util.function.BooleanSupplier;
 
 public class ClimberSubsystem extends SubsystemBase {
 
@@ -29,6 +30,16 @@ public class ClimberSubsystem extends SubsystemBase {
     //  m_climberR.configure(climberConfigs.climberRConfig.follow(m_climberL, false),
     // ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+  }
+
+  public BooleanSupplier hitForwrdLimit() {
+
+    return (() -> m_LeftClimber.getForwardSoftLimit().isReached());
+  }
+
+  public BooleanSupplier hitReverseLimit() {
+
+    return (() -> m_LeftClimber.getReverseSoftLimit().isReached());
   }
 
   public Command c_climb() {

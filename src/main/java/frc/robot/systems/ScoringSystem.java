@@ -279,7 +279,7 @@ public class ScoringSystem {
   public void runInputAndIdexerAtShooterSpeed() {
     // if (matchShooterVelocity) {
     input.setVelocitySetpoint(
-        RPM.of(0.95 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
+        RPM.of(0.95 * 4 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
 
     spindexer.setVelocitySetpoint(
         (RPM.of(9 * 0.8 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude()))));

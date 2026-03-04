@@ -13,12 +13,15 @@ public class Configs {
         new SoftLimitConfig()
             .reverseSoftLimit(0)
             .reverseSoftLimitEnabled(true)
-            .forwardSoftLimit(0)
+            .forwardSoftLimit(138)
             .forwardSoftLimitEnabled(true);
 
     public static final SparkBaseConfig climberLConfig =
-        new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(40).inverted(false);
-    // .apply(climberSoftLimits);
+        new SparkMaxConfig()
+            .idleMode(IdleMode.kBrake)
+            .smartCurrentLimit(40)
+            .inverted(true)
+            .apply(climberSoftLimits);
 
     public static final SparkBaseConfig climberRConfig =
         new SparkMaxConfig().idleMode(IdleMode.kBrake).smartCurrentLimit(40).inverted(false);

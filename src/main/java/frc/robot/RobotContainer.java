@@ -17,6 +17,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -245,8 +247,23 @@ public class RobotContainer {
     driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
     driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
 
-    driverXbox.rightBumper().whileTrue(climber.c_climb());
-    driverXbox.leftBumper().whileTrue(climber.c_climbReverse());
+    driverXbox
+        .rightBumper()
+        .whileTrue(
+            climber
+                .c_climb()
+                .until(climber.hitForwrdLimit())
+                .andThen(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 1))))
+        .onFalse(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 0)));
+
+    driverXbox
+        .leftBumper()
+        .whileTrue(
+            climber
+                .c_climbReverse()
+                .until(climber.hitReverseLimit())
+                .andThen(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 1))))
+        .onFalse(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 0)));
     // driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
 
     // driverXbox.leftTrigger().whileTrue(Commands.runOnce(() -> turret.rezeroTurretPosition()));
@@ -291,7 +308,7 @@ public class RobotContainer {
         .CompBoardOneButtonR2()
         // .toggleOnTrue(new RunCommand(() -> scoringSystem.runInputAndIdexerAtShooterSpeed()))
         // .onFalse(scoringSystem.runInputAndIdexerForwards(0, 0));
-        .whileTrue(scoringSystem.runInputAndIdexerForwards(.65, .85));
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(.7, .8));
 
     // // 9. Run spindexer+input w/ arm agitation
     // compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.useArmToAgitate().repeatedly());
@@ -328,7 +345,7 @@ public class RobotContainer {
     // 14. run intake
     compBoardOne
         .CompBoardOneJoystickAsButtonPosX()
-        .whileTrue(
+        .toggleOnTrue(
             scoringSystem.runIntakeForwards(
                 IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 

@@ -71,8 +71,10 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
           .withFollowers(Pair.of(armFollower, false))
-          .withResetPreviousConfig(false)
-          .withExternalEncoderInverted(false);
+          .withResetPreviousConfig(false);
+  // .withExternalEncoder(armEncoder)
+  // .withUseExternalFeedbackEncoder(true)
+  // .withExternalEncoderInverted(false);
 
   // .withFollowers(Pair.of(sparkFollower, true));
 
@@ -82,9 +84,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
           // Soft limit is applied to the SmartMotorControllers PID
-          .withSoftLimits(Degrees.of(-100), Degrees.of(0))
+          .withSoftLimits(Degrees.of(-116), Degrees.of(0))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-110), Degrees.of(20))
+          .withHardLimit(Degrees.of(-120), Degrees.of(-5))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
@@ -179,7 +181,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
     arm.updateTelemetry();
 
     SmartDashboard.putNumber("Arm Encoder Raw", armEncoder.getPosition());
-    SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
+    // SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
   }
 
   @Override

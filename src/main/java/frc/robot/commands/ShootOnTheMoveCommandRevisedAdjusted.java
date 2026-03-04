@@ -17,6 +17,7 @@ import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.ShotingOnTheFlyConstants;
@@ -82,9 +83,12 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8150.0);
-    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7800.0);
-    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7700.0);
+    // 3.349396    ===  6100
+    // 4.213254         6650
+
+    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8350.0); //
+    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 8100.0); //
+    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 8000.0); //
     launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
     launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7400.0);
     launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6900.0);
@@ -259,8 +263,12 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     // SmartDashboard.putNumber("distance to turret", lookaheadTurretToTargetDistance);
     superstructure.setShooterSetpointsRevised(
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
+
+        // RPM.of(7700),
         Rotations.of(turretAngle.getRotations()),
         Rotations.of(hoodAngle));
+
+    SmartDashboard.putNumber("Distance to Target", lookaheadTurretToTargetDistance);
   }
 
   public Trigger inScoringZone(Pose2d turretPose) {

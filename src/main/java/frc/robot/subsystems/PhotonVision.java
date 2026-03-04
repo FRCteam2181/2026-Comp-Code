@@ -315,15 +315,15 @@ public class PhotonVision {
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
-    // FRONT_LEFT_CAM(
-    //     "FRONT_LEFT_CAM",
-    //     new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
-    //     new Translation3d(
-    //         Units.inchesToMeters(3.877),
-    //         Units.inchesToMeters(7.7375),
-    //         Units.inchesToMeters(19.0035)),
-    //     VecBuilder.fill(4, 4, 8),
-    //     VecBuilder.fill(0.5, 0.5, 1)),
+    FRONT_LEFT_CAM(
+        "FRONT_LEFT_CAM",
+        new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
+        new Translation3d(
+            Units.inchesToMeters(3.877),
+            Units.inchesToMeters(7.7375),
+            Units.inchesToMeters(19.0035)),
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1)),
 
     RIGHT_SIDE_CAM(
         "RIGHT_SIDE_CAM",
@@ -331,15 +331,15 @@ public class PhotonVision {
         new Translation3d(
             -Units.inchesToMeters(12.5), -Units.inchesToMeters(2), Units.inchesToMeters(15.75)),
         VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1));
+        VecBuilder.fill(0.5, 0.5, 1)),
 
-    // LEFT_SIDE_CAM(
-    //     "LEFT_SIDE_CAM",
-    //     new Rotation3d(Math.toRadians(15), Math.toRadians(0), -Math.toRadians(90)),
-    //     new Translation3d(
-    //         Units.inchesToMeters(12.5), -Units.inchesToMeters(2), Units.inchesToMeters(15.25)),
-    //     VecBuilder.fill(4, 4, 8),
-    //     VecBuilder.fill(0.5, 0.5, 1));
+    LEFT_SIDE_CAM(
+        "LEFT_SIDE_CAM",
+        new Rotation3d(Math.toRadians(15), Math.toRadians(0), -Math.toRadians(90)),
+        new Translation3d(
+            Units.inchesToMeters(12.5), -Units.inchesToMeters(2), Units.inchesToMeters(15.25)),
+        VecBuilder.fill(4, 4, 8),
+        VecBuilder.fill(0.5, 0.5, 1));
 
     /** Latency alert to use when high latency is detected. */
     public final Alert latencyAlert;

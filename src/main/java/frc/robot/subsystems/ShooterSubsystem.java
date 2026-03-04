@@ -45,7 +45,7 @@ public class ShooterSubsystem extends SubsystemBase {
           .withClosedLoopController(.01, 0, .175)
           .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0)) // .025
           .withSimFeedforward(new SimpleMotorFeedforward(0.02, 0.011858, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Shooter Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
@@ -72,7 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
           // Diameter of the flywheel.
           .withDiameter(Inches.of(4))
           // Mass of the flywheel.
-          .withMass(Pounds.of(1))
+          .withMass(Pounds.of(2))
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
           // Telemetry name and verbosity for the arm.
