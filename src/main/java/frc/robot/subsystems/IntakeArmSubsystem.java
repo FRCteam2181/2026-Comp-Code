@@ -63,7 +63,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your
           // motor.
           // You could also use .withGearing(12) which does the same thing.
-          .withGearing(new MechanismGearing(GearBox.fromReductionStages(45)))
+          .withGearing(new MechanismGearing(GearBox.fromReductionStages(1)))
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
@@ -71,10 +71,10 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
           .withFollowers(Pair.of(armFollower, false))
-          .withResetPreviousConfig(false);
-  // .withExternalEncoder(armEncoder)
-  // .withUseExternalFeedbackEncoder(true)
-  // .withExternalEncoderInverted(false);
+          .withResetPreviousConfig(false)
+          .withExternalEncoder(armEncoder)
+          .withUseExternalFeedbackEncoder(true)
+          .withExternalEncoderInverted(true);
 
   // .withFollowers(Pair.of(sparkFollower, true));
 
@@ -84,9 +84,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
           // Soft limit is applied to the SmartMotorControllers PID
-          .withSoftLimits(Degrees.of(-116), Degrees.of(0))
+          .withSoftLimits(Rotations.of(0.034), Rotations.of(0.301))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-120), Degrees.of(-5))
+          .withHardLimit(Degrees.of(-5), Degrees.of(100))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
@@ -181,7 +181,8 @@ public class IntakeArmSubsystem extends SubsystemBase {
     arm.updateTelemetry();
 
     SmartDashboard.putNumber("Arm Encoder Raw", armEncoder.getPosition());
-    // SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
+    SmartDashboard.putNumber("Arm Position", arm.getAngle().baseUnitMagnitude());
+    SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
   }
 
   @Override

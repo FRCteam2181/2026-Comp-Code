@@ -352,7 +352,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(6500));
+        .whileTrue(scoringSystem.setShooterRPMForwards(8750));
   }
 
   /**
