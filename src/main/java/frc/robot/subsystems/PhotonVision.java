@@ -311,7 +311,9 @@ public class PhotonVision {
         "FRONT_RIGHT_CAM",
         new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
         new Translation3d(
-            Units.inchesToMeters(0.71), -Units.inchesToMeters(11.605), Units.inchesToMeters(9.22)),
+            Units.inchesToMeters(0.71),
+            -Units.inchesToMeters(11.605),
+            Units.inchesToMeters(26.875)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
@@ -319,25 +321,22 @@ public class PhotonVision {
         "FRONT_LEFT_CAM",
         new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
         new Translation3d(
-            Units.inchesToMeters(3.877),
-            Units.inchesToMeters(7.7375),
-            Units.inchesToMeters(19.0035)),
+            Units.inchesToMeters(3.877), Units.inchesToMeters(7.7375), Units.inchesToMeters(19.5)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
-
     RIGHT_SIDE_CAM(
         "RIGHT_SIDE_CAM",
-        new Rotation3d(Math.toRadians(15), Math.toRadians(0), Math.toRadians(90)),
+        new Rotation3d(Math.toRadians(15), Math.toRadians(0), -Math.toRadians(90)),
         new Translation3d(
-            -Units.inchesToMeters(12.5), -Units.inchesToMeters(2), Units.inchesToMeters(15.75)),
+            -Units.inchesToMeters(2), -Units.inchesToMeters(12.5), Units.inchesToMeters(15.75)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
     LEFT_SIDE_CAM(
         "LEFT_SIDE_CAM",
-        new Rotation3d(Math.toRadians(15), Math.toRadians(0), -Math.toRadians(90)),
+        new Rotation3d(-Math.toRadians(15), Math.toRadians(0), Math.toRadians(90)),
         new Translation3d(
-            Units.inchesToMeters(12.5), -Units.inchesToMeters(2), Units.inchesToMeters(15.25)),
+            -Units.inchesToMeters(2), Units.inchesToMeters(12.), Units.inchesToMeters(15.25)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
 

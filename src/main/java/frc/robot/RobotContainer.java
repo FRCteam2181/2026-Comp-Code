@@ -26,9 +26,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.ShootOnTheMoveCommandRevised;
 import frc.robot.commands.ShootOnTheMoveCommandRevisedAdjusted;
 import frc.robot.constants.IntakeConstants;
 import frc.robot.constants.OperatorConstants;
@@ -155,9 +155,10 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
-                new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem),
-                input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85))))
+                new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
+                scoringSystem.runInputAndIdexerForwards(.7, .8))
             .withTimeout(5));
+    // shooter.setVelocity(RPM.of(500)).withTimeout(5));
 
     NamedCommands.registerCommand(
         "Localize", Commands.runOnce(() -> drivebase.resetAutoBuilderOdometry(), drivebase));
@@ -275,7 +276,7 @@ public class RobotContainer {
     // Buttonboard Buttons
 
     // 1. Reverse shooter
-    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(6100));
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5000));
 
     // 2. Reverse intake
     compBoardOne
@@ -352,7 +353,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(8750));
+        .whileTrue(scoringSystem.setShooterRPMForwards(6500));
   }
 
   /**
