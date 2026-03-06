@@ -15,7 +15,7 @@ import java.util.function.BooleanSupplier;
 public class ClimberSubsystem extends SubsystemBase {
 
   SparkMax m_LeftClimber;
-  RelativeEncoder climberRelative;
+  public RelativeEncoder climberRelative;
 
   public ClimberSubsystem() {
     m_LeftClimber = new SparkMax(ClimberConstants.kLeftClimber_ID, MotorType.kBrushless);

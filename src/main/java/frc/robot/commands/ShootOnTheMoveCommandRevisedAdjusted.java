@@ -67,6 +67,8 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
   private static final InterpolatingDoubleTreeMap timeOfFlightMap =
       new InterpolatingDoubleTreeMap();
 
+  private String inputTarget;
+
   static {
     minDistance = 1.34;
     maxDistance = 5.60;
@@ -115,9 +117,10 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
   }
 
   public ShootOnTheMoveCommandRevisedAdjusted(
-      SwerveSubsystem drivetrain, ScoringSystem superstructure) {
+      SwerveSubsystem drivetrain, ScoringSystem superstructure, String inputTarget) {
     this.drivetrain = drivetrain;
     this.superstructure = superstructure;
+    this.inputTarget = inputTarget;
   }
 
   @Override
@@ -156,35 +159,45 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     Translation2d target =
         AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
 
-    if (ScoringSystem.CustomTriggers.scoringZone.getTrigger().getAsBoolean()) {
+    // if (ScoringSystem.CustomTriggers.scoringZone.getTrigger().getAsBoolean()) {
+    //   target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    // }
 
+    // if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
+    //   target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
+    // }
+
+    // if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
+    //   target =
+    //       AllianceFlipUtil.apply(
+    //           FieldConstants.LeftBump.nearRightCorner.plus(
+    //               new Translation2d(0, Inches.of(36.5).in(Meters))));
+    // }
+
+    // if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
+    //   target =
+    //       AllianceFlipUtil.apply(
+    //           FieldConstants.RightBump.nearRightCorner.plus(
+    //               new Translation2d(0, Inches.of(36.5).in(Meters))));
+    // }
+
+    if (inputTarget == "Hub") {
       target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     }
-    ;
 
-    if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
-
-      target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-    }
-    ;
-
-    if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
-
+    if (inputTarget == "Left") {
       target =
           AllianceFlipUtil.apply(
               FieldConstants.LeftBump.nearRightCorner.plus(
                   new Translation2d(0, Inches.of(36.5).in(Meters))));
     }
-    ;
 
-    if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
-
+    if (inputTarget == "Right") {
       target =
           AllianceFlipUtil.apply(
-              FieldConstants.RightBump.nearRightCorner.plus(
-                  new Translation2d(0, Inches.of(36.5).in(Meters))));
+              FieldConstants.RightBump.nearLeftCorner.plus(
+                  new Translation2d(0, -Inches.of(36.5).in(Meters))));
     }
-    ;
 
     // if (inScoringZone(turretPosition).getAsBoolean()) {
     //   target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());

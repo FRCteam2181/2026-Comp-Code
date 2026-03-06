@@ -18,7 +18,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -59,7 +58,8 @@ public class RobotContainer {
   final CommandXboxController driverXbox = new CommandXboxController(0);
   // final CommandXboxController operatorControler = new CommandXboxController(1);
   final CompBoardOne compBoardOne;
-  final Joystick buttonBoard = new Joystick(1);
+
+  final CommandXboxController debugXbox = new CommandXboxController(4);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
@@ -298,10 +298,12 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonR1().whileTrue(scoringSystem.turnTurretRight(.2));
 
     // 7. AutoAim
+    // driverXbox
+    // .y()
     compBoardOne
         .CompBoardOneButtonL2()
         .toggleOnTrue(
-            new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem)
+            new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Hub")
                 .withName("OperatorControls.aimCommand"));
 
     // // 8. Run spindexer+input
@@ -317,7 +319,11 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
-    // compBoardOne.CompBoardOneButtonStart().whileTrue();
+    compBoardOne
+        .CompBoardOneButtonStart()
+        // driverXbox
+        //     .x()
+        .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Left"));
     // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
     // UNTESTED
     // // on the real robot
@@ -330,6 +336,11 @@ public class RobotContainer {
 
     // TEMP SysID for arm
     // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
+    compBoardOne
+        .CompBoardOneButtonL3()
+        // driverXbox
+        //     .b()
+        .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Right"));
 
     // TEMP run spindexer and input at velocity
     // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
@@ -354,6 +365,15 @@ public class RobotContainer {
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
         .whileTrue(scoringSystem.setShooterRPMForwards(6500));
+
+    // Debug stuff, only when xbox is in port 4
+    debugXbox
+        .a()
+        .onTrue(
+            new RunCommand(
+                () -> {
+                  climber.climberRelative.setPosition(140);
+                }));
   }
 
   /**
