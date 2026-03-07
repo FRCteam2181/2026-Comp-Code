@@ -156,28 +156,35 @@ public class RobotContainer {
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
                 new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
-                scoringSystem.runInputAndIdexerForwards(.7, .8))
+                // input.set(.7).alongWith(new WaitCommand(.25).andThen(spindexer.set(.8))))
+                scoringSystem.runInputAndIdexerForwards(.7, .8).withTimeout(4))
             .withTimeout(5));
     // shooter.setVelocity(RPM.of(500)).withTimeout(5));
 
     NamedCommands.registerCommand(
         "Localize", Commands.runOnce(() -> drivebase.resetAutoBuilderOdometry(), drivebase));
 
-    NamedCommands.registerCommand(
-        "Intake Down",
-        topintake
-            .set(IntakeConstants.kBottomIntakeDutyCycle)
-            // .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
-            .withTimeout(5));
+    // NamedCommands.registerCommand(
+    //     "Intake Down",
+    //     topintake
+    //         .set(IntakeConstants.kBottomIntakeDutyCycle)
+    //         // .alongWith(bottomintake.set(IntakeConstants.kTopIntakeDutyCycle))
+    //         .withTimeout(5));
+    NamedCommands.registerCommand("Intake Down", scoringSystem.armDown(.35).withTimeout(.5));
 
-    NamedCommands.registerCommand("Run Intake", intakeArm.set(-.85).withTimeout(3));
+    NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(.35).withTimeout(.5));
+
+    NamedCommands.registerCommand(
+        "Run Intake",
+        scoringSystem.runIntakeForwards(
+            IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
     NamedCommands.registerCommand(
         "Intake Down + Start",
-        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(-90, Degrees), 0.5, 0.5));
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(2, Degrees), 0.5, 0.5));
     NamedCommands.registerCommand(
         "Intake Up + Stop",
-        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(0, Degrees), 0, 0).withTimeout(0.5));
+        scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(90, Degrees), 0, 0).withTimeout(0.5));
     NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
     // Have the autoChooser pull in all PathPlanner autos as options
@@ -303,7 +310,7 @@ public class RobotContainer {
     compBoardOne
         .CompBoardOneButtonL2()
         .toggleOnTrue(
-            new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Hub")
+            new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem)
                 .withName("OperatorControls.aimCommand"));
 
     // // 8. Run spindexer+input
@@ -319,11 +326,12 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
-    compBoardOne
-        .CompBoardOneButtonStart()
-        // driverXbox
-        //     .x()
-        .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Left"));
+    // compBoardOne
+    //     .CompBoardOneButtonStart()
+    //     // driverXbox
+    //     //     .x()
+    //     .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem,
+    // "Left"));
     // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
     // UNTESTED
     // // on the real robot
@@ -336,11 +344,12 @@ public class RobotContainer {
 
     // TEMP SysID for arm
     // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
-    compBoardOne
-        .CompBoardOneButtonL3()
-        // driverXbox
-        //     .b()
-        .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem, "Right"));
+    // compBoardOne
+    //     .CompBoardOneButtonL3()
+    //     // driverXbox
+    //     //     .b()
+    //     .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem,
+    // "Right"));
 
     // TEMP run spindexer and input at velocity
     // WARNING this button is temporarily porgrammed to run the intake and spindexer based on RPM
@@ -349,10 +358,10 @@ public class RobotContainer {
     // compBoardOne.CompBoardOneButtonL3().whileTrue(scoringSystem.runInputAndIdexerAtShooterSpeed());
 
     // 12. intake up
-    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(.45));
+    compBoardOne.CompBoardOneButtonR3().whileTrue(scoringSystem.armUp(-.45));
 
     // 13. intake down
-    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(.35));
+    compBoardOne.CompBoardOneJoystickAsButtonNegX().whileTrue(scoringSystem.armDown(-.35));
 
     // 14. run intake
     compBoardOne

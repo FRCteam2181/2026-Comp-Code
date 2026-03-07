@@ -87,10 +87,11 @@ public class ShootOnTheMoveCommandRevised extends Command {
     launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 8100.0); //
     launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 8000.0); //
     launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
-    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7400.0);
-    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6900.0);
-    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6700.0);
-    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6500.0);
+    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7200.0);
+    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6700.0);
+    // launchFlywheelSpeedMap.put(Inches.of(109).in(Meters), 6500.0);
+    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6500.0);
+    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6300.0);
     launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
 
     timeOfFlightMap.put(5.68, 1.16);
@@ -132,7 +133,7 @@ public class ShootOnTheMoveCommandRevised extends Command {
             })
         .until(
             () -> {
-              return this.isFinished();
+              return this.isScheduled();
             })
         .schedule();
   }
