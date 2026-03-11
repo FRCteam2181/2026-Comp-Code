@@ -86,10 +86,10 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     // 3.349396    ===  6100
     // 4.213254         6650
 
-    launchFlywheelSpeedMap.put(Inches.of(198.11).in(Meters), 8750.0);
-    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8350.0); //
-    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 8100.0); //
-    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 8000.0); //
+    launchFlywheelSpeedMap.put(Inches.of(198.11).in(Meters), 8550.0);
+    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8150.0); //
+    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0); //
+    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0); //
     launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
     launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7200.0);
     launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6700.0);

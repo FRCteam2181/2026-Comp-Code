@@ -280,10 +280,15 @@ public class RobotContainer {
 
     driverXbox.button(7).whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPoseLeft()));
 
+    // driverXbox.button(9).onTrue(Commands.runOnce(() ->
+    // {driveAngularVelocity.scaleTranslation(1);}));
+    // driverXbox.button(9).onFalse(Commands.runOnce(() ->
+    // {driveAngularVelocity.scaleTranslation(.8);}));
+
     // Buttonboard Buttons
 
     // 1. Reverse shooter
-    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5000));
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5500));
 
     // 2. Reverse intake
     compBoardOne
