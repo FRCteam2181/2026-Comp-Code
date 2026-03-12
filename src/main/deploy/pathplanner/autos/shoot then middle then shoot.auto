@@ -1,0 +1,110 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Drive to Center of Alliance Zone"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Target Then Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center to bumper "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Over Bump"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Copy of To fuel area"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "half thru fuel"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Run Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back thru fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back from fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back over bump"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim And Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

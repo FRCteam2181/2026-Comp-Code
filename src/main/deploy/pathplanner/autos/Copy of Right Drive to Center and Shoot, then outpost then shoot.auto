@@ -39,6 +39,24 @@
           "data": {
             "pathName": "Drive Center to Outpost"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "outpost to shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Target Then Shoot"
+          }
         }
       ]
     }

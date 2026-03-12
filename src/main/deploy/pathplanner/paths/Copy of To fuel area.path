@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.596187536489327,
-        "y": 2.3988004765152726
+        "x": 6.35380281690141,
+        "y": 0.5060035211267608
       },
       "isLocked": false,
       "linkedName": null
@@ -20,15 +20,20 @@
         "y": 1.241
       },
       "prevControl": {
-        "x": 8.01902701995306,
-        "y": 1.1385125462735737
+        "x": 7.104313380281691,
+        "y": 0.9371478873239436
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "copy of To fuel area"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -41,13 +46,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 1.5,
-    "rotation": 90.0
+    "velocity": 1.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 1.5,
+    "velocity": 1.0,
     "rotation": 90.0
   },
   "useDefaultConstraints": true

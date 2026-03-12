@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.283,
-        "y": 2.984
+        "x": 7.663204225352114,
+        "y": 3.555950704225352
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0600626484065065,
-        "y": 2.8708676117794765
+        "x": 7.663204225352114,
+        "y": 2.7098560623033228
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "end point of half thru fuel"
     },
     {
       "anchor": {
-        "x": 0.7,
-        "y": 0.5974377224199281
+        "x": 7.791,
+        "y": 1.241
       },
       "prevControl": {
-        "x": 3.112879803686992,
-        "y": 4.074034629281476
+        "x": 7.814001407271853,
+        "y": 0.9920603782771527
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "back thru fuel"
     }
   ],
   "rotationTargets": [],
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 0.0
+    "velocity": 1.0,
+    "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 25.068
+    "velocity": 1.0,
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }
