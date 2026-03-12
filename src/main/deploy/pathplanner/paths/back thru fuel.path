@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.859,
-        "y": 2.342
+        "x": 7.663204225352114,
+        "y": 3.555950704225352
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.169141329371156,
-        "y": 2.15235693948047
+        "x": 7.663204225352114,
+        "y": 2.7098560623033228
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "end point of half thru fuel"
     },
     {
       "anchor": {
@@ -20,20 +20,15 @@
         "y": 1.241
       },
       "prevControl": {
-        "x": 7.566295447488422,
-        "y": 1.3601085560231274
+        "x": 7.814001407271853,
+        "y": 0.9920603782771527
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "copy of To fuel area"
+      "linkedName": "back thru fuel"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.9963636363636375,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -46,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 0,
     "rotation": -90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }
