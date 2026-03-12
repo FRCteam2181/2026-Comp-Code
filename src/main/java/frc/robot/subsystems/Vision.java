@@ -301,7 +301,7 @@ public class Vision extends SubsystemBase{
       return a;
     } else
     {
-      throw new RuntimeException("Cannot get Best Object");
+      throw new RuntimeException("Cannot get Objects");
     }
 
   }

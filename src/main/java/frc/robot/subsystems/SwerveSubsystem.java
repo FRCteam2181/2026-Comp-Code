@@ -9,7 +9,9 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
@@ -56,6 +58,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.constants.DrivebaseConstants;
 import frc.robot.constants.QuestNavConstants;
+import frc.robot.constants.VisionConstants;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -106,7 +109,7 @@ public class SwerveSubsystem extends SubsystemBase
    */
    public SwerveSubsystem(File directory, PhotonCamera camera)
   { 
-    SmartDashboard.putData("RealField", m_field2d);
+    // SmartDashboard.putData("RealField", m_field2d);
 
     Pose3d initialPose = new Pose3d(-50,-50,0,new Rotation3d(0,0,-180));
     questNav.setPose(initialPose);
@@ -179,6 +182,17 @@ public void setupPhotonVision()
   {
     m_field2d.setRobotPose(this.getPose());
     swerveDrive.updateOdometry();
+
+
+    if (!vision.targets.isEmpty() && vision.targets.get(vision.targets.size() - 1).hasTargets())
+    {
+      List<Pose3d> a = vision.getObjectPoses();
+      for(int i = 0; i < vision.targets.size(); i++){
+        m_field2d.getObject("fuel" + i).setPose(a.get(i).toPose2d());
+      }
+    }
+
+    SmartDashboard.putData("RealField", m_field2d);
     
 
 
