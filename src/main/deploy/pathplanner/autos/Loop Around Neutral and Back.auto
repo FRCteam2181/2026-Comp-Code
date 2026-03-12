@@ -1,0 +1,49 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Loop Intake 1 "
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Down + Start"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Loop Intake 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Up + Stop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Loop Intake 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Target Then Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
