@@ -323,7 +323,11 @@ public class RobotContainer {
         .CompBoardOneButtonR2()
         // .toggleOnTrue(new RunCommand(() -> scoringSystem.runInputAndIdexerAtShooterSpeed()))
         // .onFalse(scoringSystem.runInputAndIdexerForwards(0, 0));
-        .whileTrue(scoringSystem.runInputAndIdexerForwards(.7, .8));
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(3500, .75));
+    // .alongWith(scoringSystem.runInputAndIdexerAtShooterSpeed()));
+
+    // Commands.runOnce(() -> scoringSystem.setInputVelocitySetpoint())))
+    // .onFalse(input.set(0));
 
     // // 9. Run spindexer+input w/ arm agitation
     // compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.useArmToAgitate().repeatedly());

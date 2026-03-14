@@ -102,6 +102,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "back over bump again"
@@ -111,6 +117,36 @@
           "type": "path",
           "data": {
             "pathName": "collect fuel #2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back from fuel #2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back over bump #3 (idk)"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "spin"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Aim And Shoot"
           }
         }
       ]

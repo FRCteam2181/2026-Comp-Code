@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Middle Start to Climb"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Middle Start to Climb"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Aim And Shoot"
+                }
+              }
+            ]
           }
         }
       ]

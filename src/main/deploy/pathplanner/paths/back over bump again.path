@@ -17,18 +17,23 @@
     {
       "anchor": {
         "x": 5.715070422535211,
-        "y": 2.2465492957746482
+        "y": 2.247
       },
       "prevControl": {
         "x": 4.715070422535211,
-        "y": 2.2465492957746482
+        "y": 2.247
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "back over bump again end point"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3019891500904166,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],

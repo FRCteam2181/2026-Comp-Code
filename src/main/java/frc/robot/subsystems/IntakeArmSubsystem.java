@@ -70,7 +70,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withStatorCurrentLimit(Amps.of(40))
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
-          .withFollowers(Pair.of(armFollower, false))
+          .withFollowers(Pair.of(armFollower, true))
           .withResetPreviousConfig(false)
           .withExternalEncoder(armEncoder)
           .withUseExternalFeedbackEncoder(true)

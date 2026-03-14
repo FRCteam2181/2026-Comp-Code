@@ -169,6 +169,10 @@ public class ScoringSystem {
     shooter.setVelocitySetpoint(shooterSpeed);
   }
 
+  public void setInputVelocitySetpoint() {
+    input.setVelocitySetpoint(shooter.getVelocity());
+  }
+
   /**
    * Aims the superstructure using suppliers - useful for dynamic targeting.
    *
@@ -258,7 +262,7 @@ public class ScoringSystem {
    */
   public Command runInputAndIdexerForwards(double speedInput, double speedSpindexer) {
     return input
-        .set(speedInput)
+        .setVelocity(RPM.of(speedInput))
         .alongWith(new WaitCommand(.25).andThen(spindexer.set(speedSpindexer)));
   }
 
@@ -279,10 +283,10 @@ public class ScoringSystem {
   public void runInputAndIdexerAtShooterSpeed() {
     // if (matchShooterVelocity) {
     input.setVelocitySetpoint(
-        RPM.of(0.95 * 4 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
+        RPM.of(((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
 
-    spindexer.setVelocitySetpoint(
-        (RPM.of(9 * 0.8 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude()))));
+    // spindexer.setVelocitySetpoint(
+    // (RPM.of(9 * 0.8 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude()))));
     // } else {
     // return input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85)));
     // }
@@ -451,7 +455,7 @@ public class ScoringSystem {
     return new Rotation3d(
         Degrees.of(0), // no roll 🤞
         Degrees.of(0), // hood.getAngle().unaryMinus(), // pitch is negative hood angle
-        turret.getRawAngle()); // TODO maybe 180
+        turret.getRawAngle());
   }
 
   // public Command useRequirement() {
