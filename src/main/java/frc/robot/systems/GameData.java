@@ -51,9 +51,9 @@ public class GameData extends SubsystemBase {
 
   public boolean canShoot() {
     // String gameData;
-    boolean canShootBool = true;
+    boolean canShootBool = false;
     if (DriverStation.getAlliance().isEmpty()) {
-      // System.out.println("In first");
+      System.out.println("In first");
       return true;
     }
     DriverStation.Alliance alliance = DriverStation.getAlliance().get();
@@ -65,25 +65,62 @@ public class GameData extends SubsystemBase {
       switch (gameData.charAt(0)) {
         case 'B':
           // Blue case code
-          if (is_blue && (matchTime <= 140 && matchTime >= 130)) {
-            canShootBool = true;
-          } else if (!is_blue && (matchTime <= 130 && matchTime >= 105)) {
-            canShootBool = true;
-          } else if (is_blue && (matchTime <= 105 && matchTime >= 55)) {
-            canShootBool = true;
-          } else if (!is_blue && (matchTime <= 55 && matchTime >= 30)) {
-            canShootBool = true;
+          if (is_blue) {
+            if ((matchTime <= 140 && matchTime >= 130)) {
+              canShootBool = true; // transition
+            } else if ((matchTime < 130 && matchTime >= 105)) {
+              canShootBool = false;
+            } else if ((matchTime < 105 && matchTime >= 80)) {
+              canShootBool = true; // 2
+            } else if ((matchTime < 80 && matchTime >= 55)) {
+              canShootBool = false; // 3
+            } else if ((matchTime < 55 && matchTime >= 30)) {
+              canShootBool = true; // 4
+            } else if ((matchTime >= 0 && matchTime <= 30)) {
+              canShootBool = true;
+            }
+          } else {
+            if ((matchTime <= 140 && matchTime >= 105)) {
+              canShootBool = true; // 1 and transition
+            } else if ((matchTime < 105 && matchTime >= 80)) {
+              canShootBool = false; // 2
+            } else if ((matchTime < 80 && matchTime >= 55)) {
+              canShootBool = true; // 3
+            } else if ((matchTime < 55 && matchTime >= 30)) {
+              canShootBool = false; // 4
+            } else if ((matchTime >= 0 && matchTime <= 30)) {
+              canShootBool = true;
+            }
           }
+
           break;
         case 'R':
-          if (!is_blue && (matchTime <= 140 && matchTime >= 130)) {
-            canShootBool = false;
-          } else if (is_blue && (matchTime <= 130 && matchTime >= 105)) {
-            canShootBool = false;
-          } else if (!is_blue && (matchTime <= 105 && matchTime >= 55)) {
-            canShootBool = false;
-          } else if (is_blue && (matchTime <= 55 && matchTime >= 30)) {
-            canShootBool = false;
+          if (is_blue) {
+            if ((matchTime <= 140 && matchTime >= 105)) {
+              canShootBool = true; // 1 and transition
+            } else if ((matchTime < 105 && matchTime >= 80)) {
+              canShootBool = false; // 2
+            } else if ((matchTime < 80 && matchTime >= 55)) {
+              canShootBool = true; // 3
+            } else if ((matchTime < 55 && matchTime >= 30)) {
+              canShootBool = false; // 4
+            } else if ((matchTime >= 0 && matchTime <= 30)) {
+              canShootBool = true;
+            }
+          } else {
+            if ((matchTime <= 140 && matchTime >= 130)) {
+              canShootBool = true; // transition
+            } else if ((matchTime < 130 && matchTime >= 105)) {
+              canShootBool = false;
+            } else if ((matchTime < 105 && matchTime >= 80)) {
+              canShootBool = true; // 2
+            } else if ((matchTime < 80 && matchTime >= 55)) {
+              canShootBool = false; // 3
+            } else if ((matchTime < 55 && matchTime >= 30)) {
+              canShootBool = true; // 4
+            } else if ((matchTime >= 0 && matchTime <= 30)) {
+              canShootBool = true;
+            }
           }
           break;
           // Red case code

@@ -82,10 +82,16 @@ public class ShootOnTheMoveCommandRevised extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7500.0);
-    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 7000.0);
-    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6800.0);
-    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6600.0);
+    launchFlywheelSpeedMap.put(Inches.of(198.11).in(Meters), 8550.0);
+    launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8150.0); //
+    launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0); //
+    launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0); //
+    launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
+    launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7200.0);
+    launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6700.0);
+    // launchFlywheelSpeedMap.put(Inches.of(109).in(Meters), 6500.0);
+    launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6500.0);
+    launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6300.0);
     launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
 
     timeOfFlightMap.put(5.68, 1.16);
@@ -116,14 +122,18 @@ public class ShootOnTheMoveCommandRevised extends Command {
               return this.lastShootSpeed;
             },
             () -> {
-              if (this.lastTurretAngle.getRotations() < 0) {
-                return Rotations.of(this.lastTurretAngle.getRotations() + 1);
-              } else {
-                return Rotations.of(this.lastTurretAngle.getRotations());
-              }
+              // if (this.lastTurretAngle.getRotations() < 0) {
+              //  return Rotations.of(this.lastTurretAngle.getRotations() + 1);
+              // } else {
+              return Rotations.of(this.lastTurretAngle.getRotations());
+              // }
             },
             () -> {
               return Rotations.of(this.lastHoodAngle);
+            })
+        .until(
+            () -> {
+              return this.isScheduled();
             })
         .schedule();
   }
@@ -260,7 +270,7 @@ public class ShootOnTheMoveCommandRevised extends Command {
             launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
 
     lastShootSpeed = RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
-
+    // SmartDashboard.putNumber("distance to turret", lookaheadTurretToTargetDistance);
     superstructure.setShooterSetpoints(
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
         Rotations.of(turretAngle.getRotations()),
@@ -309,4 +319,9 @@ public class ShootOnTheMoveCommandRevised extends Command {
                             FieldConstants.fieldWidth)))
                 .contains(turretPose.getTranslation()));
   }
+
+  //   @Override
+  //   public void end(boolean interupted) {
+  //     superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
+  //   }
 }

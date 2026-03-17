@@ -29,7 +29,7 @@ public class DrivebaseConstants {
   public static Matter CHASSIS =
       new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
   public static double LOOP_TIME = 0.13; // s, 20ms + 110ms sprk max velocity lag
-  public static double MAX_SPEED = 5.331370317;
+  public static double MAX_SPEED = 7.597742314030; // in meters/second
   // Maximum speed of the robot in meters per second, used to limit acceleration.
   public static final Transform2d robotOffset =
       new Transform2d(
@@ -37,7 +37,7 @@ public class DrivebaseConstants {
 
   public static final Transform2d climberOffset =
       new Transform2d(
-          Inches.of(17.25).in(Meters), Inches.of(-1).in(Meters), Rotation2d.fromDegrees(180));
+          Inches.of(17.25).in(Meters), Inches.of(1).in(Meters), Rotation2d.fromDegrees(180));
   // bumpers are 3.75 inches thick
   // 12.5in from back of robot
   // 27/2 is 13.5

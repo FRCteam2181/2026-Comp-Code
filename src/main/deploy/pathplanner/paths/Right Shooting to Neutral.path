@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.283,
+        "y": 2.984
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.379734939759036,
+        "y": 2.3958433734939764
+      },
+      "isLocked": false,
+      "linkedName": "right side back shooting position"
+    },
+    {
+      "anchor": {
+        "x": 5.859,
+        "y": 2.342
+      },
+      "prevControl": {
+        "x": 4.088710843373494,
+        "y": 2.3146807228915662
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Right side over bump"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 7.59774231403,
+    "maxAcceleration": 3.7988711571,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 47.06838031531188
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 25.068
+  },
+  "useDefaultConstraints": true
+}

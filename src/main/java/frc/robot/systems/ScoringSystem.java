@@ -29,6 +29,7 @@ import frc.robot.subsystems.SpindexerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.TopIntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
+import frc.robot.utils.field.AllianceFlipUtil;
 import frc.robot.utils.field.FieldConstants;
 import frc.robot.utils.field.ZoneTrigger;
 import java.util.function.Supplier;
@@ -67,13 +68,19 @@ public class ScoringSystem {
   private Angle targetTurretAngle = Degrees.of(0);
   private Angle targetHoodAngle = Degrees.of(0);
 
+  public Boolean matchShooterVelocity = false;
+
   // Default aim point is red hub
   // private Translation3d aimPoint = GenericConstants.AimPoints.BLUE_HUB.value;
 
   public Translation2d aimTarget = FieldConstants.Hub.topCenterPoint.toTranslation2d();
 
-  private Pose2d climbPose =
+  private Pose2d climbPoseLeft =
       new Pose2d(FieldConstants.Tower.leftUpright, Rotation2d.fromDegrees(0))
+          .plus(DrivebaseConstants.climberOffset);
+
+  private Pose2d climbPoseRight =
+      new Pose2d(FieldConstants.Tower.rightUpright, Rotation2d.fromDegrees(0))
           .plus(DrivebaseConstants.climberOffset);
 
   public ScoringSystem(
@@ -156,6 +163,16 @@ public class ScoringSystem {
     targetHoodAngle = hoodAngle;
   }
 
+  public void setShooterSetpointsRevised(
+      AngularVelocity shooterSpeed, Angle turretAngle, Angle hoodAngle) {
+    turret.setTurretSetpoint(turretAngle);
+    shooter.setVelocitySetpoint(shooterSpeed);
+  }
+
+  public void setInputVelocitySetpoint() {
+    input.setVelocitySetpoint(shooter.getVelocity());
+  }
+
   /**
    * Aims the superstructure using suppliers - useful for dynamic targeting.
    *
@@ -196,6 +213,10 @@ public class ScoringSystem {
    */
   public Command setShooterRPMForwards(int velocity) {
     return shooter.setVelocity(RPM.of(velocity));
+  }
+
+  public Command setShooterDutyCycle(double dutyCycle) {
+    return shooter.set(dutyCycle);
   }
 
   /**
@@ -241,8 +262,8 @@ public class ScoringSystem {
    */
   public Command runInputAndIdexerForwards(double speedInput, double speedSpindexer) {
     return input
-        .set(speedInput)
-        .alongWith(new WaitCommand(.25).andThen(spindexer.set(-speedSpindexer)));
+        .setVelocity(RPM.of(speedInput))
+        .alongWith(new WaitCommand(.25).andThen(spindexer.set(speedSpindexer)));
   }
 
   /**
@@ -253,20 +274,32 @@ public class ScoringSystem {
    * @return A command that runs the Input and Spindexer in reverse with DutyCycle
    */
   public Command runInputAndIdexerReverse(double speedInput, double speedSpindexer) {
-    return input.set(-speedInput).alongWith(spindexer.set(speedSpindexer));
+    return input.set(-speedInput).alongWith(spindexer.set(-speedSpindexer));
   }
 
   // TODO add velocity version of forward and reverse and add a auto calculated version using
   // Gabriellas PID code
 
-  public Command runInputAndIdexerAtShooterSpeed() {
-    return input
-        .setVelocity(RPM.of(0.95 * (this.targetShooterSpeed).magnitude()))
-        .alongWith(
-            new WaitCommand(.25)
-                .andThen(
-                    spindexer.setVelocity(
-                        (RPM.of(-9 * 0.8 * (this.targetShooterSpeed).magnitude())))));
+  public void runInputAndIdexerAtShooterSpeed() {
+    // if (matchShooterVelocity) {
+    input.setVelocitySetpoint(
+        RPM.of(((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude())));
+
+    // spindexer.setVelocitySetpoint(
+    // (RPM.of(9 * 0.8 * ((shooter.getVelocitySetpoint().orElse(RPM.of(0))).magnitude()))));
+    // } else {
+    // return input.set(.65).alongWith(new WaitCommand(.25).andThen(spindexer.set(.85)));
+    // }
+  }
+
+  public void setMatchShooterVelocity() {
+
+    matchShooterVelocity = true;
+  }
+
+  public void disableMatchShooterVelocity() {
+
+    matchShooterVelocity = false;
   }
 
   /**
@@ -316,8 +349,8 @@ public class ScoringSystem {
    */
   public Command useArmToAgitate() {
     return intakeArm
-        .runToAngle(Degrees.of(-10), Degrees.of(1))
-        .andThen(intakeArm.runToAngle(Degrees.of(-90), Degrees.of(1)));
+        .runToAngle(Degrees.of(-40), Degrees.of(3))
+        .andThen(intakeArm.runToAngle(Degrees.of(-90), Degrees.of(3)));
   }
 
   public Command setIntakeUpAndHold(Angle angle) {
@@ -398,14 +431,23 @@ public class ScoringSystem {
   //   this.aimPoint = newAimPoint;
   // }
 
-  public Pose2d getClimbPose() {
-    return new Pose2d(
-        new Translation2d(climbPose.getX(), climbPose.getY()), Rotation2d.fromDegrees(90));
+  public Pose2d getClimbPoseRight() {
+    return AllianceFlipUtil.apply(
+        new Pose2d(
+            new Translation2d(climbPoseRight.getX(), climbPoseRight.getY()),
+            Rotation2d.fromDegrees(90)));
   }
 
-  public void setAimPoint(Pose2d newPose2d) {
-    this.climbPose = newPose2d;
+  public Pose2d getClimbPoseLeft() {
+    return AllianceFlipUtil.apply(
+        new Pose2d(
+            new Translation2d(climbPoseLeft.getX(), climbPoseLeft.getY()),
+            Rotation2d.fromDegrees(90)));
   }
+
+  // public void setAimPoint(Pose2d newPose2d) {
+  //   this.climbPose = newPose2d;
+  // }
 
   public Rotation3d getAimRotation3d() {
     // See
@@ -426,7 +468,7 @@ public class ScoringSystem {
     // element is based on hood and turret angles
     return new Pose3d(
         new Translation3d(
-            Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
+            Inches.of(5.25).in(Meters), -Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
         // Inches.of(-5.25).in(Meters), Inches.of(5.25).in(Meters), Inches.of(16.945).in(Meters)),
         // real robot values
         getAimRotation3d());

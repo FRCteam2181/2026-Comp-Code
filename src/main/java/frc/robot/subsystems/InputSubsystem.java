@@ -34,10 +34,10 @@ public class InputSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
-          .withClosedLoopController(.01, 0, .175)
+          .withClosedLoopController(.015, 0, 0)
           .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0.14, 0.1055, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Feeder Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
@@ -79,6 +79,11 @@ public class InputSubsystem extends SubsystemBase {
    */
   public AngularVelocity getVelocity() {
     return shooter.getSpeed();
+  }
+
+  public void setVelocitySetpoint(AngularVelocity velocity) {
+
+    shooter.setMechanismVelocitySetpoint(velocity);
   }
 
   /**

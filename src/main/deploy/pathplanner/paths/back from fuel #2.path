@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.715070422535211,
+        "y": 3.555950704225352
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.836535325070757,
+        "y": 2.508628583719401
+      },
+      "isLocked": false,
+      "linkedName": "end of collect fuel #2"
+    },
+    {
+      "anchor": {
+        "x": 5.859,
+        "y": 2.342
+      },
+      "prevControl": {
+        "x": 5.830020563153787,
+        "y": 2.590314704035175
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "back from fuel"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.331370317,
+    "maxAcceleration": 2.331370317,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

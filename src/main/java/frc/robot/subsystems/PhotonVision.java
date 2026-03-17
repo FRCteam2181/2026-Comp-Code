@@ -153,32 +153,32 @@ public class PhotonVision {
     return poseEst;
   }
 
-  /**
-   * Change the PhotonVision pipeline for the LEFT_CAM
-   *
-   * @param desiredPipelineIndex
-   */
-  public void changeLeftCamPipeline(Integer desiredPipelineIndex) {
-    Cameras.LEFT_CAM.changePipelineIndex(desiredPipelineIndex);
-  }
+  // /**
+  //  * Change the PhotonVision pipeline for the LEFT_CAM
+  //  *
+  //  * @param desiredPipelineIndex
+  //  */
+  // public void changeLeftCamPipeline(Integer desiredPipelineIndex) {
+  //   Cameras.FRONT_LEFT_CAM.changePipelineIndex(desiredPipelineIndex);
+  // }
 
-  /**
-   * Change the PhotonVision pipeline for the RIGHT_CAM
-   *
-   * @param desiredPipelineIndex
-   */
-  public void changeRightCamPipeline(Integer desiredPipelineIndex) {
-    Cameras.RIGHT_CAM.changePipelineIndex(desiredPipelineIndex);
-  }
+  // /**
+  //  * Change the PhotonVision pipeline for the RIGHT_CAM
+  //  *
+  //  * @param desiredPipelineIndex
+  //  */
+  // public void changeRightCamPipeline(Integer desiredPipelineIndex) {
+  //   Cameras.FRONT_RIGHT_CAM.changePipelineIndex(desiredPipelineIndex);
+  // }
 
-  public boolean hasTargets() {
-    if (getEstimatedGlobalPose(Cameras.LEFT_CAM) == null
-        && getEstimatedGlobalPose(Cameras.RIGHT_CAM) == null) {
-      return false;
-    } else {
-      return true;
-    }
-  }
+  // public boolean hasTargets() {
+  //   if (getEstimatedGlobalPose(Cameras.FRONT_LEFT_CAM) == null
+  //       && getEstimatedGlobalPose(Cameras.FRONT_RIGHT_CAM) == null) {
+  //     return false;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
   /**
    * Filter pose via the ambiguity and find best estimate between all of the camera's throwing out
@@ -307,40 +307,39 @@ public class PhotonVision {
   /** Camera Enum to select each camera */
   enum Cameras {
     /** Left Camera */
-    LEFT_CAM(
-        "LEFT_CAM",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(180)),
+    FRONT_RIGHT_CAM(
+        "FRONT_RIGHT_CAM",
+        new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
         new Translation3d(
-            Units.inchesToMeters(0.71), Units.inchesToMeters(11.605), Units.inchesToMeters(9.22)),
+            Units.inchesToMeters(0.71),
+            -Units.inchesToMeters(11.605),
+            Units.inchesToMeters(26.875)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1)),
 
-    // "LEFT_CAM",
-    // new Rotation3d(Math.toRadians(38), Math.toRadians(0), Math.toRadians(180)),
-    // new Translation3d(
-    //     Units.inchesToMeters(4.714), Units.inchesToMeters(8.237), Units.inchesToMeters(8.714)),
-    // VecBuilder.fill(4, 4, 8),
-    // VecBuilder.fill(0.5, 0.5, 1)),
-    /** Right Camera */
-    RIGHT_CAM(
-        "RIGHT_CAM",
-        new Rotation3d(Math.toRadians(38), Math.toRadians(0), -Math.toRadians(180)),
+    FRONT_LEFT_CAM(
+        "FRONT_LEFT_CAM",
+        new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)),
         new Translation3d(
-            -Units.inchesToMeters(4.714),
-            -Units.inchesToMeters(8.237),
-            Units.inchesToMeters(8.714)),
+            Units.inchesToMeters(3.877), Units.inchesToMeters(7.7375), Units.inchesToMeters(19.5)),
         VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
 
-    // /**
-    //  * Center Camera
-    //  */
-    // CENTER_CAM("center",
-    //            new Rotation3d(0, Units.degreesToRadians(18), 0),
-    //            new Translation3d(Units.inchesToMeters(-4.628),
-    //                              Units.inchesToMeters(-10.687),
-    //                              Units.inchesToMeters(16.129)),
-    //            VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+    // RIGHT_SIDE_CAM(
+    //     "RIGHT_SIDE_CAM",
+    //     new Rotation3d(Math.toRadians(15), Math.toRadians(0), -Math.toRadians(90)),
+    //     new Translation3d(
+    //         -Units.inchesToMeters(2), -Units.inchesToMeters(12.5), Units.inchesToMeters(15.75)),
+    //     VecBuilder.fill(4, 4, 8),
+    //     VecBuilder.fill(0.5, 0.5, 1)),
+
+    // LEFT_SIDE_CAM(
+    //     "LEFT_SIDE_CAM",
+    //     new Rotation3d(-Math.toRadians(15), Math.toRadians(0), Math.toRadians(90)),
+    //     new Translation3d(
+    //         -Units.inchesToMeters(2), Units.inchesToMeters(12.), Units.inchesToMeters(15.25)),
+    //     VecBuilder.fill(4, 4, 8),
+    //     VecBuilder.fill(0.5, 0.5, 1));
 
     /** Latency alert to use when high latency is detected. */
     public final Alert latencyAlert;

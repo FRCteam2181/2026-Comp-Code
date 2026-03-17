@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
 import frc.robot.constants.ShooterConstants;
+import java.util.Optional;
 import java.util.function.Supplier;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
@@ -41,11 +42,11 @@ public class ShooterSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
-          .withClosedLoopController(.01, 0, .175)
+          .withClosedLoopController(.015, 0, .225)
           .withSimClosedLoopController(.015, 0, 0.175)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
-          .withSimFeedforward(new SimpleMotorFeedforward(0.025, 0.011858, 0))
+          .withFeedforward(new SimpleMotorFeedforward(0.18, 0.1232, 0)) // .025
+          .withSimFeedforward(new SimpleMotorFeedforward(0.02, 0.011858, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Shooter Motor", Telemetry.telemetryVerbosity.yamsVerbosity)
           // Gearing from the motor rotor to final shaft.
@@ -71,7 +72,7 @@ public class ShooterSubsystem extends SubsystemBase {
           // Diameter of the flywheel.
           .withDiameter(Inches.of(4))
           // Mass of the flywheel.
-          .withMass(Pounds.of(1))
+          .withMass(Pounds.of(2))
           // Maximum speed of the shooter.
           .withUpperSoftLimit(RPM.of(6784 * 4))
           // Telemetry name and verbosity for the arm.
@@ -105,6 +106,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public AngularVelocity getSpeed() {
     return shooter.getSpeed();
+  }
+
+  public void setVelocitySetpoint(AngularVelocity velocity) {
+
+    shooter.setMechanismVelocitySetpoint(velocity);
+  }
+
+  public Optional<AngularVelocity> getVelocitySetpoint() {
+    return shooter.getMechanismSetpointVelocity();
   }
 
   /**

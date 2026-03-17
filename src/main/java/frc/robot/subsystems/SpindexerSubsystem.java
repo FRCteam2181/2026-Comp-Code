@@ -50,7 +50,7 @@ public class SpindexerSubsystem extends SubsystemBase {
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.BRAKE)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(60));
 
   // Vendor motor controller object
 
@@ -80,6 +80,11 @@ public class SpindexerSubsystem extends SubsystemBase {
    */
   public AngularVelocity getVelocity() {
     return shooter.getSpeed();
+  }
+
+  public void setVelocitySetpoint(AngularVelocity velocity) {
+
+    shooter.setMechanismVelocitySetpoint(velocity);
   }
 
   /**

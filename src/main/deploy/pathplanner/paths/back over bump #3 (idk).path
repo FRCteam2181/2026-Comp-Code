@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.859,
+        "y": 2.342
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.80487676056338,
+        "y": 2.326390845070423
+      },
+      "isLocked": false,
+      "linkedName": "back from fuel"
+    },
+    {
+      "anchor": {
+        "x": 2.585281690140846,
+        "y": 2.342
+      },
+      "prevControl": {
+        "x": 3.4156338028169024,
+        "y": 2.342359154929578
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "end point over bump #3"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 5.331370317,
+    "maxAcceleration": 2.331370317,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}
