@@ -70,7 +70,7 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
   static {
     minDistance = 1.34;
     maxDistance = 5.60;
-    phaseDelay = 0.03;
+    phaseDelay = 0.03; // should be .13?
 
     launchHoodAngleMap.put(1.34, Rotation2d.fromDegrees(19.0));
     launchHoodAngleMap.put(1.78, Rotation2d.fromDegrees(19.0));
@@ -83,19 +83,6 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    // 3.349396    ===  6100
-    // 4.213254         6650
-
-    // launchFlywheelSpeedMap.put(Inches.of(198.11).in(Meters), 8550.0);
-    // launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8150.0); //
-    // launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0); //
-    // launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0); //
-    // launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7500.0);
-    // launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7200.0);
-    // launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 6700.0);
-    // launchFlywheelSpeedMap.put(Inches.of(109).in(Meters), 6500.0);
-    // launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6500.0);
-
     launchFlywheelSpeedMap.put(2.12923, 2725.0);
     launchFlywheelSpeedMap.put(2.504222, 2800.0);
     launchFlywheelSpeedMap.put(2.889, 2950.0);
@@ -104,19 +91,6 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchFlywheelSpeedMap.put(3.983757, 3320.0);
     launchFlywheelSpeedMap.put(4.498437, 3475.0);
     launchFlywheelSpeedMap.put(4.986071, 3675.0);
-
-    // launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6300.0);
-    // launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
-
-    // launchFlywheelSpeedMap.put(Inches.of(173.51).in(Meters), 8250.0);
-    // launchFlywheelSpeedMap.put(Inches.of(162.01).in(Meters), 7900.0);
-    // launchFlywheelSpeedMap.put(Inches.of(150.01).in(Meters), 7800.0);
-    // launchFlywheelSpeedMap.put(Inches.of(140.01).in(Meters), 7600.0);
-    // launchFlywheelSpeedMap.put(Inches.of(118.51).in(Meters), 7500.0);
-    // launchFlywheelSpeedMap.put(Inches.of(111.51).in(Meters), 7000.0);
-    // launchFlywheelSpeedMap.put(Inches.of(97.51).in(Meters), 6800.0);
-    // launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6600.0);
-    // launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);

@@ -25,13 +25,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive Center back"
+            "pathName": "Right Shooting to Neutral"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Back Right to Neutral"
+            "pathName": "Copy of To fuel area"
           }
         }
       ]

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.7010035211267605,
-        "y": 2.470105633802817
+        "x": 4.215819277108434,
+        "y": 2.5597590361445786
       },
       "isLocked": false,
       "linkedName": "back from fuel"
@@ -28,18 +28,13 @@
       "linkedName": "back over bump #2 end point"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.6835443037974681,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.331370317,
-    "maxAcceleration": 2.331370317,
+    "maxVelocity": 7.59774231403,
+    "maxAcceleration": 3.7988711571,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -47,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": 0.0
+    "rotation": 18.161916850067577
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": -90.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

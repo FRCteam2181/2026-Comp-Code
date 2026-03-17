@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0828588374797936,
-        "y": 2.297390272829732
+        "x": 5.904150602409637,
+        "y": 2.3575963855421698
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.301661806992338,
-        "y": 2.422723676545029
+        "x": 7.1229535719221815,
+        "y": 2.4829297892574664
       },
       "isLocked": false,
       "linkedName": "Center-Back-Endpoint"
@@ -97,8 +97,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.331370317,
-    "maxAcceleration": 2.331370317,
+    "maxVelocity": 7.59774231403,
+    "maxAcceleration": 3.7988711571,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

@@ -12,7 +12,7 @@
         "y": 0.5060035211267608
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right side over bump"
     },
     {
       "anchor": {
@@ -38,8 +38,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.331370317,
-    "maxAcceleration": 2.331370317,
+    "maxVelocity": 7.59774231403,
+    "maxAcceleration": 3.7988711571,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -53,7 +53,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": 90.0
+    "rotation": 47.06838031531188
   },
   "useDefaultConstraints": true
 }
