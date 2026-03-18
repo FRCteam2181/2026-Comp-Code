@@ -323,7 +323,7 @@ public class RobotContainer {
         .CompBoardOneButtonR2()
         // .toggleOnTrue(new RunCommand(() -> scoringSystem.runInputAndIdexerAtShooterSpeed()))
         // .onFalse(scoringSystem.runInputAndIdexerForwards(0, 0));
-        .whileTrue(scoringSystem.runInputAndIdexerForwards(3500, .75));
+        .whileTrue(scoringSystem.runInputAndIdexerForwards(3500, .95));
     // .alongWith(scoringSystem.runInputAndIdexerAtShooterSpeed()));
 
     // Commands.runOnce(() -> scoringSystem.setInputVelocitySetpoint())))
