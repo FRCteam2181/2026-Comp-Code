@@ -47,12 +47,6 @@
           }
         },
         {
-          "type": "path",
-          "data": {
-            "pathName": "Copy of To fuel area"
-          }
-        },
-        {
           "type": "named",
           "data": {
             "name": "Intake Down + Start"
@@ -61,37 +55,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "thru fuel"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Up + Stop"
+            "pathName": "Copy of To fuel area"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "fuel before bump"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
+            "pathName": "half thru fuel"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of fuel over bump"
+            "pathName": "back thru fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back from fuel"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back over bump"
           }
         },
         {
@@ -104,12 +92,6 @@
           "type": "named",
           "data": {
             "name": "Aim And Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
           }
         }
       ]

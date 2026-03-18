@@ -53,40 +53,15 @@
           }
         },
         {
-          "type": "deadline",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "half thru fuel"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Run Intake"
-                }
-              }
-            ]
+            "name": "Intake Down + Start"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "back thru fuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "back from fuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "back over bump"
+            "pathName": "thru fuel"
           }
         },
         {
@@ -98,19 +73,43 @@
         {
           "type": "named",
           "data": {
-            "name": "Aim And Shoot"
+            "name": "Intake Up + Stop"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "back over bump again"
+            "pathName": "fuel before bump"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "collect fuel #2"
+            "pathName": "Copy of fuel over bump"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Target Then Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         }
       ]

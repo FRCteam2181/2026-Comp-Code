@@ -3,7 +3,26 @@
   "command": {
     "type": "sequential",
     "data": {
-      "commands": []
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left to Center"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Auto Target Then Shoot"
+          }
+        }
+      ]
     }
   },
   "resetOdom": true,

@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive to Center of Alliance Zone"
+            "pathName": "New Path"
           }
         },
         {
@@ -23,21 +23,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Intake Down"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Drive Center to Outpost"
+            "name": "Drive to Left Tower"
           }
         }
       ]

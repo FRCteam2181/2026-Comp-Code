@@ -7,37 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Loop Intake 1 "
+            "pathName": "Left to Center"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Intake Down + Start"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Loop Intake 2"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Up + Stop"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Loop Intake 3"
+            "name": "Localize"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Auto Target Then Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Drive to Left Tower"
           }
         }
       ]
