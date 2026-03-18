@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.791,
-        "y": 1.241
+        "x": 3.076123316796599,
+        "y": 2.5276187101346554
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.152267605633803,
-        "y": 1.6242394366197186
+        "x": 2.437390922430401,
+        "y": 2.910858146754374
       },
       "isLocked": false,
       "linkedName": "back thru fuel"

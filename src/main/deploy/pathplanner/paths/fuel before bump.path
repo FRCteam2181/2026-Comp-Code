@@ -8,27 +8,32 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.629145189279641,
-        "y": 6.610978566099234
+        "x": 4.586718639262935,
+        "y": 5.368823529411765
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.603292253521127,
-        "y": 5.424242957746478
+        "x": 2.1701056338028177,
+        "y": 5.599894366197184
       },
       "prevControl": {
-        "x": 5.6531470642414865,
-        "y": 5.179264391647243
+        "x": 4.573862508858966,
+        "y": 5.368823529411765
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Shooting Point"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.16313559322034002,
+      "rotationDegrees": -45.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 1.5,
-    "rotation": -90.0
+    "rotation": -38.41805534482196
   },
   "reversed": false,
   "folder": null,

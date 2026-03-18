@@ -13,43 +13,38 @@
         {
           "type": "named",
           "data": {
-            "name": "Auto Target Then Shoot"
+            "name": "Localize"
           }
         },
         {
-          "type": "wait",
+          "type": "deadline",
           "data": {
-            "waitTime": 2.0
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Auto Target Then Shoot"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Center to bumper "
+            "pathName": "Drive Center back"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Localize"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Over Bump"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Down + Start"
           }
         },
         {
@@ -59,27 +54,65 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "half thru fuel"
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.75
+                      }
+                    },
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "half thru fuel"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Down"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Run Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intaking"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "back thru fuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "back from fuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "back over bump"
           }
         },
         {
@@ -91,7 +124,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Aim And Shoot"
+            "name": "Auto Target Then Shoot"
           }
         }
       ]

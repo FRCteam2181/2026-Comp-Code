@@ -320,8 +320,8 @@ public class ShootOnTheMoveCommandRevised extends Command {
                 .contains(turretPose.getTranslation()));
   }
 
-  //   @Override
-  //   public void end(boolean interupted) {
-  //     superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
-  //   }
+  @Override
+  public void end(boolean interupted) {
+    superstructure.setShooterDutyCycle(0).alongWith(superstructure.turnTurretRight(0));
+  }
 }

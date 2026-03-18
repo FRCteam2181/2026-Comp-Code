@@ -16,7 +16,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 
 public class Telemetry {
   /// Current Telemetry Setting
-  public static TelemetryVerbosity telemetryVerbosity = TelemetryVerbosity.HIGH;
+  public static TelemetryVerbosity telemetryVerbosity = TelemetryVerbosity.LOW;
   /// Telemetry Defaults
   public static final String telemetryPath =
       "SmartDashboard/Telemetry"; // Make access public for other telemetry.
