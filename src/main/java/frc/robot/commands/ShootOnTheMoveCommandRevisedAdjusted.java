@@ -91,6 +91,7 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchFlywheelSpeedMap.put(3.983757, 3320.0);
     launchFlywheelSpeedMap.put(4.498437, 3475.0);
     launchFlywheelSpeedMap.put(4.986071, 3675.0);
+    launchFlywheelSpeedMap.put(5.410986, 4000.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);
@@ -224,7 +225,7 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     superstructure.setShooterSetpointsRevised(
         RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
 
-        // RPM.of(7700),
+        // RPM.of(4000),
         Rotations.of(turretAngle.getRotations()),
         Rotations.of(hoodAngle));
 
