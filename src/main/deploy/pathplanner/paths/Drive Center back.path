@@ -16,19 +16,24 @@
     },
     {
       "anchor": {
-        "x": 5.904150602409637,
-        "y": 2.3575963855421698
+        "x": 6.6312343470483,
+        "y": 2.258318425760286
       },
       "prevControl": {
-        "x": 4.021048901488307,
-        "y": 2.43119773210489
+        "x": 4.74813264612697,
+        "y": 2.3319197723230065
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Center-Back-Endpoint"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.19639278557114193,
+      "rotationDegrees": 135.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 45.0
+    "rotation": 135.0
   },
   "reversed": false,
   "folder": null,

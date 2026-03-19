@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.904150602409637,
-        "y": 2.3575963855421698
+        "x": 6.6312343470483,
+        "y": 2.258318425760286
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.701552090715805,
-        "y": 0.6441956059532228
+        "x": 7.428635835354468,
+        "y": 0.5449176461713392
       },
       "isLocked": false,
       "linkedName": "Center-Back-Endpoint"
@@ -53,7 +53,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 1.0,
-    "rotation": 45.0
+    "rotation": 135.0
   },
   "useDefaultConstraints": true
 }

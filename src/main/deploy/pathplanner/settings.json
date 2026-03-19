@@ -1,5 +1,5 @@
 {
-  "robotWidth": 0.8763,
+  "robotWidth": 0.876,
   "robotLength": 0.8763,
   "holonomicMode": true,
   "pathFolders": [
@@ -30,5 +30,7 @@
   "brModuleY": -0.29845,
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"Line\",\"type\":\"line\",\"data\":{\"start\":{\"x\":-0.438,\"y\":0.0},\"end\":{\"x\":-0.798,\"y\":0.0},\"strokeWidth\":0.02}}"
+  ]
 }

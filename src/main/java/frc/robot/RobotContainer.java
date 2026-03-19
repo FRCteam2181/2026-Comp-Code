@@ -104,8 +104,8 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity =
       SwerveInputStream.of(
               drivebase.getSwerveDrive(),
-              () -> driverXbox.getLeftY() * -1,
-              () -> driverXbox.getLeftX() * -1)
+              () -> driverXbox.getLeftY() * -1.25,
+              () -> driverXbox.getLeftX() * -1.25)
           .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
           .deadband(OperatorConstants.DEADBAND)
           .scaleTranslation(0.8)
@@ -152,22 +152,14 @@ public class RobotContainer {
     // Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
 
-    // NamedCommands.registerCommand(
-    //     "Auto Target Then Shoot",
-    //     new ParallelCommandGroup(
-    //             new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
-    //             // input.set(.7).alongWith(new WaitCommand(.25).andThen(spindexer.set(.8))))
-    //             scoringSystem.runInputAndIdexerForwards(.7, .95).withTimeout(4))
-    //         .withTimeout(5));
-    // // shooter.setVelocity(RPM.of(500)).withTimeout(5));
-
     NamedCommands.registerCommand(
         "Auto Target Then Shoot",
         new ParallelCommandGroup(
                 new ShootOnTheMoveCommandRevised(drivebase, scoringSystem),
                 // input.set(.7).alongWith(new WaitCommand(.25).andThen(spindexer.set(.8))))
-                scoringSystem.runInputAndIdexerForwards(3500, .95).withTimeout(4))
+                scoringSystem.runInputAndIdexerForwards(3500, .9).withTimeout(4))
             .withTimeout(5));
+    // shooter.setVelocity(RPM.of(500)).withTimeout(5));
 
     NamedCommands.registerCommand(
         "Localize", Commands.runOnce(() -> drivebase.resetAutoBuilderOdometry(), drivebase));
@@ -180,7 +172,7 @@ public class RobotContainer {
     //         .withTimeout(5));
     NamedCommands.registerCommand("Intake Down", scoringSystem.armDown(-.35).withTimeout(.5));
 
-    NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(.35).withTimeout(.5));
+    NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(-.35).withTimeout(.5));
 
     NamedCommands.registerCommand(
         "Run Intake",
@@ -195,10 +187,8 @@ public class RobotContainer {
         scoringSystem.intakeSetAndStart(Angle.ofBaseUnits(90, Degrees), 0, 0).withTimeout(0.5));
     NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
-    NamedCommands.registerCommand("Stop Intaking", scoringSystem.runIntakeForwards(0, 0));
-
     NamedCommands.registerCommand(
-        "Stop Input and Feeder", scoringSystem.runInputAndIdexerForwards(0, 0));
+        "Stop Input and Feeder", scoringSystem.runInputAndIdexerForwards(0, 0).withTimeout(4));
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();

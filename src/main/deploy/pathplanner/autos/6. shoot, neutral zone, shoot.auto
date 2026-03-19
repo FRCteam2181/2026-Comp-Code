@@ -23,7 +23,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 2.0
                 }
               },
               {
@@ -42,6 +42,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Localize"
@@ -51,6 +57,12 @@
           "type": "path",
           "data": {
             "pathName": "Copy of To fuel area"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
@@ -78,29 +90,42 @@
                       "data": {
                         "pathName": "half thru fuel"
                       }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
                     }
                   ]
                 }
               },
               {
-                "type": "named",
+                "type": "parallel",
                 "data": {
-                  "name": "Intake Down"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Run Intake"
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Intake Down"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Run Intake"
+                      }
+                    }
+                  ]
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Stop Intaking"
+            "waitTime": 0.75
           }
         },
         {

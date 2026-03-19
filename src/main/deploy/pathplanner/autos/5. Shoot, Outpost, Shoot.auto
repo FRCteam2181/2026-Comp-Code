@@ -40,15 +40,21 @@
           "data": {
             "commands": [
               {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.25
+                }
+              },
+              {
                 "type": "named",
                 "data": {
                   "name": "Intake Down"
                 }
               },
               {
-                "type": "wait",
+                "type": "named",
                 "data": {
-                  "waitTime": 0.75
+                  "name": "Stop Input and Feeder"
                 }
               }
             ]
@@ -63,19 +69,38 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 3.5
           }
         },
         {
-          "type": "path",
+          "type": "deadline",
           "data": {
-            "pathName": "outpost to shoot"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "outpost to shoot"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Intake Up"
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
             "name": "Auto Target Then Shoot"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": []
           }
         }
       ]
