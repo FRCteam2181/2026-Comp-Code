@@ -275,13 +275,19 @@ public class RobotContainer {
                 .until(climber.hitReverseLimit())
                 .andThen(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 1))))
         .onFalse(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 0)));
-    // driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
 
     // driverXbox.leftTrigger().whileTrue(Commands.runOnce(() -> turret.rezeroTurretPosition()));
 
     driverXbox.button(8).whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPoseRight()));
 
     driverXbox.button(7).whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPoseLeft()));
+
+    driverXbox
+        .b()
+        .onTrue(
+            Commands.runOnce(() -> drivebase.setQuestNavPose(drivebase.getPose3d()), drivebase)
+                .ignoringDisable(true));
 
     // driverXbox.button(9).onTrue(Commands.runOnce(() ->
     // {driveAngularVelocity.scaleTranslation(1);}));
