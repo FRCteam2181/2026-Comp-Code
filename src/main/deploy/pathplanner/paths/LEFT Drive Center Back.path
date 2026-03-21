@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2076744186046513,
-        "y": 2.306994633273703
+        "x": 2.413,
+        "y": 6.101
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5604066187424754,
-        "y": 2.086369328488413
+        "x": 4.246487564794856,
+        "y": 5.614243028049286
       },
       "isLocked": false,
-      "linkedName": "Back trough fuel endpoint"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.4126296958855096,
-        "y": 1.899300118623961
+        "x": 6.453,
+        "y": 5.742
       },
       "prevControl": {
-        "x": 2.9805187835420393,
-        "y": 2.158906558695518
+        "x": 4.635332283208596,
+        "y": 5.320052051392208
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "center-reverse"
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2,
+      "rotationDegrees": -135.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 42.18747524264513
+    "rotation": -135.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
-    "rotation": 25.068321755910496
+    "velocity": 0.0,
+    "rotation": -42.19
   },
   "useDefaultConstraints": true
 }
