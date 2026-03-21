@@ -34,10 +34,10 @@ public class TopIntakeSubsystem extends SubsystemBase {
       new SmartMotorControllerConfig(this)
           .withControlMode(ControlMode.CLOSED_LOOP)
           // Feedback Constants (PID Constants)
-          .withClosedLoopController(1, 0, 0)
+          .withClosedLoopController(0, 0, 0)
           .withSimClosedLoopController(1, 0, 0)
           // Feedforward Constants
-          .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
+          .withFeedforward(new SimpleMotorFeedforward(.14, .953, 0))
           .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
           // Telemetry name and verbosity level
           .withTelemetry("Top Intake Roller Motor", Telemetry.telemetryVerbosity.yamsVerbosity)

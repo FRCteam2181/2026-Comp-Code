@@ -67,6 +67,9 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
   private static final InterpolatingDoubleTreeMap timeOfFlightMap =
       new InterpolatingDoubleTreeMap();
 
+  private static final InterpolatingDoubleTreeMap launchFlywheelSpeedMapNeutralZone =
+      new InterpolatingDoubleTreeMap();
+
   static {
     minDistance = 1.34;
     maxDistance = 5.60;
@@ -92,6 +95,16 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchFlywheelSpeedMap.put(4.498437 - .22, 3475.0);
     launchFlywheelSpeedMap.put(4.986071 - .22, 3675.0);
     launchFlywheelSpeedMap.put(5.410986 - .22, 4000.0);
+
+    launchFlywheelSpeedMapNeutralZone.put(2.12923 - .22, 2925.0);
+    launchFlywheelSpeedMapNeutralZone.put(2.504222 - .22, 3000.0);
+    launchFlywheelSpeedMapNeutralZone.put(2.889 - .22, 3150.0);
+    launchFlywheelSpeedMapNeutralZone.put(3.254686 - .22, 3285.0);
+    launchFlywheelSpeedMapNeutralZone.put(3.695324 - .22, 3400.0);
+    launchFlywheelSpeedMapNeutralZone.put(3.983757 - .22, 3520.0);
+    launchFlywheelSpeedMapNeutralZone.put(4.498437 - .22, 3675.0);
+    launchFlywheelSpeedMapNeutralZone.put(4.986071 - .22, 3875.0);
+    launchFlywheelSpeedMapNeutralZone.put(5.410986 - .22, 4200.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);
@@ -222,12 +235,43 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
 
     lastShootSpeed = RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance));
     // SmartDashboard.putNumber("distance to turret", lookaheadTurretToTargetDistance);
-    superstructure.setShooterSetpointsRevised(
-        RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
 
-        // RPM.of(4000),
-        Rotations.of(turretAngle.getRotations()),
-        Rotations.of(hoodAngle));
+    if (ScoringSystem.CustomTriggers.scoringZone.getTrigger().getAsBoolean()) {
+
+      superstructure.setShooterSetpointsRevised(
+          RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
+
+          // RPM.of(4000),
+          Rotations.of(turretAngle.getRotations()),
+          Rotations.of(hoodAngle));
+    }
+
+    if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
+      superstructure.setShooterSetpointsRevised(
+          RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
+
+          // RPM.of(4000),
+          Rotations.of(turretAngle.getRotations()),
+          Rotations.of(hoodAngle));
+    }
+
+    if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
+      superstructure.setShooterSetpointsRevised(
+          RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
+
+          // RPM.of(4000),
+          Rotations.of(turretAngle.getRotations()),
+          Rotations.of(hoodAngle));
+    }
+
+    if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
+      superstructure.setShooterSetpointsRevised(
+          RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
+
+          // RPM.of(4000),
+          Rotations.of(turretAngle.getRotations()),
+          Rotations.of(hoodAngle));
+    }
 
     SmartDashboard.putNumber("Distance to Target", lookaheadTurretToTargetDistance);
     // SmartDashboard.putData("turretPosition", turretPosition);

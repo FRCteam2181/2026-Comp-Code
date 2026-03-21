@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive to Center of Alliance Zone"
+            "pathName": "LEFT DRive to Center of Alliance"
           }
         },
         {
@@ -50,7 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Drive Center back"
+            "pathName": "LEFT Drive Center Back"
           }
         },
         {
@@ -70,7 +70,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "Copy of To fuel area"
+                        "pathName": "LEFT To Fuel Area"
                       }
                     },
                     {
@@ -88,7 +88,7 @@
                     {
                       "type": "path",
                       "data": {
-                        "pathName": "half thru fuel"
+                        "pathName": "LEFT Half Thru Fuel"
                       }
                     },
                     {
@@ -117,9 +117,15 @@
           }
         },
         {
-          "type": "wait",
+          "type": "named",
           "data": {
-            "waitTime": 0.0
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LEFT back thru fuel"
           }
         },
         {
@@ -131,19 +137,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "back thru fuel"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot after fuel path"
+            "pathName": "LEFT Shoot after fuel path"
           }
         },
         {

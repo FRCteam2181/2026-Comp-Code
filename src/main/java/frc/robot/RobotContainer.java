@@ -172,9 +172,12 @@ public class RobotContainer {
     //         .withTimeout(5));
     NamedCommands.registerCommand("Intake Down", scoringSystem.armDown(-.35).withTimeout(.5));
 
-    NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(-.35).withTimeout(.5));
+    NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(-.35).withTimeout(.55));
 
-    NamedCommands.registerCommand("Run Intake", scoringSystem.runIntakeForwards(-0.95, -.95));
+    NamedCommands.registerCommand(
+        "Run Intake", scoringSystem.runIntakeForwardsVelocity(650).withTimeout(15));
+
+    // scoringSystem.runIntakeForwards(-0.95, -.95).withTimeout(10));
 
     NamedCommands.registerCommand(
         "Intake Down + Start",
@@ -187,6 +190,13 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Stop Input and Feeder", scoringSystem.runInputAndIdexerForwards(0, 0).withTimeout(.1));
 
+    NamedCommands.registerCommand(
+        "Drive to Left Tower", drivebase.driveToPose(() -> scoringSystem.getClimbPoseLeft()));
+
+    NamedCommands.registerCommand(
+        "Drive to Right Tower", drivebase.driveToPose(() -> scoringSystem.getClimbPoseRight()));
+
+    NamedCommands.registerCommand("Climber Up", climber.c_climb().withTimeout(2.5));
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
 
@@ -381,9 +391,10 @@ public class RobotContainer {
     // 14. run intake
     compBoardOne
         .CompBoardOneJoystickAsButtonPosX()
-        .toggleOnTrue(
-            scoringSystem.runIntakeForwards(
-                IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
+        .toggleOnTrue(scoringSystem.runIntakeForwardsVelocity(650));
+
+    // scoringSystem.runIntakeForwards(
+    //      IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
 
     // 15. shooter shoot
     compBoardOne

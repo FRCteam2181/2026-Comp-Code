@@ -23,40 +23,34 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.0
+                  "waitTime": 0.25
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "Auto Target Then Shoot"
+                  "name": "Intake Down"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Intake Down"
+            "pathName": "Drive Center to Outpost"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "Stop Input and Feeder"
+            "waitTime": 3.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Drive Center back"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
+            "pathName": "outpost to shoot"
           }
         },
         {
@@ -64,98 +58,11 @@
           "data": {
             "commands": [
               {
-                "type": "sequential",
+                "type": "wait",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "Copy of To fuel area"
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Localize"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.25
-                      }
-                    },
-                    {
-                      "type": "path",
-                      "data": {
-                        "pathName": "half thru fuel"
-                      }
-                    },
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.25
-                      }
-                    }
-                  ]
+                  "waitTime": 6.0
                 }
               },
-              {
-                "type": "sequential",
-                "data": {
-                  "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Run Intake"
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "back thru fuel"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Shoot after fuel path"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
               {
                 "type": "named",
                 "data": {
@@ -213,8 +120,64 @@
                       "data": {
                         "name": "Intake Down"
                       }
+                    },
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Intake Up"
+                      }
                     }
                   ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Run Intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "deadline",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.5
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Drive to Right Tower"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Climber Up"
                 }
               }
             ]

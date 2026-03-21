@@ -242,6 +242,17 @@ public class ScoringSystem {
   }
 
   /**
+   * Command that runs the TopIntake and BottomIntake in the forwards direction using DutyCycle
+   *
+   * @param topSpeed
+   * @param bottomSpeed
+   * @return A command that runs the TopIntake and BottomIntake forwards with DutyCycle
+   */
+  public Command runIntakeForwardsVelocity(double topSpeed) {
+    return topIntake.settopVelocity(RPM.of(-topSpeed)); // .alongWith(bottomIntake.set(0));
+  }
+
+  /**
    * Command that runs the TopIntake and BottomIntake in the reverse direction using DutyCycle
    *
    * @param topSpeed

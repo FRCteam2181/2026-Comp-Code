@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.734561717352415,
-        "y": 3.166940966010733
+        "x": 7.718336314847942,
+        "y": 3.1020393559928436
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.333202146690518,
-        "y": 2.112289803220035
+        "x": 5.34942754919499,
+        "y": 2.3394454382826466
       },
       "isLocked": false,
       "linkedName": "end point of half thru fuel"
