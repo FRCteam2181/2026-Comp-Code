@@ -94,15 +94,15 @@ public class ShootOnTheMoveCommandRevised extends Command {
     // launchFlywheelSpeedMap.put(Inches.of(87.51).in(Meters), 6300.0);
     // launchFlywheelSpeedMap.put(Inches.of(77.51).in(Meters), 6100.0);
 
-    launchFlywheelSpeedMap.put(2.12923 - .27, 2725.0);
-    launchFlywheelSpeedMap.put(2.504222 - .27, 2800.0);
-    launchFlywheelSpeedMap.put(2.889 - .27, 2950.0);
-    launchFlywheelSpeedMap.put(3.254686 - .27, 3085.0);
-    launchFlywheelSpeedMap.put(3.695324 - .27, 3200.0);
-    launchFlywheelSpeedMap.put(3.983757 - .27, 3320.0);
-    launchFlywheelSpeedMap.put(4.498437 - .27, 3475.0);
-    launchFlywheelSpeedMap.put(4.986071 - .27, 3675.0);
-    launchFlywheelSpeedMap.put(5.410986 - .27, 4000.0);
+    launchFlywheelSpeedMap.put(2.12923 - .22, 2725.0);
+    launchFlywheelSpeedMap.put(2.504222 - .22, 2800.0);
+    launchFlywheelSpeedMap.put(2.889 - .22, 2950.0);
+    launchFlywheelSpeedMap.put(3.254686 - .22, 3085.0);
+    launchFlywheelSpeedMap.put(3.695324 - .22, 3200.0);
+    launchFlywheelSpeedMap.put(3.983757 - .22, 3320.0);
+    launchFlywheelSpeedMap.put(4.498437 - .22, 3475.0);
+    launchFlywheelSpeedMap.put(4.986071 - .22, 3675.0);
+    launchFlywheelSpeedMap.put(5.410986 - .22, 4000.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);

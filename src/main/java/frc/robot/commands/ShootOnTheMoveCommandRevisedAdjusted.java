@@ -83,15 +83,15 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    launchFlywheelSpeedMap.put(2.12923 - .32, 2725.0);
-    launchFlywheelSpeedMap.put(2.504222 - .32, 2800.0);
-    launchFlywheelSpeedMap.put(2.889 - .32, 2950.0);
-    launchFlywheelSpeedMap.put(3.254686 - .32, 3085.0);
-    launchFlywheelSpeedMap.put(3.695324 - .32, 3200.0);
-    launchFlywheelSpeedMap.put(3.983757 - .32, 3320.0);
-    launchFlywheelSpeedMap.put(4.498437 - .32, 3475.0);
-    launchFlywheelSpeedMap.put(4.986071 - .32, 3675.0);
-    launchFlywheelSpeedMap.put(5.410986 - .32, 4000.0);
+    launchFlywheelSpeedMap.put(2.12923 - .22, 2725.0);
+    launchFlywheelSpeedMap.put(2.504222 - .22, 2800.0);
+    launchFlywheelSpeedMap.put(2.889 - .22, 2950.0);
+    launchFlywheelSpeedMap.put(3.254686 - .22, 3085.0);
+    launchFlywheelSpeedMap.put(3.695324 - .22, 3200.0);
+    launchFlywheelSpeedMap.put(3.983757 - .22, 3320.0);
+    launchFlywheelSpeedMap.put(4.498437 - .22, 3475.0);
+    launchFlywheelSpeedMap.put(4.986071 - .22, 3675.0);
+    launchFlywheelSpeedMap.put(5.410986 - .22, 4000.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);

@@ -50,7 +50,7 @@ public class TopIntakeSubsystem extends SubsystemBase {
           // Motor properties to prevent over currenting.
           .withMotorInverted(false)
           .withIdleMode(MotorMode.COAST)
-          .withStatorCurrentLimit(Amps.of(40));
+          .withStatorCurrentLimit(Amps.of(60));
 
   // Vendor motor controller object
   private SparkFlex topIntake = new SparkFlex(IntakeConstants.kTopIntake_ID, MotorType.kBrushless);
