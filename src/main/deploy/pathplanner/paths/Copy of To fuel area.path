@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.428635835354468,
-        "y": 0.5449176461713392
+        "x": 6.647459749552772,
+        "y": 1.6093023255813943
       },
       "isLocked": false,
       "linkedName": "Center-Back-Endpoint"
@@ -20,26 +20,21 @@
         "y": 1.0363075832742743
       },
       "prevControl": {
-        "x": 6.740120481927712,
-        "y": 0.6120552799433019
+        "x": 6.598783542039356,
+        "y": 1.025187835420393
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "copy of To fuel area"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.0,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 7.59774231403,
-    "maxAcceleration": 3.7988711571,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

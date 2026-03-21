@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.749326718639264,
-        "y": 2.424769666902906
+        "x": 7.815688729874777,
+        "y": 1.9338103756708405
       },
       "isLocked": false,
       "linkedName": "copy of To fuel area"
@@ -20,8 +20,8 @@
         "y": 3.56896527285613
       },
       "prevControl": {
-        "x": 7.749326718639264,
-        "y": 2.43119773210489
+        "x": 7.734561717352415,
+        "y": 2.745080500894454
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 7.59774231403,
-    "maxAcceleration": 3.7988711571,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,

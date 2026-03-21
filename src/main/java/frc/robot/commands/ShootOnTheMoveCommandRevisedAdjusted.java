@@ -83,15 +83,15 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
     launchHoodAngleMap.put(5.57, Rotation2d.fromDegrees(32.0));
     launchHoodAngleMap.put(5.60, Rotation2d.fromDegrees(35.0));
 
-    launchFlywheelSpeedMap.put(2.12923, 2725.0);
-    launchFlywheelSpeedMap.put(2.504222, 2800.0);
-    launchFlywheelSpeedMap.put(2.889, 2950.0);
-    launchFlywheelSpeedMap.put(3.254686, 3085.0);
-    launchFlywheelSpeedMap.put(3.695324, 3200.0);
-    launchFlywheelSpeedMap.put(3.983757, 3320.0);
-    launchFlywheelSpeedMap.put(4.498437, 3475.0);
-    launchFlywheelSpeedMap.put(4.986071, 3675.0);
-    launchFlywheelSpeedMap.put(5.410986, 4000.0);
+    launchFlywheelSpeedMap.put(2.12923 - .32, 2725.0);
+    launchFlywheelSpeedMap.put(2.504222 - .32, 2800.0);
+    launchFlywheelSpeedMap.put(2.889 - .32, 2950.0);
+    launchFlywheelSpeedMap.put(3.254686 - .32, 3085.0);
+    launchFlywheelSpeedMap.put(3.695324 - .32, 3200.0);
+    launchFlywheelSpeedMap.put(3.983757 - .32, 3320.0);
+    launchFlywheelSpeedMap.put(4.498437 - .32, 3475.0);
+    launchFlywheelSpeedMap.put(4.986071 - .32, 3675.0);
+    launchFlywheelSpeedMap.put(5.410986 - .32, 4000.0);
 
     timeOfFlightMap.put(5.68, 1.16);
     timeOfFlightMap.put(4.55, 1.12);
@@ -230,6 +230,7 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
         Rotations.of(hoodAngle));
 
     SmartDashboard.putNumber("Distance to Target", lookaheadTurretToTargetDistance);
+    // SmartDashboard.putData("turretPosition", turretPosition);
   }
 
   public Trigger inScoringZone(Pose2d turretPose) {

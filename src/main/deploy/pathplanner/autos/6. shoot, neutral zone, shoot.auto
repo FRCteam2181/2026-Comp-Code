@@ -36,6 +36,18 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Intake Down"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Input and Feeder"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Drive Center back"
@@ -44,25 +56,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Localize"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Copy of To fuel area"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "waitTime": 0.0
           }
         },
         {
@@ -80,9 +74,21 @@
                 "data": {
                   "commands": [
                     {
+                      "type": "path",
+                      "data": {
+                        "pathName": "Copy of To fuel area"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "Localize"
+                      }
+                    },
+                    {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.75
+                        "waitTime": 0.25
                       }
                     },
                     {
@@ -94,22 +100,16 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 0.5
+                        "waitTime": 0.25
                       }
                     }
                   ]
                 }
               },
               {
-                "type": "parallel",
+                "type": "sequential",
                 "data": {
                   "commands": [
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "Intake Down"
-                      }
-                    },
                     {
                       "type": "named",
                       "data": {
@@ -125,7 +125,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.75
+            "waitTime": 0.0
           }
         },
         {
@@ -138,6 +138,18 @@
           "type": "path",
           "data": {
             "pathName": "back thru fuel"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Localize"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Shoot after fuel path"
           }
         },
         {

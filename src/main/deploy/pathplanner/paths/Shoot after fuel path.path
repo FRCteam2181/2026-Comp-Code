@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.673,
-        "y": 0.6682289803220032
+        "x": 3.2076744186046513,
+        "y": 2.306994633273703
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3422619243395022,
-        "y": 1.4819398727069695
+        "x": 2.560406200198034,
+        "y": 2.08637055641275
       },
       "isLocked": false,
-      "linkedName": "Outpost"
+      "linkedName": "Back trough fuel endpoint"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 2.0149373881932013
       },
       "prevControl": {
-        "x": 1.1477573858059822,
-        "y": 1.1368274148493827
+        "x": 2.4126296958855096,
+        "y": 2.274543828264758
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 25.068321755910496
   },
   "useDefaultConstraints": true
 }

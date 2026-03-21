@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.795647652748524,
-        "y": 2.244942279474151
+        "x": 5.819964221824687,
+        "y": 1.7715563506261172
       },
       "isLocked": false,
       "linkedName": "end point of half thru fuel"
     },
     {
       "anchor": {
-        "x": 2.283,
-        "y": 2.984
+        "x": 3.2076744186046513,
+        "y": 2.306994633273703
       },
       "prevControl": {
-        "x": 4.483869596031184,
-        "y": 2.2447838412473415
+        "x": 5.333202146690519,
+        "y": 2.355670840787119
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "right side back shooting position"
+      "linkedName": "Back trough fuel endpoint"
     }
   ],
   "rotationTargets": [
@@ -38,8 +38,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 7.59774231403,
-    "maxAcceleration": 3.7988711571,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 2.5,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -47,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 1.0,
-    "rotation": 25.068
+    "rotation": 25.068321755910496
   },
   "reversed": false,
   "folder": null,

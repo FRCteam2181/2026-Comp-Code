@@ -174,10 +174,7 @@ public class RobotContainer {
 
     NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(-.35).withTimeout(.5));
 
-    NamedCommands.registerCommand(
-        "Run Intake",
-        scoringSystem.runIntakeForwards(
-            IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));
+    NamedCommands.registerCommand("Run Intake", scoringSystem.runIntakeForwards(-0.95, -.95));
 
     NamedCommands.registerCommand(
         "Intake Down + Start",
@@ -188,7 +185,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Stop Commands", scoringSystem.stopAllCommand());
 
     NamedCommands.registerCommand(
-        "Stop Input and Feeder", scoringSystem.runInputAndIdexerForwards(0, 0).withTimeout(4));
+        "Stop Input and Feeder", scoringSystem.runInputAndIdexerForwards(0, 0).withTimeout(.1));
 
     // Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
