@@ -61,6 +61,8 @@ public class PhotonVision {
   /** Field from {@link swervelib.SwerveDrive#field} */
   private Field2d field2d;
 
+  public boolean driverMode;
+
   /**
    * Constructor for the Vision class.
    *
@@ -153,11 +155,11 @@ public class PhotonVision {
     return poseEst;
   }
 
-  // /**
-  //  * Change the PhotonVision pipeline for the LEFT_CAM
-  //  *
-  //  * @param desiredPipelineIndex
-  //  */
+  /**
+   * Change the PhotonVision pipeline for the LEFT_CAM
+   *
+   * @param desiredPipelineIndex
+   */
   // public void changeLeftCamPipeline(Integer desiredPipelineIndex) {
   //   Cameras.FRONT_LEFT_CAM.changePipelineIndex(desiredPipelineIndex);
   // }
@@ -304,6 +306,11 @@ public class PhotonVision {
     field2d.getObject("tracked targets").setPoses(poses);
   }
 
+  public void setCameraDriveMode() {
+    Cameras.LEFT_SIDE_CAM.setCameraDriveMode();
+    Cameras.RIGHT_SIDE_CAM.setCameraDriveMode();
+  }
+
   /** Camera Enum to select each camera */
   enum Cameras {
     /** Left Camera */
@@ -446,6 +453,11 @@ public class PhotonVision {
      */
     public void changePipelineIndex(Integer pipeLineIndex) {
       camera.setPipelineIndex(pipeLineIndex);
+    }
+
+    public void setCameraDriveMode() {
+      camera.setDriverMode(true);
+      ;
     }
 
     /**

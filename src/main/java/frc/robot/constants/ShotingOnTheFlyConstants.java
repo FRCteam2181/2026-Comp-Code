@@ -9,10 +9,10 @@ import edu.wpi.first.math.geometry.Transform3d;
 public class ShotingOnTheFlyConstants {
   public static Transform3d robotToTurret =
       new Transform3d(
-          Inches.of(5.25).in(Meters),
-          Inches.of(-5.25).in(Meters),
+          Inches.of(6.25).in(Meters),
+          Inches.of(-6.25).in(Meters),
           Inches.of(16.945).in(Meters),
-          new Rotation3d(0, 0, 180));
+          new Rotation3d(0, 0, 0));
 
   public static final double loopPeriodSecs = 0.01;
 }

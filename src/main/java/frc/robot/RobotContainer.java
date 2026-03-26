@@ -175,7 +175,7 @@ public class RobotContainer {
     NamedCommands.registerCommand("Intake Up", scoringSystem.armUp(-.35).withTimeout(.55));
 
     NamedCommands.registerCommand(
-        "Run Intake", scoringSystem.runIntakeForwardsVelocity(650).withTimeout(15));
+        "Run Intake", scoringSystem.runIntakeForwardsVelocity(1100).withTimeout(15));
 
     // scoringSystem.runIntakeForwards(-0.95, -.95).withTimeout(10));
 
@@ -304,7 +304,7 @@ public class RobotContainer {
     // Buttonboard Buttons
 
     // 1. Reverse shooter
-    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5500));
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(3500));
 
     // 2. Reverse intake
     compBoardOne
@@ -351,7 +351,7 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
-    // compBoardOne
+    // compBoardOn
     //     .CompBoardOneButtonStart()
     //     // driverXbox
     //     //     .x()
@@ -366,6 +366,11 @@ public class RobotContainer {
     // compBoardOne.CompBoardOneButtonStart().whileTrue(intakeArm.setAngle(Degrees.of(-100)));
 
     // 11. hood down
+    compBoardOne
+        .CompBoardOneButtonL3()
+        .onTrue(
+            Commands.runOnce(() -> drivebase.setCameraDriveMode(), drivebase)
+                .ignoringDisable(true));
 
     // TEMP SysID for arm
     // compBoardOne.CompBoardOneButtonL3().whileTrue(intakeArm.setAngle(Degrees.of(0)));
@@ -391,7 +396,7 @@ public class RobotContainer {
     // 14. run intake
     compBoardOne
         .CompBoardOneJoystickAsButtonPosX()
-        .toggleOnTrue(scoringSystem.runIntakeForwardsVelocity(650));
+        .toggleOnTrue(scoringSystem.runIntakeForwardsVelocity(1100));
 
     // scoringSystem.runIntakeForwards(
     //      IntakeConstants.kBottomIntakeDutyCycle, IntakeConstants.kTopIntakeDutyCycle));

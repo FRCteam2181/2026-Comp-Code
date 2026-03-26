@@ -157,24 +157,20 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
 
     if (ScoringSystem.CustomTriggers.scoringZone.getTrigger().getAsBoolean()) {
       target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-    }
-
-    if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
       target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
-    }
-
-    if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
       target =
           AllianceFlipUtil.apply(
               FieldConstants.LeftBump.nearRightCorner.plus(
                   new Translation2d(0, Inches.of(36.5).in(Meters))));
-    }
-
-    if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
       target =
           AllianceFlipUtil.apply(
               FieldConstants.RightBump.nearLeftCorner.plus(
                   new Translation2d(0, -Inches.of(36.5).in(Meters))));
+    } else {
+      target = AllianceFlipUtil.apply(FieldConstants.Hub.topCenterPoint.toTranslation2d());
     }
 
     double turretToTargetDistance = target.getDistance(turretPosition.getTranslation());
@@ -244,29 +240,30 @@ public class ShootOnTheMoveCommandRevisedAdjusted extends Command {
           // RPM.of(4000),
           Rotations.of(turretAngle.getRotations()),
           Rotations.of(hoodAngle));
-    }
-
-    if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.bumpZone.getTrigger().getAsBoolean()) {
       superstructure.setShooterSetpointsRevised(
           RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
 
           // RPM.of(4000),
           Rotations.of(turretAngle.getRotations()),
           Rotations.of(hoodAngle));
-    }
-
-    if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.leftNeutralZone.getTrigger().getAsBoolean()) {
       superstructure.setShooterSetpointsRevised(
           RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
 
           // RPM.of(4000),
           Rotations.of(turretAngle.getRotations()),
           Rotations.of(hoodAngle));
-    }
-
-    if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
+    } else if (ScoringSystem.CustomTriggers.rightNeutralZone.getTrigger().getAsBoolean()) {
       superstructure.setShooterSetpointsRevised(
           RPM.of(launchFlywheelSpeedMapNeutralZone.get(lookaheadTurretToTargetDistance)),
+
+          // RPM.of(4000),
+          Rotations.of(turretAngle.getRotations()),
+          Rotations.of(hoodAngle));
+    } else {
+      superstructure.setShooterSetpointsRevised(
+          RPM.of(launchFlywheelSpeedMap.get(lookaheadTurretToTargetDistance)),
 
           // RPM.of(4000),
           Rotations.of(turretAngle.getRotations()),

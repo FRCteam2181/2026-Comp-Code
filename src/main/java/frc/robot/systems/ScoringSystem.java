@@ -272,9 +272,13 @@ public class ScoringSystem {
    * @return A command that runs the Input and Spindexer forwards with DutyCycle
    */
   public Command runInputAndIdexerForwards(double speedInput, double speedSpindexer) {
-    return input
-        .setVelocity(RPM.of(speedInput))
-        .alongWith(new WaitCommand(.25).andThen(spindexer.set(speedSpindexer)));
+    if (speedSpindexer == 0) {
+      return input.setVelocity(RPM.of(speedInput)).alongWith(spindexer.set(speedSpindexer));
+    } else {
+      return input
+          .setVelocity(RPM.of(speedInput))
+          .alongWith(new WaitCommand(.25).andThen(spindexer.set(speedSpindexer)));
+    }
   }
 
   /**

@@ -61,7 +61,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Swerve drive object. */
   @Getter private final SwerveDrive swerveDrive;
 
-  @Getter private PhotonVision vision;
+  @Getter public PhotonVision vision;
 
   /** Enable vision odometry updates while driving. */
   private final boolean visionDriveTest = true;
@@ -81,6 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private boolean delayBeforeQuestSeeding = false;
   private boolean questSeeded = false;
   private boolean photonOverride = true;
+  private boolean sideCamOverride = false;
 
   Field2d m_field2d = new Field2d();
 
@@ -229,6 +230,10 @@ public class SwerveSubsystem extends SubsystemBase {
       // SmartDashboard.putBoolean("Quest Seeded", questSeeded);
       // SmartDashboard.putBoolean("Quest Delay", delayBeforeQuestSeeding);
       // SmartDashboard.putBoolean("Photon Override", photonOverride);
+    }
+
+    if (sideCamOverride) {
+      vision.setCameraDriveMode();
     }
 
     // System.out.print(questNav.getConnected());
@@ -724,6 +729,10 @@ public class SwerveSubsystem extends SubsystemBase {
         headingY,
         getHeading().getRadians(),
         DrivebaseConstants.MAX_SPEED);
+  }
+
+  public void setCameraDriveMode() {
+    sideCamOverride = true;
   }
 
   /**
