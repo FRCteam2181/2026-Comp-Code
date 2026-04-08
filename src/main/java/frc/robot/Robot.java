@@ -52,6 +52,8 @@ public class Robot extends TimedRobot {
     if (isSimulation()) {
       DriverStation.silenceJoystickConnectionWarning(true);
     }
+
+    m_robotContainer.turnOnSideCams();
   }
 
   /**

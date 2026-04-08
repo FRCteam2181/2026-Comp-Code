@@ -233,7 +233,10 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     if (sideCamOverride) {
-      vision.setCameraDriveMode();
+      vision.setCameraDriveMode(true);
+    } else {
+      vision.setCameraDriveMode(false);
+      vision.setSideCamPipeline(1);
     }
 
     // System.out.print(questNav.getConnected());
@@ -733,6 +736,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
   public void setCameraDriveMode() {
     sideCamOverride = true;
+  }
+
+  public void turnOnSideCams() {
+    sideCamOverride = false;
   }
 
   /**

@@ -59,7 +59,7 @@ public class RobotContainer {
   // final CommandXboxController operatorControler = new CommandXboxController(1);
   final CompBoardOne compBoardOne;
 
-  final CommandXboxController debugXbox = new CommandXboxController(4);
+  // final CommandXboxController debugXbox = new CommandXboxController(4);
 
   // The robot's subsystems and commands are defined here...
   private final SwerveSubsystem drivebase =
@@ -104,8 +104,8 @@ public class RobotContainer {
   SwerveInputStream driveAngularVelocity =
       SwerveInputStream.of(
               drivebase.getSwerveDrive(),
-              () -> driverXbox.getLeftY() * -1.25,
-              () -> driverXbox.getLeftX() * -1.25)
+              () -> driverXbox.getLeftY() * -1,
+              () -> driverXbox.getLeftX() * -1)
           .withControllerRotationAxis(() -> driverXbox.getRightX() * -1)
           .deadband(OperatorConstants.DEADBAND)
           .scaleTranslation(0.8)
@@ -351,10 +351,9 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
-    // compBoardOn
-    //     .CompBoardOneButtonStart()
-    //     // driverXbox
-    //     //     .x()
+    compBoardOne.CompBoardOneButtonStart().whileTrue(turret.sysId());
+    // driverXbox
+    //     .x()
     //     .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem,
     // "Left"));
     // WARNING this button is temporarily porgrammed to run driveToPose for climbing and is
@@ -404,16 +403,16 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(6500));
+        .whileTrue(scoringSystem.setShooterRPMForwards(3500));
 
     // Debug stuff, only when xbox is in port 4
-    debugXbox
-        .a()
-        .onTrue(
-            new RunCommand(
-                () -> {
-                  climber.climberRelative.setPosition(140);
-                }));
+    // debugXbox
+    //     .a()
+    //     .onTrue(
+    //         new RunCommand(
+    //             () -> {
+    //               climber.climberRelative.setPosition(140);
+    //             }));
   }
 
   /**
@@ -428,5 +427,9 @@ public class RobotContainer {
 
   public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
+  }
+
+  public void turnOnSideCams() {
+    drivebase.turnOnSideCams();
   }
 }

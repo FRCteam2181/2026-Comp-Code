@@ -173,6 +173,11 @@ public class PhotonVision {
   //   Cameras.FRONT_RIGHT_CAM.changePipelineIndex(desiredPipelineIndex);
   // }
 
+  public void setSideCamPipeline(Integer desiredPipeLineIndex) {
+    Cameras.LEFT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
+    Cameras.RIGHT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
+  }
+
   // public boolean hasTargets() {
   //   if (getEstimatedGlobalPose(Cameras.FRONT_LEFT_CAM) == null
   //       && getEstimatedGlobalPose(Cameras.FRONT_RIGHT_CAM) == null) {
@@ -306,9 +311,9 @@ public class PhotonVision {
     field2d.getObject("tracked targets").setPoses(poses);
   }
 
-  public void setCameraDriveMode() {
-    Cameras.LEFT_SIDE_CAM.setCameraDriveMode();
-    Cameras.RIGHT_SIDE_CAM.setCameraDriveMode();
+  public void setCameraDriveMode(boolean Override) {
+    Cameras.LEFT_SIDE_CAM.setCameraDriveMode(Override);
+    Cameras.RIGHT_SIDE_CAM.setCameraDriveMode(Override);
   }
 
   /** Camera Enum to select each camera */
@@ -455,9 +460,8 @@ public class PhotonVision {
       camera.setPipelineIndex(pipeLineIndex);
     }
 
-    public void setCameraDriveMode() {
-      camera.setDriverMode(true);
-      ;
+    public void setCameraDriveMode(boolean setOverride) {
+      camera.setDriverMode(setOverride);
     }
 
     /**
