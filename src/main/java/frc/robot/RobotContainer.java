@@ -403,7 +403,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(3500));
+        .whileTrue(scoringSystem.setShooterRPMForwards(2250));
 
     // Debug stuff, only when xbox is in port 4
     // debugXbox
