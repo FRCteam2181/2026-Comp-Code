@@ -294,7 +294,9 @@ public class RobotContainer {
     // Buttonboard Buttons
 
     // 1. Reverse shooter
-    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5500));
+    //compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(5500));
+
+    compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMForwards(5500));
 
     // 2. Reverse intake
     compBoardOne
