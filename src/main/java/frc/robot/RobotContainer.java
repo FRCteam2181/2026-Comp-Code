@@ -290,11 +290,11 @@ public class RobotContainer {
 
     driverXbox.button(7).whileTrue(drivebase.driveToPose(() -> scoringSystem.getClimbPoseLeft()));
 
-    driverXbox
-        .b()
-        .onTrue(
-            Commands.runOnce(() -> drivebase.setQuestNavPose(drivebase.getPose3d()), drivebase)
-                .ignoringDisable(true));
+    // driverXbox
+    //     .b()
+    //     .onTrue(
+    //         Commands.runOnce(() -> drivebase.setQuestNavPose(drivebase.getPose3d()), drivebase)
+    //             .ignoringDisable(true));
 
     // driverXbox.button(9).onTrue(Commands.runOnce(() ->
     // {driveAngularVelocity.scaleTranslation(1);}));
@@ -403,7 +403,7 @@ public class RobotContainer {
     // 15. shooter shoot
     compBoardOne
         .CompBoardOneJoystickAsButtonNegY()
-        .whileTrue(scoringSystem.setShooterRPMForwards(2250));
+        .whileTrue(scoringSystem.setShooterRPMForwards(2750));
 
     // Debug stuff, only when xbox is in port 4
     // debugXbox

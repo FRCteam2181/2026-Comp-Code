@@ -173,10 +173,10 @@ public class PhotonVision {
   //   Cameras.FRONT_RIGHT_CAM.changePipelineIndex(desiredPipelineIndex);
   // }
 
-  public void setSideCamPipeline(Integer desiredPipeLineIndex) {
-    Cameras.LEFT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
-    Cameras.RIGHT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
-  }
+  // public void setSideCamPipeline(Integer desiredPipeLineIndex) {
+  //   Cameras.LEFT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
+  //   Cameras.RIGHT_SIDE_CAM.changePipelineIndex(desiredPipeLineIndex);
+  // }
 
   // public boolean hasTargets() {
   //   if (getEstimatedGlobalPose(Cameras.FRONT_LEFT_CAM) == null
@@ -311,10 +311,10 @@ public class PhotonVision {
     field2d.getObject("tracked targets").setPoses(poses);
   }
 
-  public void setCameraDriveMode(boolean Override) {
-    Cameras.LEFT_SIDE_CAM.setCameraDriveMode(Override);
-    Cameras.RIGHT_SIDE_CAM.setCameraDriveMode(Override);
-  }
+  // public void setCameraDriveMode(boolean Override) {
+  //   Cameras.LEFT_SIDE_CAM.setCameraDriveMode(Override);
+  //   Cameras.RIGHT_SIDE_CAM.setCameraDriveMode(Override);
+  // }
 
   /** Camera Enum to select each camera */
   enum Cameras {
@@ -335,27 +335,27 @@ public class PhotonVision {
         new Translation3d(
             Units.inchesToMeters(3.877), Units.inchesToMeters(7.7375), Units.inchesToMeters(19.5)),
         VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)),
-
-    RIGHT_SIDE_CAM(
-        "RIGHT_SIDE_CAM",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(0), -Math.toRadians(90)),
-        new Translation3d(
-            -Units.inchesToMeters(2.25),
-            -Units.inchesToMeters(12.625),
-            Units.inchesToMeters(29.000)),
-        VecBuilder.fill(4, 4, 8),
-        VecBuilder.fill(0.5, 0.5, 1)),
-
-    LEFT_SIDE_CAM(
-        "LEFT_SIDE_CAM",
-        new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(90)),
-        new Translation3d(
-            -Units.inchesToMeters(2.250),
-            Units.inchesToMeters(12.625),
-            Units.inchesToMeters(28.625)),
-        VecBuilder.fill(4, 4, 8),
         VecBuilder.fill(0.5, 0.5, 1));
+
+    // RIGHT_SIDE_CAM(
+    //     "RIGHT_SIDE_CAM",
+    //     new Rotation3d(Math.toRadians(0), Math.toRadians(0), -Math.toRadians(90)),
+    //     new Translation3d(
+    //         -Units.inchesToMeters(2.25),
+    //         -Units.inchesToMeters(12.625),
+    //         Units.inchesToMeters(29.000)),
+    //     VecBuilder.fill(4, 4, 8),
+    //     VecBuilder.fill(0.5, 0.5, 1)),
+
+    // LEFT_SIDE_CAM(
+    //     "LEFT_SIDE_CAM",
+    //     new Rotation3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(90)),
+    //     new Translation3d(
+    //         -Units.inchesToMeters(2.250),
+    //         Units.inchesToMeters(12.625),
+    //         Units.inchesToMeters(28.625)),
+    //     VecBuilder.fill(4, 4, 8),
+    //     VecBuilder.fill(0.5, 0.5, 1));
 
     /** Latency alert to use when high latency is detected. */
     public final Alert latencyAlert;

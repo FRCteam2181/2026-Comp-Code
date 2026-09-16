@@ -11,5 +11,5 @@ public class ShooterConstants {
 
   public static AngularVelocity kShooterVelocity = RPM.of(6000);
 
-  public static Double EncoderAOffset = 0.644850;
+  public static Double EncoderAOffset = 0.579116;
 }
