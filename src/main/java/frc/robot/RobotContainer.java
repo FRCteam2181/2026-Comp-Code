@@ -272,7 +272,7 @@ public class RobotContainer {
                 .until(climber.hitReverseLimit())
                 .andThen(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 1))))
         .onFalse(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 0)));
-    driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    // driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
 
     // driverXbox.leftTrigger().whileTrue(Commands.runOnce(() -> turret.rezeroTurretPosition()));
 
@@ -390,6 +390,13 @@ public class RobotContainer {
         .CompBoardOneJoystickAsButtonNegY()
         .whileTrue(scoringSystem.setShooterRPMForwards(6500));
 
+    compBoardOne
+        .CompBoardOneButtonStart()
+        .onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    compBoardOne
+        .CompBoardOneButtonL3()
+        .onTrue(Commands.runOnce(() -> drivebase.photonUnOverride(), drivebase));
+
     // Debug stuff, only when xbox is in port 4
     debugXbox
         .a()
@@ -398,8 +405,6 @@ public class RobotContainer {
                 () -> {
                   climber.climberRelative.setPosition(140);
                 }));
-                
-
   }
 
   /**

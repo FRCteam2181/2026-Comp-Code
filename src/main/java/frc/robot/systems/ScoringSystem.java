@@ -33,7 +33,8 @@ import frc.robot.utils.field.AllianceFlipUtil;
 import frc.robot.utils.field.FieldConstants;
 import frc.robot.utils.field.ZoneTrigger;
 import java.util.function.Supplier;
-import lombok.*;
+
+// import lombok.*;
 
 /**
  * Superstructure coordinates the shooter, turret, hood, and intake subsystems for unified control
