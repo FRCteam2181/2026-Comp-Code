@@ -358,7 +358,7 @@ public class RobotContainer {
     compBoardOne.CompBoardOneButtonSelect().whileTrue(scoringSystem.armUp(.60));
 
     // 10. hood up
-    compBoardOne.CompBoardOneButtonStart().whileTrue(turret.sysId());
+    // compBoardOne.CompBoardOneButtonStart().whileTrue(turret.sysId());
     // driverXbox
     //     .x()
     //     .toggleOnTrue(new ShootOnTheMoveCommandRevisedAdjusted(drivebase, scoringSystem,

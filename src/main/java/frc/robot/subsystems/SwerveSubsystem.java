@@ -82,7 +82,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private boolean startTimer = false;
   private boolean delayBeforeQuestSeeding = false;
   private boolean questSeeded = false;
-  private boolean photonOverride = true;
+  private boolean photonOverride = false;
   private boolean sideCamOverride = false;
 
   Field2d m_field2d = new Field2d();
@@ -194,7 +194,8 @@ public class SwerveSubsystem extends SubsystemBase {
       //   questSeeded = true;
       // }
 
-      if (!photonOverride) { // originally: if (delayBeforeQuestSeeding && questSeeded &&
+      if (!photonOverride
+          && questNav.isTracking()) { // originally: if (delayBeforeQuestSeeding && questSeeded &&
         // photonOverride) {
 
         // Get the latest pose data frames from the Quest
@@ -221,25 +222,26 @@ public class SwerveSubsystem extends SubsystemBase {
                 robotPose.toPose2d(), timestamp, QuestNavConstants.QUESTNAV_STD_DEVS);
           }
         }
-      }
 
-      // if (!delayBeforeQuestSeeding) {
+        // if (!delayBeforeQuestSeeding) {
 
-      // vision.updatePoseEstimation(swerveDrive);
-      // }
+        // vision.updatePoseEstimation(swerveDrive);
+        // }
 
-      if (photonOverride) {
+        swerveDrive.updateOdometry();
+        // SmartDashboard.putBoolean("Quest Seeded", questSeeded);
+        // SmartDashboard.putBoolean("Quest Delay", delayBeforeQuestSeeding);
+        SmartDashboard.putBoolean("Photon Override", photonOverride);
+      } else {
         vision.updatePoseEstimation(swerveDrive);
+
+        swerveDrive.updateOdometry();
+        SmartDashboard.putBoolean("Photon Override", photonOverride);
       }
 
-      swerveDrive.updateOdometry();
-      // SmartDashboard.putBoolean("Quest Seeded", questSeeded);
-      // SmartDashboard.putBoolean("Quest Delay", delayBeforeQuestSeeding);
-      SmartDashboard.putBoolean("Photon Override", photonOverride);
+      // System.out.print(questNav.getConnected());
+      SwerveState.setCurrentPose(swerveDrive.getPose());
     }
-
-    // System.out.print(questNav.getConnected());
-    SwerveState.setCurrentPose(swerveDrive.getPose());
   }
 
   public void photonOverride() {
