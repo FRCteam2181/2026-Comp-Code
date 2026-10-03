@@ -303,6 +303,13 @@ public class RobotContainer {
 
     // Buttonboard Buttons
 
+    compBoardOne
+        .CompBoardOneButtonStart()
+        .onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    compBoardOne
+        .CompBoardOneButtonL3()
+        .onTrue(Commands.runOnce(() -> drivebase.photonUnOverride(), drivebase));
+
     // 1. Reverse shooter
     compBoardOne.CompBoardOneButtonA().whileTrue(scoringSystem.setShooterRPMReverse(3500));
 
