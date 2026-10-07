@@ -4,15 +4,12 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -22,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Telemetry;
-import frc.robot.constants.ArmConstants;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
 import yams.mechanisms.config.ArmConfig;
@@ -38,7 +34,7 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private SparkMax armLeader = new SparkMax(14, MotorType.kBrushless);
   private SparkMax armFollower = new SparkMax(13, MotorType.kBrushless);
 
-  private final AbsoluteEncoder armEncoder = armLeader.getAbsoluteEncoder();
+  // private final AbsoluteEncoder armEncoder = armLeader.getAbsoluteEncoder();
 
   private Timer startUpTimer = new Timer();
   private boolean startTimer = false;
@@ -71,10 +67,10 @@ public class IntakeArmSubsystem extends SubsystemBase {
           .withClosedLoopRampRate(Seconds.of(0.25))
           .withOpenLoopRampRate(Seconds.of(0.25))
           .withFollowers(Pair.of(armFollower, true))
-          .withResetPreviousConfig(false)
-          .withExternalEncoder(armEncoder)
-          .withUseExternalFeedbackEncoder(true)
-          .withExternalEncoderInverted(true);
+          .withResetPreviousConfig(true);
+  // .withExternalEncoder(armEncoder)
+  // .withUseExternalFeedbackEncoder(true);
+  // .withExternalEncoderInverted(true);
 
   // .withFollowers(Pair.of(sparkFollower, true));
 
@@ -84,9 +80,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
   private ArmConfig armCfg =
       new ArmConfig(sparkSmartMotorController)
           // Soft limit is applied to the SmartMotorControllers PID
-          .withSoftLimits(Rotations.of(-0.05), Rotations.of(0.45))
+          .withSoftLimits(Degrees.of(-5000), Degrees.of(5000))
           // Hard limit is applied to the simulation.
-          .withHardLimit(Degrees.of(-5), Degrees.of(130))
+          .withHardLimit(Degrees.of(-1000), Degrees.of(1300))
           // Starting position is where your arm starts
           .withStartingPosition(Degrees.of(0))
           // Length and mass of your arm for sim.
@@ -180,9 +176,9 @@ public class IntakeArmSubsystem extends SubsystemBase {
 
     arm.updateTelemetry();
 
-    SmartDashboard.putNumber("Arm Encoder Raw", armEncoder.getPosition());
+    // SmartDashboard.putNumber("Arm Encoder Raw", armEncoder.getPosition());
     SmartDashboard.putNumber("Arm Position", arm.getAngle().baseUnitMagnitude());
-    SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
+    // SmartDashboard.putNumber("Arm Encoder Adjusted", (getAbsoluteEncoderWithOffset()));
   }
 
   @Override
@@ -191,12 +187,13 @@ public class IntakeArmSubsystem extends SubsystemBase {
     arm.simIterate();
   }
 
-  public void seedArmPosition() {
+  // public void seedArmPosition() {
 
-    sparkSmartMotorController.setEncoderPosition(Rotations.of(getAbsoluteEncoderWithOffset() * 45));
-  }
+  //   sparkSmartMotorController.setEncoderPosition(Rotations.of(getAbsoluteEncoderWithOffset() *
+  // 45));
+  // }
 
-  private Double getAbsoluteEncoderWithOffset() {
-    return MathUtil.inputModulus(armEncoder.getPosition() - ArmConstants.EncoderOffset, 0, 1);
-  }
+  // private Double getAbsoluteEncoderWithOffset() {
+  //   return MathUtil.inputModulus(armEncoder.getPosition() - ArmConstants.EncoderOffset, 0, 1);
+  // }
 }
