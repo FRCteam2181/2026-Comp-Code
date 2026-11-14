@@ -233,7 +233,7 @@ public class RobotContainer {
         drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
 
     if (RobotBase.isSimulation()) {
-      drivebase.setDefaultCommand(driveFieldOrientedDirectAngleKeyboard);
+      drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     } else {
       drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     }
@@ -263,7 +263,8 @@ public class RobotContainer {
     }
 
     driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-    driverXbox.y().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    driverXbox.y().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    driverXbox.b().onTrue(Commands.runOnce(() -> drivebase.photonUnOverride(), drivebase));
 
     driverXbox
         .rightBumper()
@@ -282,7 +283,7 @@ public class RobotContainer {
                 .until(climber.hitReverseLimit())
                 .andThen(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 1))))
         .onFalse(new RunCommand(() -> driverXbox.setRumble(RumbleType.kBothRumble, 0)));
-    driverXbox.x().onTrue(Commands.runOnce(() -> drivebase.photonOverride(), drivebase));
+    driverXbox.x().whileTrue(drivebase.driveToPose(() -> new Pose2d(2,2,new Rotation2d())));
 
     // driverXbox.leftTrigger().whileTrue(Commands.runOnce(() -> turret.rezeroTurretPosition()));
 
